@@ -75,6 +75,7 @@ static CAAnimation* TUICursorThrobAnimation() {
 - (id)initWithFrame:(CGRect)frame {
 	if((self = [super initWithFrame:frame])) {
 		self.needsDisplayWhenWindowsKeyednessChanges = YES;
+		self.userInteractionEnabled = YES;
 		self.backgroundColor = [NSColor clearColor];
 		self.alwaysBounceVertical = YES;
 		self.clipsToBounds = YES;
@@ -112,16 +113,18 @@ static CAAnimation* TUICursorThrobAnimation() {
 // view is moved to a window or removed from a window.
 - (void)willMoveToWindow:(TUINSWindow *)newWindow {
 	[super willMoveToWindow:newWindow];
+	
 	if([newWindow isKeyWindow])
 		[self addSubview:self.cursor];
 	else
 		[self.cursor removeFromSuperview];
+	
+	[self setNeedsDisplay];
 }
 
 // Only keep the cursor displayed if the window is key.
 - (void)windowDidBecomeKey {
 	[self addSubview:self.cursor];
-	self.editor.text = [@"" stringByPaddingToLength:5000 withString:@"Lorem Ipsum " startingAtIndex:0];
 	[super windowDidBecomeKey];
 }
 
