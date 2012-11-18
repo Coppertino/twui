@@ -72,6 +72,7 @@
 }
 
 - (TUITableViewCell *)tableView:(TUITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+	[self doesNotRecognizeSelector:_cmd];
 	return nil;
 }
 

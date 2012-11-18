@@ -106,6 +106,9 @@
 	
 	if(event.type == NSRightMouseUp){
 		// show context menu
+		ExampleCollectionViewLineLayout *l = [ExampleCollectionViewLineLayout new];
+		ExampleCollectionViewController *vc = [[ExampleCollectionViewController alloc] initWithCollectionViewLayout:l];
+		[self.navigationController pushViewController:vc animated:YES];
 	}
 }
 - (BOOL)tableView:(TUITableView *)tableView shouldSelectRowAtIndexPath:(NSIndexPath *)indexPath forEvent:(NSEvent *)event{

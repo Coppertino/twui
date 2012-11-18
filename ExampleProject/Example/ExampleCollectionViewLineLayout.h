@@ -14,17 +14,8 @@
  limitations under the License.
  */
 
-#import "TUICollectionView.h"
-#import "TUIViewController.h"
+#import "TUIKit.h"
 
-@class TUICollectionViewLayout;
-
-@interface TUICollectionViewController : TUIViewController <TUICollectionViewDelegate, TUICollectionViewDataSource>
-
-- (id)initWithCollectionViewLayout:(TUICollectionViewLayout *)layout;
-
-@property (nonatomic, strong) TUICollectionView *view;
-
-@property (nonatomic, assign) BOOL clearsSelectionOnViewWillAppear; // defaults to YES, and if YES, any selection is cleared in viewWillAppear:
+@interface ExampleCollectionViewLineLayout : TUICollectionViewFlowLayout
 
 @end

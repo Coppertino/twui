@@ -19,95 +19,81 @@
 #import "TUICollectionViewController.h"
 
 @interface TUICollectionViewController () {
-    TUICollectionViewLayout *_layout;
-    TUICollectionView *_collectionView;
     struct {
-        unsigned int clearsSelectionOnViewWillAppear : 1;
-        unsigned int appearsFirstTime : 1; // TUI exension!
+        unsigned clearsSelectionOnViewWillAppear:1;
+        unsigned appearsFirstTime:1;
     } _collectionViewControllerFlags;
 }
-@property (nonatomic, strong) TUICollectionViewLayout* layout;
+
+@property (nonatomic, strong) TUICollectionViewLayout *layout;
+
 @end
 
 @implementation TUICollectionViewController
 
-///////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark - NSObject
+#pragma mark - Initializaiton
 
 - (id)initWithCoder:(NSCoder *)coder {
-    self = [super initWithCoder:coder];
-    if (self) {
+    if((self = [super initWithCoder:coder])) {
 		self.layout = [TUICollectionViewFlowLayout new];
+		
         self.clearsSelectionOnViewWillAppear = YES;
         _collectionViewControllerFlags.appearsFirstTime = YES;
     }
+	
     return self;
 }
 
 - (id)initWithCollectionViewLayout:(TUICollectionViewLayout *)layout {
     if((self = [super init])) {
         self.layout = layout;
+		
         self.clearsSelectionOnViewWillAppear = YES;
         _collectionViewControllerFlags.appearsFirstTime = YES;
     }
+	
     return self;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark - UIViewController
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p | TUICollectionView = %@>", self.class, self, self.view];
+}
+
+#pragma mark - View Loading
 
 - (void)loadView {
-    [super loadView];
-
-    // if this is restored from IB, we don't have plain main view.
-    if ([self.view isKindOfClass:[TUICollectionView class]]) {
-        _collectionView = (TUICollectionView *)self.view;
-    }
+	self.view = [[TUICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:self.layout];
+	self.view.autoresizingMask = TUIViewAutoresizingFlexibleSize;
 	
-	if (_collectionView.delegate == nil) _collectionView.delegate = self;
-    if (_collectionView.dataSource == nil) _collectionView.dataSource = self;
-
-    // only create the collection view if it is not already created (by IB)
-    if (!_collectionView) {
-        self.collectionView = [[TUICollectionView alloc] initWithFrame:self.view.bounds collectionViewLayout:self.layout];
-        self.collectionView.autoresizingMask = TUIViewAutoresizingFlexibleSize;
-        [self.view addSubview:self.collectionView];
-        self.collectionView.delegate = self;
-        self.collectionView.dataSource = self;
-    }
-    // on low memory event, just re-attach the view.
-    else if (self.view != self.collectionView) {
-        [self.view addSubview:self.collectionView];
-    }
+	self.view.delegate = self;
+	self.view.dataSource = self;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-
-    if (_collectionViewControllerFlags.appearsFirstTime) {
-        [_collectionView reloadData];
+	
+    if(_collectionViewControllerFlags.appearsFirstTime) {
+        [self.view reloadData];
         _collectionViewControllerFlags.appearsFirstTime = NO;
     }
     
-    if (_collectionViewControllerFlags.clearsSelectionOnViewWillAppear) {
-        for (NSIndexPath* aIndexPath in [[_collectionView indexPathsForSelectedItems] copy]) {
-            [_collectionView deselectItemAtIndexPath:aIndexPath animated:animated];
+    if(_collectionViewControllerFlags.clearsSelectionOnViewWillAppear) {
+        for(NSIndexPath *indexPath in [self.view.indexPathsForSelectedItems copy]) {
+            [self.view deselectItemAtIndexPath:indexPath animated:animated];
         }
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Properties
 
-- (void)setClearsSelectionOnViewWillAppear:(BOOL)clearsSelectionOnViewWillAppear {
-    _collectionViewControllerFlags.clearsSelectionOnViewWillAppear = clearsSelectionOnViewWillAppear;
+- (void)setClearsSelectionOnViewWillAppear:(BOOL)flag {
+    _collectionViewControllerFlags.clearsSelectionOnViewWillAppear = flag;
 }
 
 - (BOOL)clearsSelectionOnViewWillAppear {
     return _collectionViewControllerFlags.clearsSelectionOnViewWillAppear;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - TUICollectionViewDataSource
 
 - (NSInteger)collectionView:(TUICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
@@ -118,5 +104,7 @@
     [self doesNotRecognizeSelector:_cmd];
     return nil;
 }
+
+#pragma mark -
 
 @end

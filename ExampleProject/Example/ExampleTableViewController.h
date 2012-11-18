@@ -7,6 +7,7 @@
 //
 
 #import "TUIKit.h"
+#import "ExampleCollectionViewController.h"
 
 @interface ExampleTableViewController : TUIViewController <TUITableViewDelegate, TUITableViewDataSource>
 
