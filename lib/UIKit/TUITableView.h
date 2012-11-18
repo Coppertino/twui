@@ -15,6 +15,7 @@
  */
 
 #import "TUIScrollView.h"
+#import "NSIndexPath+TUIExtensions.h"
 
 typedef enum {
 	TUITableViewStylePlain,              // regular table view
@@ -196,15 +197,6 @@ typedef enum {
  Default is 1 if not implemented
  */
 - (NSInteger)numberOfSectionsInTableView:(TUITableView *)tableView;
-
-@end
-
-@interface NSIndexPath (TUITableView)
-
-+ (NSIndexPath *)indexPathForRow:(NSUInteger)row inSection:(NSUInteger)section;
-
-@property(nonatomic,readonly) NSUInteger section;
-@property(nonatomic,readonly) NSUInteger row;
 
 @end
 

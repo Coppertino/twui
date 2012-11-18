@@ -1244,24 +1244,3 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 }
 
 @end
-
-
-@implementation NSIndexPath (TUITableView)
-
-+ (NSIndexPath *)indexPathForRow:(NSUInteger)row inSection:(NSUInteger)section
-{
-	NSUInteger i[] = {section, row};
-	return [NSIndexPath indexPathWithIndexes:i length:2];
-}
-
-- (NSUInteger)section
-{
-	return [self indexAtPosition:0];
-}
-
-- (NSUInteger)row
-{
-	return [self indexAtPosition:1];
-}
-
-@end
