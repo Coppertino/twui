@@ -14,8 +14,9 @@
  limitations under the License.
  */
 
-#import "TUICollectionViewController.h"
 #import "TUICollectionView.h"
+#import "TUICollectionViewFlowLayout.h"
+#import "TUICollectionViewController.h"
 
 @interface TUICollectionViewController () {
     TUICollectionViewLayout *_layout;

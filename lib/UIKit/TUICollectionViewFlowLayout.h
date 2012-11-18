@@ -14,16 +14,16 @@
  limitations under the License.
  */
 
-#import "TUICollectionViewLayout.h"
+#import "TUICollectionView.h"
 #import "TUIGeometry.h"
 
 extern NSString *const TUICollectionElementKindSectionHeader;
 extern NSString *const TUICollectionElementKindSectionFooter;
 
-typedef NS_ENUM(NSInteger, TUICollectionViewScrollDirection) {
+typedef enum {
     TUICollectionViewScrollDirectionVertical,
     TUICollectionViewScrollDirectionHorizontal
-};
+} TUICollectionViewScrollDirection;
 
 @protocol TUICollectionViewDelegateFlowLayout <TUICollectionViewDelegate>
 @optional
@@ -69,12 +69,12 @@ extern NSString *const TUIFlowLayoutCommonRowHorizontalAlignmentKey;
 extern NSString *const TUIFlowLayoutLastRowHorizontalAlignmentKey;
 extern NSString *const TUIFlowLayoutRowVerticalAlignmentKey;
 
-typedef NS_ENUM(NSInteger, TUIFlowLayoutHorizontalAlignment) {
+typedef enum {
     TUIFlowLayoutHorizontalAlignmentLeft,
     TUIFlowLayoutHorizontalAlignmentCentered,
     TUIFlowLayoutHorizontalAlignmentRight,
     TUIFlowLayoutHorizontalAlignmentJustify // 3; default except for the last row
-};
+} TUIFlowLayoutHorizontalAlignment;
 // TODO: settings for UIFlowLayoutRowVerticalAlignmentKey
 
 

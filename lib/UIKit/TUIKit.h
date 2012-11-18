@@ -21,6 +21,7 @@
 #import "NSClipView+TUIExtensions.h"
 #import "NSColor+TUIExtensions.h"
 #import "NSImage+TUIExtensions.h"
+#import "NSIndexPath+TUIExtensions.h"
 #import "NSScrollView+TUIExtensions.h"
 #import "NSView+TUIExtensions.h"
 #import "TUIActivityIndicatorView.h"
@@ -29,6 +30,14 @@
 #import "TUIBridgedView.h"
 #import "TUIButton.h"
 #import "TUICGAdditions.h"
+
+#import "TUICollectionView.h"
+#import "TUICollectionViewCell.h"
+#import "TUICollectionViewUpdateItem.h"
+#import "TUICollectionViewLayout.h"
+#import "TUICollectionViewFlowLayout.h"
+#import "TUICollectionViewController.h"
+
 #import "TUIHostView.h"
 #import "TUIImageView.h"
 #import "TUILabel.h"

@@ -14,7 +14,6 @@
  limitations under the License.
  */
 
-#import "TUICollectionViewCommon.h"
 #import "TUICollectionViewLayout.h"
 
 extern NSString *const TUICollectionElementKindCell;

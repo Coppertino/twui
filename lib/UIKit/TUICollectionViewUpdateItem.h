@@ -16,13 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, TUICollectionUpdateAction) {
+typedef enum {
     TUICollectionUpdateActionInsert,
     TUICollectionUpdateActionDelete,
     TUICollectionUpdateActionReload,
     TUICollectionUpdateActionMove,
     TUICollectionUpdateActionNone
-};
+} TUICollectionUpdateAction;
 
 @interface TUICollectionViewUpdateItem : NSObject
 

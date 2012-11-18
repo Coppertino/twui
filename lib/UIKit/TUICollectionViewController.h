@@ -14,10 +14,10 @@
  limitations under the License.
  */
 
-#import "TUICollectionViewCommon.h"
+#import "TUICollectionView.h"
 #import "TUIViewController.h"
 
-@class TUICollectionViewLayout, TUICollectionViewController;
+@class TUICollectionViewLayout;
 
 @interface TUICollectionViewController : TUIViewController <TUICollectionViewDelegate, TUICollectionViewDataSource>
 

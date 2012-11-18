@@ -14,15 +14,13 @@
  limitations under the License.
  */
 
-#import "TUICollectionViewCommon.h"
-#import <CoreGraphics/CoreGraphics.h>
-#import <QuartzCore/QuartzCore.h>
+#import "TUICollectionView.h"
 
-typedef NS_ENUM(NSUInteger, TUICollectionViewItemType) {
+typedef enum {
     TUICollectionViewItemTypeCell,
     TUICollectionViewItemTypeSupplementaryView,
     TUICollectionViewItemTypeDecorationView
-};
+} TUICollectionViewItemType;
 
 // The TUICollectionViewLayout class is provided as an abstract class for subclassing to define custom collection layouts.
 // Defining a custom layout is an advanced operation intended for applications with complex needs.

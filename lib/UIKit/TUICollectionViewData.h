@@ -14,11 +14,8 @@
  limitations under the License.
  */
 
-#import "TUICollectionViewCommon.h"
-
 @class TUICollectionView, TUICollectionViewLayout, TUICollectionViewLayoutAttributes;
 
-// https://github.com/steipete/iOS6-Runtime-Headers/blob/master/UICollectionViewData.h
 @interface TUICollectionViewData : NSObject
 
 /// Designated initializer.
@@ -34,7 +31,6 @@
  - (CGRect)rectForGlobalItemIndex:(int)arg1;
 */
 
-// No fucking idea (yet)
 - (NSInteger)globalIndexForItemAtIndexPath:(NSIndexPath *)indexPath;
 - (NSIndexPath *)indexPathForItemAtGlobalIndex:(NSInteger)index;
 

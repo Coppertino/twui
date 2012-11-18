@@ -18,7 +18,7 @@
 #import "TUICollectionViewCell.h"
 #import "TUICollectionViewLayout.h"
 
-@interface TUICollectionReusableView() {
+@interface TUICollectionReusableView () {
     TUICollectionViewLayoutAttributes *_layoutAttributes;
     NSString *_reuseIdentifier;
     __unsafe_unretained TUICollectionView *_collectionView;
@@ -32,25 +32,6 @@
 @end
 
 @implementation TUICollectionReusableView
-
-///////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark - NSObject
-
-- (id)initWithFrame:(CGRect)frame {
-    if ((self = [super initWithFrame:frame])) {
-    }
-    return self;
-}
-
-- (id)initWithCoder:(NSCoder *)aDecoder {
-    if((self = [super initWithCoder:aDecoder])) {
-    }
-    return self;
-}
-
-- (void)awakeFromNib {
-    self.reuseIdentifier = [self valueForKeyPath:@"reuseIdentifier"];
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public

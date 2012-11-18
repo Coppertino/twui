@@ -27,6 +27,14 @@
 -(CGRect) visibleBounds;
 @end
 
+@interface TUICollectionReusableView ()
+
+@property (nonatomic, copy) NSString *reuseIdentifier;
+@property (nonatomic, unsafe_unretained) TUICollectionView *collectionView;
+@property (nonatomic, strong) TUICollectionViewLayoutAttributes *layoutAttributes;
+
+@end
+
 @interface TUICollectionReusableView()
 -(void) setIndexPath:(NSIndexPath*)indexPath;
 @end
@@ -238,10 +246,6 @@ NSString *const TUICollectionViewLayoutAwokeFromNib = @"TUICollectionViewLayoutA
         [[NSNotificationCenter defaultCenter] postNotificationName:TUICollectionViewLayoutAwokeFromNib object:self];
     }
     return self;
-}
-
-- (void)awakeFromNib {
-    [super awakeFromNib];
 }
 
 - (void)setCollectionView:(TUICollectionView *)collectionView {

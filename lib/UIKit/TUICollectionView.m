@@ -25,18 +25,28 @@
 
 #import <objc/runtime.h>
 
-@interface TUICollectionViewLayout (Internal)
+@interface TUICollectionViewLayout ()
 @property (nonatomic, unsafe_unretained) TUICollectionView *collectionView;
 @end
 
-@interface TUICollectionViewData (Internal)
+@interface TUICollectionViewData ()
 - (void)prepareToLoadData;
 @end
 
 
-@interface TUICollectionViewUpdateItem()
+@interface TUICollectionViewUpdateItem ()
+
 - (NSIndexPath *)indexPath;
 - (BOOL)isSectionOperation;
+
+@end
+
+@interface TUICollectionReusableView ()
+
+@property (nonatomic, copy) NSString *reuseIdentifier;
+@property (nonatomic, unsafe_unretained) TUICollectionView *collectionView;
+@property (nonatomic, strong) TUICollectionViewLayoutAttributes *layoutAttributes;
+
 @end
 
 @class TUICollectionViewExt;
@@ -72,7 +82,6 @@
     NSMutableArray *_moveItems;
     NSArray *_originalInsertItems;
     NSArray *_originalDeleteItems;
-    //UITouch *_currentTouch;
     void (^_updateCompletionHandler)(BOOL finished);
     NSMutableDictionary *_cellClassDict;
     NSMutableDictionary *_cellNibDict;
@@ -193,23 +202,6 @@ static void TUICollectionViewCommonSetup(TUICollectionView *_self) {
 		self.extVars.supplementaryViewsExternalObjects = supplementaryViewExternalObjects;
     }
     return self;
-}
-
-- (void)awakeFromNib {
-    [super awakeFromNib];
-
-    // check if NIB deserialization found a layout.
-    id nibObserverToken = self.extVars.nibObserverToken;
-    if (nibObserverToken) {
-        [[NSNotificationCenter defaultCenter] removeObserver:nibObserverToken];
-        self.extVars.nibObserverToken = nil;
-    }
-
-    TUICollectionViewLayout *nibLayout = self.extVars.nibLayout;
-    if (nibLayout) {
-        self.collectionViewLayout = nibLayout;
-        self.extVars.nibLayout = nil;
-    }
 }
 
 - (NSString *)description {
@@ -489,35 +481,35 @@ static void TUICollectionViewCommonSetup(TUICollectionView *_self) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Touch Handling
 
-/*- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    [super touchesBegan:touches withEvent:event];
-
-    CGPoint touchPoint = [[touches anyObject] locationInView:self];
+- (void)mouseDown:(NSEvent *)theEvent {
+	[super mouseDown:theEvent];
+	
+    CGPoint touchPoint = [self convertPoint:theEvent.locationInWindow fromView:nil];
     NSIndexPath *indexPath = [self indexPathForItemAtPoint:touchPoint];
     if (indexPath) {
-
+		
         if (!self.allowsMultipleSelection) {
             // temporally unhighlight background on touchesBegan (keeps selected by _indexPathsForSelectedItems)
             for (TUICollectionViewCell* visibleCell in self.visibleCells) {
                 visibleCell.highlighted = NO;
                 visibleCell.selected = NO;
-
+				
                 // NOTE: doesn't work due to the _indexPathsForHighlightedItems validation
                 //[self unhighlightItemAtIndexPath:indexPathForVisibleItem animated:YES notifyDelegate:YES];
             }
         }
-
+		
         [self highlightItemAtIndexPath:indexPath animated:YES scrollPosition:TUICollectionViewScrollPositionNone notifyDelegate:YES];
-
+		
         self.extVars.touchingIndexPath = indexPath;
     }
 }
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    [super touchesMoved:touches withEvent:event];
-
+- (void)mouseDragged:(NSEvent *)theEvent {
+	[super mouseDragged:theEvent];
+	
     if (self.extVars.touchingIndexPath) {
-        CGPoint touchPoint = [[touches anyObject] locationInView:self];
+        CGPoint touchPoint = [self convertPoint:theEvent.locationInWindow fromView:nil];
         NSIndexPath *indexPath = [self indexPathForItemAtPoint:touchPoint];
         if ([indexPath isEqual:self.extVars.touchingIndexPath]) {
             [self highlightItemAtIndexPath:indexPath animated:YES scrollPosition:TUICollectionViewScrollPositionNone notifyDelegate:YES];
@@ -528,40 +520,30 @@ static void TUICollectionViewCommonSetup(TUICollectionView *_self) {
     }
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    [super touchesEnded:touches withEvent:event];
-
-    CGPoint touchPoint = [[touches anyObject] locationInView:self];
+- (void)mouseUp:(NSEvent *)theEvent {
+	[super mouseUp:theEvent];
+	
+    CGPoint touchPoint = [self convertPoint:theEvent.locationInWindow fromView:nil];
     NSIndexPath *indexPath = [self indexPathForItemAtPoint:touchPoint];
     if ([indexPath isEqual:self.extVars.touchingIndexPath]) {
         [self userSelectedItemAtIndexPath:indexPath];
-
+		
         [self unhighlightAllItems];
         self.extVars.touchingIndexPath = nil;
     }
     else {
-        [self cellTouchCancelled];
+        // TODO: improve behavior on mouseUp
+		if (!self.allowsMultipleSelection) {
+			// highlight selected-background again
+			for (TUICollectionViewCell* visibleCell in self.visibleCells) {
+				NSIndexPath* indexPathForVisibleItem = [self indexPathForCell:visibleCell];
+				visibleCell.selected = [_indexPathsForSelectedItems containsObject:indexPathForVisibleItem];
+			}
+		}
+		
+		[self unhighlightAllItems];
+		self.extVars.touchingIndexPath = nil;
     }
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    [super touchesCancelled:touches withEvent:event];
-
-    [self cellTouchCancelled];
- }//*/
-
-- (void)cellTouchCancelled {
-    // TODO: improve behavior on touchesCancelled
-    if (!self.allowsMultipleSelection) {
-        // highlight selected-background again
-        for (TUICollectionViewCell* visibleCell in self.visibleCells) {
-            NSIndexPath* indexPathForVisibleItem = [self indexPathForCell:visibleCell];
-            visibleCell.selected = [_indexPathsForSelectedItems containsObject:indexPathForVisibleItem];
-        }
-    }
-
-    [self unhighlightAllItems];
-    self.extVars.touchingIndexPath = nil;
 }
 
 - (void)userSelectedItemAtIndexPath:(NSIndexPath *)indexPath {

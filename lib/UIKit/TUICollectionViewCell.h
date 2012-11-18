@@ -14,8 +14,6 @@
  limitations under the License.
  */
 
-#import "TUICollectionViewCommon.h"
-
 @class TUICollectionViewLayout, TUICollectionView, TUICollectionViewLayoutAttributes;
 
 @interface TUICollectionReusableView : TUIView
@@ -32,13 +30,6 @@
 - (void)didTransitionFromLayout:(TUICollectionViewLayout *)oldLayout toLayout:(TUICollectionViewLayout *)newLayout;
 
 @end
-
-@interface TUICollectionReusableView (Internal)
-@property (nonatomic, unsafe_unretained) TUICollectionView *collectionView;
-@property (nonatomic, copy) NSString *reuseIdentifier;
-@property (nonatomic, strong, readonly) TUICollectionViewLayoutAttributes *layoutAttributes;
-@end
-
 
 @interface TUICollectionViewCell : TUICollectionReusableView
 
