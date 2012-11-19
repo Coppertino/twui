@@ -19,59 +19,39 @@
 #import "TUIGridLayoutInfo.h"
 #import <objc/runtime.h>
 
+static char *kTUICachedItemRectsKey = "___item_key_";
+
 NSString *const TUICollectionElementKindSectionHeader = @"UICollectionElementKindSectionHeader";
 NSString *const TUICollectionElementKindSectionFooter = @"UICollectionElementKindSectionFooter";
 
-// this is not exposed in UICollectionViewFlowLayout
 NSString *const TUIFlowLayoutCommonRowHorizontalAlignmentKey = @"UIFlowLayoutCommonRowHorizontalAlignmentKey";
 NSString *const TUIFlowLayoutLastRowHorizontalAlignmentKey = @"UIFlowLayoutLastRowHorizontalAlignmentKey";
 NSString *const TUIFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVerticalAlignmentKey";
 
 @implementation TUICollectionViewFlowLayout {
-    // class needs to have same iVar layout as UICollectionViewLayout
-    struct {
-        unsigned int delegateSizeForItem : 1;
-        unsigned int delegateReferenceSizeForHeader : 1;
-        unsigned int delegateReferenceSizeForFooter : 1;
-        unsigned int delegateInsetForSection : 1;
-        unsigned int delegateInteritemSpacingForSection : 1;
-        unsigned int delegateLineSpacingForSection : 1;
-        unsigned int delegateAlignmentOptions : 1;
-        unsigned int keepDelegateInfoWhileInvalidating : 1;
-        unsigned int keepAllDataWhileInvalidating : 1;
-        unsigned int layoutDataIsValid : 1;
-        unsigned int delegateInfoIsValid : 1;
-    } _gridLayoutFlags;
-    CGFloat _interitemSpacing;
-    CGFloat _lineSpacing;
-    CGSize _itemSize;
-    CGSize _headerReferenceSize;
-    CGSize _footerReferenceSize;
-    TUIEdgeInsets _sectionInset;
     TUIGridLayoutInfo *_data;
-    CGSize _currentLayoutSize;
-    NSMutableDictionary *_insertedItemsAttributesDict;
-    NSMutableDictionary *_insertedSectionHeadersAttributesDict;
-    NSMutableDictionary *_insertedSectionFootersAttributesDict;
-    NSMutableDictionary *_deletedItemsAttributesDict;
-    NSMutableDictionary *_deletedSectionHeadersAttributesDict;
-    NSMutableDictionary *_deletedSectionFootersAttributesDict;
-    TUICollectionViewScrollDirection _scrollDirection;
-    NSDictionary *_rowAlignmentsOptionsDictionary;
-    CGRect _visibleBounds;
+	
+    struct {
+        unsigned delegateSizeForItem:1;
+        unsigned delegateReferenceSizeForHeader:1;
+        unsigned delegateReferenceSizeForFooter:1;
+        unsigned delegateInsetForSection:1;
+        unsigned delegateInteritemSpacingForSection:1;
+        unsigned delegateLineSpacingForSection:1;
+        unsigned delegateAlignmentOptions:1;
+        unsigned keepDelegateInfoWhileInvalidating:1;
+        unsigned keepAllDataWhileInvalidating:1;
+        unsigned layoutDataIsValid:1;
+        unsigned delegateInfoIsValid:1;
+    } _gridLayoutFlags;
 }
 
-@synthesize rowAlignmentOptions = _rowAlignmentsOptionsDictionary;
-@synthesize minimumLineSpacing = _lineSpacing;
-@synthesize minimumInteritemSpacing = _interitemSpacing;
-
-///////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark - NSObject
+#pragma mark - Initialization
 
 - (void)commonInit {
     _itemSize = CGSizeMake(50.f, 50.f);
-    _lineSpacing = 10.f;
-    _interitemSpacing = 10.f;
+    _minimumLineSpacing = 10.f;
+    _minimumInteritemSpacing = 10.f;
     _sectionInset = TUIEdgeInsetsZero;
     _scrollDirection = TUICollectionViewScrollDirectionVertical;
     _headerReferenceSize = CGSizeZero;
@@ -83,7 +63,7 @@ NSString *const TUIFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVertical
         [self commonInit];
 
         // set default values for row alignment.
-        _rowAlignmentsOptionsDictionary = @{
+        _rowAlignmentOptions = @{
         TUIFlowLayoutCommonRowHorizontalAlignmentKey : @(TUIFlowLayoutHorizontalAlignmentJustify),
         TUIFlowLayoutLastRowHorizontalAlignmentKey : @(TUIFlowLayoutHorizontalAlignmentJustify),
         // TODO: those values are some enum. find out what what is.
@@ -91,7 +71,7 @@ NSString *const TUIFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVertical
         };
 
         // custom ivars
-        objc_setAssociatedObject(self, &kTUICachedItemRectsKey, [NSMutableDictionary dictionary], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, kTUICachedItemRectsKey, [NSMutableDictionary dictionary], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return self;
 }
@@ -119,58 +99,62 @@ NSString *const TUIFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVertical
     return self;
 }//*/
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - TUICollectionViewLayout
 
-static char kTUICachedItemRectsKey;
-
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
-    // Apple calls _layoutAttributesForItemsInRect
-
     NSMutableArray *layoutAttributesArray = [NSMutableArray array];
-    for (TUIGridLayoutSection *section in _data.sections) {
-        if (CGRectIntersectsRect(section.frame, rect)) {
-
+	
+    for(TUIGridLayoutSection *section in _data.sections) {
+        if(CGRectIntersectsRect(section.frame, rect)) {
+			
             // if we have fixed size, calculate item frames only once.
             // this also uses the default TUIFlowLayoutCommonRowHorizontalAlignmentKey alignment
             // for the last row. (we want this effect!)
-            NSMutableDictionary *rectCache = objc_getAssociatedObject(self, &kTUICachedItemRectsKey);
+            NSMutableDictionary *rectCache = objc_getAssociatedObject(self, kTUICachedItemRectsKey);
             NSUInteger sectionIndex = [_data.sections indexOfObjectIdenticalTo:section];
+			
+			NSLog(@"rectCache %@", rectCache);
+			NSLog(@"sectionIndex %ld", sectionIndex);
 
 			CGRect normalizedHeaderFrame = section.headerFrame;
 			normalizedHeaderFrame.origin.x += section.frame.origin.x;
 			normalizedHeaderFrame.origin.y += section.frame.origin.y;
+			
 			if (!CGRectIsEmpty(normalizedHeaderFrame) && CGRectIntersectsRect(normalizedHeaderFrame, rect)) {
 				TUICollectionViewLayoutAttributes *layoutAttributes = [TUICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:TUICollectionElementKindSectionHeader withIndexPath:[NSIndexPath indexPathForItem:0 inSection:sectionIndex]];
+				
 				layoutAttributes.frame = normalizedHeaderFrame;
 				[layoutAttributesArray addObject:layoutAttributes];
 			}
 
             NSArray *itemRects = rectCache[@(sectionIndex)];
-            if (!itemRects && section.fixedItemSize && [section.rows count]) {
+            if(!itemRects && section.fixedItemSize && [section.rows count]) {
                 itemRects = [(section.rows)[0] itemRects];
                 if(itemRects) rectCache[@(sectionIndex)] = itemRects;
             }
-
-			for (TUIGridLayoutRow *row in section.rows) {
+			
+			for(TUIGridLayoutRow *row in section.rows) {
                 CGRect normalizedRowFrame = row.rowFrame;
                 normalizedRowFrame.origin.x += section.frame.origin.x;
                 normalizedRowFrame.origin.y += section.frame.origin.y;
+				
                 if (CGRectIntersectsRect(normalizedRowFrame, rect)) {
                     // TODO be more fine-graind for items
-
-                    for (NSInteger itemIndex = 0; itemIndex < row.itemCount; itemIndex++) {
+					
+                    for(NSInteger itemIndex = 0; itemIndex < row.itemCount; itemIndex++) {
                         TUICollectionViewLayoutAttributes *layoutAttributes;
                         NSUInteger sectionItemIndex;
                         CGRect itemFrame;
-                        if (row.fixedItemSize) {
+						
+                        if(row.fixedItemSize) {
                             itemFrame = [itemRects[itemIndex] rectValue];
                             sectionItemIndex = row.index * section.itemsByRowCount + itemIndex;
-                        }else {
+                        } else {
                             TUIGridLayoutItem *item = row.items[itemIndex];
                             sectionItemIndex = [section.items indexOfObjectIdenticalTo:item];
                             itemFrame = item.itemFrame;
                         }
+						
                         layoutAttributes = [TUICollectionViewLayoutAttributes layoutAttributesForCellWithIndexPath:[NSIndexPath indexPathForItem:sectionItemIndex inSection:sectionIndex]];
                         layoutAttributes.frame = CGRectMake(normalizedRowFrame.origin.x + itemFrame.origin.x, normalizedRowFrame.origin.y + itemFrame.origin.y, itemFrame.size.width, itemFrame.size.height);
                         [layoutAttributesArray addObject:layoutAttributes];
@@ -181,8 +165,10 @@ static char kTUICachedItemRectsKey;
 			CGRect normalizedFooterFrame = section.footerFrame;
 			normalizedFooterFrame.origin.x += section.frame.origin.x;
 			normalizedFooterFrame.origin.y += section.frame.origin.y;
+			
 			if (!CGRectIsEmpty(normalizedFooterFrame) && CGRectIntersectsRect(normalizedFooterFrame, rect)) {
 				TUICollectionViewLayoutAttributes *layoutAttributes = [TUICollectionViewLayoutAttributes layoutAttributesForSupplementaryViewOfKind:TUICollectionElementKindSectionFooter withIndexPath:[NSIndexPath indexPathForItem:0 inSection:sectionIndex]];
+				
 				layoutAttributes.frame = normalizedFooterFrame;
 				[layoutAttributesArray addObject:layoutAttributes];
 			}
@@ -196,7 +182,7 @@ static char kTUICachedItemRectsKey;
     TUIGridLayoutRow *row = nil;
     CGRect itemFrame = CGRectZero;
 
-    if (section.fixedItemSize && indexPath.item / section.itemsByRowCount < (NSInteger)[section.rows count]) {
+    if(section.fixedItemSize && indexPath.item / section.itemsByRowCount < (NSInteger)[section.rows count]) {
         row = section.rows[indexPath.item / section.itemsByRowCount];
         NSUInteger itemIndex = indexPath.item % section.itemsByRowCount;
         NSArray *itemRects = [row itemRects];
@@ -221,11 +207,11 @@ static char kTUICachedItemRectsKey;
 - (TUICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     NSUInteger sectionIndex = indexPath.section;
 
-    if (sectionIndex < _data.sections.count) {
+    if(sectionIndex < _data.sections.count) {
         TUIGridLayoutSection *section = _data.sections[sectionIndex];
         CGRect normalizedHeaderFrame = section.headerFrame;
 
-        if (!CGRectIsEmpty(normalizedHeaderFrame)) {
+        if(!CGRectIsEmpty(normalizedHeaderFrame)) {
             normalizedHeaderFrame.origin.x += section.frame.origin.x;
             normalizedHeaderFrame.origin.y += section.frame.origin.y;
 
@@ -244,23 +230,21 @@ static char kTUICachedItemRectsKey;
 }
 
 - (CGSize)collectionViewContentSize {
-    //    return _currentLayoutSize;
     return _data.contentSize;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark - Invalidating the Layout
+#pragma mark - Invalidating Layout
 
 - (void)invalidateLayout {
-    objc_setAssociatedObject(self, &kTUICachedItemRectsKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, kTUICachedItemRectsKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
     // we need to recalculate on width changes
-    if ((self.collectionView.bounds.size.width != newBounds.size.width && self.scrollDirection == TUICollectionViewScrollDirectionHorizontal) || (self.collectionView.bounds.size.height != newBounds.size.height && self.scrollDirection == TUICollectionViewScrollDirectionVertical)) {
-        return YES;
-    }
-    return NO;
+    return ((self.collectionView.bounds.size.width != newBounds.size.width &&
+			 self.scrollDirection == TUICollectionViewScrollDirectionHorizontal) ||
+			(self.collectionView.bounds.size.height != newBounds.size.height &&
+			 self.scrollDirection == TUICollectionViewScrollDirectionVertical));
 }
 
 // return a point at which to rest after scrolling - for layouts that want snap-to-point scrolling behavior
@@ -271,13 +255,14 @@ static char kTUICachedItemRectsKey;
 - (void)prepareLayout {
     _data = [TUIGridLayoutInfo new]; // clear old layout data
     _data.horizontal = self.scrollDirection == TUICollectionViewScrollDirectionHorizontal;
+	
     CGSize collectionViewSize = self.collectionView.bounds.size;
     _data.dimension = _data.horizontal ? collectionViewSize.height : collectionViewSize.width;
-    _data.rowAlignmentOptions = _rowAlignmentsOptionsDictionary;
-    [self fetchItemsInfo];
+    _data.rowAlignmentOptions = _rowAlignmentOptions;
+    
+	[self fetchItemsInfo];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private
 
 - (void)fetchItemsInfo {
@@ -372,7 +357,7 @@ static char kTUICachedItemRectsKey;
             sectionFrame.origin.x += contentSize.width;
             contentSize.width += section.frame.size.width + section.frame.origin.x;
             contentSize.height = fmaxf(contentSize.height, sectionFrame.size.height + section.frame.origin.y);
-        }else {
+        } else {
             sectionFrame.origin.y += contentSize.height;
             contentSize.height += sectionFrame.size.height + section.frame.origin.y;
             contentSize.width = fmaxf(contentSize.width, sectionFrame.size.width + section.frame.origin.x);

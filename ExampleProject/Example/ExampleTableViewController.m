@@ -98,19 +98,16 @@
 }
 
 - (void)tableView:(TUITableView *)tableView didClickRowAtIndexPath:(NSIndexPath *)indexPath withEvent:(NSEvent *)event {
-	if([event clickCount] == 1) {
-		// do something cool
-		ExampleTableViewController *pushed = [[ExampleTableViewController alloc] initWithNibName:nil bundle:nil];
-		[self.navigationController pushViewController:pushed animated:YES];
-	}
-	
-	if(event.type == NSRightMouseUp){
-		// show context menu
+	if(event.type == NSRightMouseUp) {
 		ExampleCollectionViewLineLayout *l = [ExampleCollectionViewLineLayout new];
 		ExampleCollectionViewController *vc = [[ExampleCollectionViewController alloc] initWithCollectionViewLayout:l];
 		[self.navigationController pushViewController:vc animated:YES];
+	} else if(event.clickCount == 1) {
+		ExampleTableViewController *vc = [[ExampleTableViewController alloc] init];
+		[self.navigationController pushViewController:vc animated:YES];
 	}
 }
+
 - (BOOL)tableView:(TUITableView *)tableView shouldSelectRowAtIndexPath:(NSIndexPath *)indexPath forEvent:(NSEvent *)event{
 	switch (event.type) {
 		case NSRightMouseDown:

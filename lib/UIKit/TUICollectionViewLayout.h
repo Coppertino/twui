@@ -48,17 +48,6 @@ typedef enum {
  */
 @end
 
-@interface TUICollectionViewLayoutAttributes(Private)
-@property (nonatomic, readonly) NSString *representedElementKind;
-@property (nonatomic, readonly) TUICollectionViewItemType representedElementCategory;
-- (BOOL)isDecorationView;
-- (BOOL)isSupplementaryView;
-- (BOOL)isCell;
-@end
-
-// used internally for deserialization until I figure out the proper way.
-extern NSString *const TUICollectionViewLayoutAwokeFromNib;
-
 @interface TUICollectionViewLayout : NSObject <NSCoding>
 
 // Methods in this class are meant to be overridden and will be called by its collection view to gather layout information.

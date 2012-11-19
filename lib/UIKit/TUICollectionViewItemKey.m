@@ -20,10 +20,21 @@
 NSString *const TUICollectionElementKindCell = @"UICollectionElementKindCell";
 NSString *const TUICollectionElementKindDecorationView = @"TUICollectionElementKindDecorationView";
 
+
+@interface TUICollectionViewLayoutAttributes ()
+
+@property (nonatomic, readonly) NSString *representedElementKind;
+@property (nonatomic, readonly) TUICollectionViewItemType representedElementCategory;
+
+- (BOOL)isDecorationView;
+- (BOOL)isSupplementaryView;
+- (BOOL)isCell;
+
+@end
+
 @implementation TUICollectionViewItemKey
 
-///////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark - Static
+#pragma mark - Factory
 
 + (id)collectionItemKeyForCellWithIndexPath:(NSIndexPath *)indexPath {
     TUICollectionViewItemKey *key = [[self class] new];
@@ -41,7 +52,6 @@ NSString *const TUICollectionElementKindDecorationView = @"TUICollectionElementK
     return key;
 }
 
-// elementKind or reuseIdentifier?
 + (id)collectionItemKeyForDecorationViewOfKind:(NSString *)elementKind andIndexPath:(NSIndexPath *)indexPath {
     TUICollectionViewItemKey *key = [[self class] new];
     key.indexPath = indexPath;
@@ -67,7 +77,6 @@ NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (NSString *)description {
@@ -82,15 +91,15 @@ NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
 - (BOOL)isEqual:(id)other {
     if ([other isKindOfClass:[self class]]) {
         TUICollectionViewItemKey *otherKeyItem = (TUICollectionViewItemKey *)other;
-        // identifier might be nil?
-        if (_type == otherKeyItem.type && [_indexPath isEqual:otherKeyItem.indexPath] && ([_identifier isEqualToString:otherKeyItem.identifier] || _identifier == otherKeyItem.identifier)) {
+		
+        if (_type == otherKeyItem.type && [_indexPath isEqual:otherKeyItem.indexPath] &&
+			([_identifier isEqualToString:otherKeyItem.identifier] || _identifier == otherKeyItem.identifier))
             return YES;
-            }
-        }
+	}
+	
     return NO;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone {

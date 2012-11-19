@@ -100,6 +100,7 @@
     // TODO: check if we need to fetch data from layout
     if (!CGRectEqualToRect(_validLayoutRect, rect)) {
         _validLayoutRect = rect;
+		NSLog(@"%@", self.layout);
         _cellLayoutAttributes = [self.layout layoutAttributesForElementsInRect:rect];
     }
 }

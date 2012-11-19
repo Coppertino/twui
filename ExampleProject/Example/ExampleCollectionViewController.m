@@ -28,10 +28,10 @@
     return 60;
 }
 
-- (TUICollectionViewCell *)collectionView:(TUICollectionView *)cv cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    ExampleCollectionViewCell *cell = [cv dequeueReusableCellWithReuseIdentifier:CELL_ID forIndexPath:indexPath];
-    
-	cell.label.text = [NSString stringWithFormat:@"%ld",indexPath.item];
+- (TUICollectionViewCell *)collectionView:(TUICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    ExampleCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CELL_ID forIndexPath:indexPath];
+	
+	cell.label.text = [NSString stringWithFormat:@"%ld", indexPath.item];
     return cell;
 }
 

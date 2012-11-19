@@ -43,7 +43,7 @@
     visibleRect.origin = self.collectionView.contentOffset;
     visibleRect.size = self.collectionView.bounds.size;
     
-    for (TUICollectionViewLayoutAttributes* attributes in array) {
+    for (TUICollectionViewLayoutAttributes *attributes in array) {
         if (CGRectIntersectsRect(attributes.frame, rect)) {
             CGFloat distance = CGRectGetMidX(visibleRect) - attributes.center.x;
             CGFloat normalizedDistance = distance / ACTIVE_DISTANCE;
@@ -56,9 +56,9 @@
     }
 	
     return array;
-}
+}//*/
 
-- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity {
+/*- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity {
     CGFloat offsetAdjustment = MAXFLOAT;
     CGFloat horizontalCenter = proposedContentOffset.x + (CGRectGetWidth(self.collectionView.bounds) / 2.0);
     
@@ -74,6 +74,6 @@
     }
 	
     return CGPointMake(proposedContentOffset.x + offsetAdjustment, proposedContentOffset.y);
-}
+}//*/
 
 @end

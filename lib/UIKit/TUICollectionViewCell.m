@@ -19,21 +19,19 @@
 #import "TUICollectionViewLayout.h"
 
 @interface TUICollectionReusableView () {
-    TUICollectionViewLayoutAttributes *_layoutAttributes;
-    NSString *_reuseIdentifier;
-    __unsafe_unretained TUICollectionView *_collectionView;
     struct {
-        unsigned int inUpdateAnimation : 1;
+        unsigned inUpdateAnimation:1;
     } _reusableViewFlags;
 }
+
 @property (nonatomic, copy) NSString *reuseIdentifier;
 @property (nonatomic, unsafe_unretained) TUICollectionView *collectionView;
 @property (nonatomic, strong) TUICollectionViewLayoutAttributes *layoutAttributes;
+
 @end
 
 @implementation TUICollectionReusableView
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)prepareForReuse {
@@ -43,7 +41,6 @@
 - (void)applyLayoutAttributes:(TUICollectionViewLayoutAttributes *)layoutAttributes {
     if (layoutAttributes != _layoutAttributes) {
         _layoutAttributes = layoutAttributes;
-//        self.frame = layoutAttributes.frame;
 
         self.layer.frame = layoutAttributes.frame;
         self.layer.position = layoutAttributes.center;
@@ -52,7 +49,6 @@
         self.layer.transform = layoutAttributes.transform3D;
         self.layer.zPosition = layoutAttributes.zIndex;
         self.layer.opacity = layoutAttributes.alpha;
-        // TODO more attributes
     }
 }
 
@@ -74,29 +70,20 @@
 
 @end
 
-
 @implementation TUICollectionViewCell {
-    TUIView *_contentView;
-    TUIView *_backgroundView;
-    TUIView *_selectedBackgroundView;
-    id _selectionSegueTemplate;
-    id _highlightingSupport;
     struct {
-        unsigned int selected : 1;
-        unsigned int highlighted : 1;
-        unsigned int showingMenu : 1;
-        unsigned int clearSelectionWhenMenuDisappears : 1;
-        unsigned int waitingForSelectionAnimationHalfwayPoint : 1;
+        unsigned selected:1;
+        unsigned highlighted:1;
+        unsigned showingMenu:1;
+        unsigned clearSelectionWhenMenuDisappears:1;
+        unsigned waitingForSelectionAnimationHalfwayPoint:1;
     } _collectionCellFlags;
-    BOOL _selected;
-    BOOL _highlighted;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark - NSObject
+#pragma mark - Initialization
 
 - (id)initWithFrame:(CGRect)frame {
-    if ((self = [super initWithFrame:frame])) {
+    if((self = [super initWithFrame:frame])) {
         _backgroundView = [[TUIView alloc] initWithFrame:self.bounds];
         _backgroundView.autoresizingMask = TUIViewAutoresizingFlexibleWidth | TUIViewAutoresizingFlexibleHeight;
         [self addSubview:_backgroundView];
@@ -105,10 +92,10 @@
         _contentView.autoresizingMask = TUIViewAutoresizingFlexibleWidth | TUIViewAutoresizingFlexibleHeight;
         [self addSubview:_contentView];
     }
+	
     return self;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)prepareForReuse {
@@ -118,15 +105,17 @@
 }
 
 - (void)setSelected:(BOOL)selected {
-    if (_collectionCellFlags.selected != selected) {
+    if(_collectionCellFlags.selected != selected) {
         _collectionCellFlags.selected = selected;
+		
         [self updateBackgroundView];
     }
 }
 
 - (void)setHighlighted:(BOOL)highlighted {
-    if (_collectionCellFlags.highlighted != highlighted) {
+    if(_collectionCellFlags.highlighted != highlighted) {
         _collectionCellFlags.highlighted = highlighted;
+		
         [self updateBackgroundView];
     }
 }
@@ -138,35 +127,34 @@
 }
 
 - (void)setHighlighted:(BOOL)highlighted forViews:(id)subviews {
-    for (id view in subviews) {
-        if ([view respondsToSelector:@selector(setHighlighted:)]) {
+    for(id view in subviews) {
+        if([view respondsToSelector:@selector(setHighlighted:)]) {
             [view setHighlighted:highlighted];
         }
+		
         [self setHighlighted:highlighted forViews:[view subviews]];
     }
 }
 
 - (void)setBackgroundView:(TUIView *)backgroundView {
-    if (_backgroundView != backgroundView) {
-        [_backgroundView removeFromSuperview];
+    if(_backgroundView != backgroundView) {
         _backgroundView = backgroundView;
         [self insertSubview:_backgroundView atIndex:0];
     }
 }
 
 - (void)setSelectedBackgroundView:(TUIView *)selectedBackgroundView {
-    if (_selectedBackgroundView != selectedBackgroundView) {
-        [_selectedBackgroundView removeFromSuperview];
+    if(_selectedBackgroundView != selectedBackgroundView) {
         _selectedBackgroundView = selectedBackgroundView;
         _selectedBackgroundView.frame = self.bounds;
+		
         _selectedBackgroundView.autoresizingMask = TUIViewAutoresizingFlexibleWidth | TUIViewAutoresizingFlexibleHeight;
         _selectedBackgroundView.alpha = self.selected ? 1.0f : 0.0f;
-        if (_backgroundView) {
+        
+		if(_backgroundView)
             [self insertSubview:_selectedBackgroundView aboveSubview:_backgroundView];
-        }
-        else {
+        else
             [self insertSubview:_selectedBackgroundView atIndex:0];
-        }
     }
 }
 
