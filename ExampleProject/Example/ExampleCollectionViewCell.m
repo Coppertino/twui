@@ -20,6 +20,7 @@
 
 - (id)initWithFrame:(CGRect)frame {
     if((self = [super initWithFrame:frame])) {
+		self.backgroundColor = [NSColor redColor];
         self.contentView.layer.borderWidth = 1.0f;
         self.contentView.layer.borderColor = [NSColor whiteColor].CGColor;
 		

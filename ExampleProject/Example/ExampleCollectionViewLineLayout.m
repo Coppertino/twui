@@ -25,7 +25,7 @@
 - (id)init {
     if((self = [super init])) {
         self.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE);
-        self.scrollDirection = TUICollectionViewScrollDirectionHorizontal;
+        //self.scrollDirection = TUICollectionViewScrollDirectionHorizontal;
         self.sectionInset = TUIEdgeInsetsMake(200, 0.0, 200, 0.0);
         self.minimumLineSpacing = 50.0;
     }
@@ -33,11 +33,11 @@
     return self;
 }
 
-- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)oldBounds {
+/*- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)oldBounds {
     return YES;
-}
+}//*/
 
-- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+/*- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSArray *array = [super layoutAttributesForElementsInRect:rect];
     CGRect visibleRect;
     visibleRect.origin = self.collectionView.contentOffset;

@@ -76,29 +76,6 @@ NSString *const TUIFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVertical
     return self;
 }
 
-/*- (id)initWithCoder:(NSCoder *)decoder {
-    if ((self = [super initWithCoder:decoder])) {
-        [self commonInit];
-
-        // some properties are not set if they're default (like minimumInteritemSpacing == 10)
-        if ([decoder containsValueForKey:@"UIItemSize"])
-            self.itemSize = [decoder decodeCGSizeForKey:@"UIItemSize"];
-        if ([decoder containsValueForKey:@"UIInteritemSpacing"])
-            self.minimumInteritemSpacing = [decoder decodeFloatForKey:@"UIInteritemSpacing"];
-        if ([decoder containsValueForKey:@"UILineSpacing"])
-            self.minimumLineSpacing = [decoder decodeFloatForKey:@"UILineSpacing"];
-        if ([decoder containsValueForKey:@"UIFooterReferenceSize"])
-            self.footerReferenceSize = [decoder decodeCGSizeForKey:@"UIFooterReferenceSize"];
-        if ([decoder containsValueForKey:@"UIHeaderReferenceSize"])
-            self.headerReferenceSize = [decoder decodeCGSizeForKey:@"UIHeaderReferenceSize"];
-        if ([decoder containsValueForKey:@"UISectionInset"])
-            self.sectionInset = [decoder decodeUIEdgeInsetsForKey:@"UISectionInset"];
-        if ([decoder containsValueForKey:@"UIScrollDirection"])
-            self.scrollDirection = [decoder decodeIntegerForKey:@"UIScrollDirection"];
-    }
-    return self;
-}//*/
-
 #pragma mark - TUICollectionViewLayout
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
@@ -112,9 +89,6 @@ NSString *const TUIFlowLayoutRowVerticalAlignmentKey = @"UIFlowLayoutRowVertical
             // for the last row. (we want this effect!)
             NSMutableDictionary *rectCache = objc_getAssociatedObject(self, kTUICachedItemRectsKey);
             NSUInteger sectionIndex = [_data.sections indexOfObjectIdenticalTo:section];
-			
-			NSLog(@"rectCache %@", rectCache);
-			NSLog(@"sectionIndex %ld", sectionIndex);
 
 			CGRect normalizedHeaderFrame = section.headerFrame;
 			normalizedHeaderFrame.origin.x += section.frame.origin.x;

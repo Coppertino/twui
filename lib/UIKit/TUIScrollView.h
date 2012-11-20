@@ -164,6 +164,7 @@ typedef enum {
 @property (nonatomic) float decelerationRate;
 
 @property (nonatomic, readonly) CGRect visibleRect;
+@property (nonatomic, readonly) CGRect contentRect;
 @property (nonatomic, readonly) TUIEdgeInsets scrollIndicatorInsets;
 
 @property (nonatomic, strong, readonly) TUIScroller *verticalScroller;

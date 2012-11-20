@@ -280,6 +280,13 @@ static BOOL isAtleastMountainLion = NO;
 	return b;
 }
 
+- (CGRect)contentRect {
+	return (CGRect) {
+		.origin = self.contentOffset,
+		.size = self.contentSize
+	};
+}
+
 /**
  * @brief Obtain the insets for currently visible scroll indicators
  *

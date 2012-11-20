@@ -85,11 +85,11 @@
 - (id)initWithFrame:(CGRect)frame {
     if((self = [super initWithFrame:frame])) {
         _backgroundView = [[TUIView alloc] initWithFrame:self.bounds];
-        _backgroundView.autoresizingMask = TUIViewAutoresizingFlexibleWidth | TUIViewAutoresizingFlexibleHeight;
+        _backgroundView.autoresizingMask = TUIViewAutoresizingFlexibleSize;
         [self addSubview:_backgroundView];
 
         _contentView = [[TUIView alloc] initWithFrame:self.bounds];
-        _contentView.autoresizingMask = TUIViewAutoresizingFlexibleWidth | TUIViewAutoresizingFlexibleHeight;
+        _contentView.autoresizingMask = TUIViewAutoresizingFlexibleSize;
         [self addSubview:_contentView];
     }
 	

@@ -20,6 +20,14 @@
 NSString *const TUICollectionElementKindCell = @"UICollectionElementKindCell";
 NSString *const TUICollectionElementKindDecorationView = @"TUICollectionElementKindDecorationView";
 
+NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
+    switch (type) {
+        case TUICollectionViewItemTypeCell: return @"Cell";
+        case TUICollectionViewItemTypeDecorationView: return @"Decoration";
+        case TUICollectionViewItemTypeSupplementaryView: return @"Supplementary";
+        default: return @"<INVALID>";
+    }
+}
 
 @interface TUICollectionViewLayoutAttributes ()
 
@@ -66,15 +74,6 @@ NSString *const TUICollectionElementKindDecorationView = @"TUICollectionElementK
     key.identifier = elementKind;
     key.type = TUICollectionViewItemTypeSupplementaryView;
     return key;
-}
-
-NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
-    switch (type) {
-        case TUICollectionViewItemTypeCell: return @"Cell";
-        case TUICollectionViewItemTypeDecorationView: return @"Decoration";
-        case TUICollectionViewItemTypeSupplementaryView: return @"Supplementary";
-        default: return @"<INVALID>";
-    }
 }
 
 #pragma mark - NSObject

@@ -18,11 +18,11 @@
 
 extern NSString *const TUICollectionElementKindCell;
 extern NSString *const TUICollectionElementKindDecorationView;
+
+NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type);
+
 @class TUICollectionViewLayoutAttributes;
 
-NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type); // debug helper
-
-// Used in NSDictionaries
 @interface TUICollectionViewItemKey : NSObject <NSCopying>
 
 + (id)collectionItemKeyForLayoutAttributes:(TUICollectionViewLayoutAttributes *)layoutAttributes;

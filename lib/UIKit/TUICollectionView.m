@@ -737,7 +737,7 @@ static void TUICollectionViewCommonSetup(TUICollectionView *self) {
 
     // not sure it was it original code, but here this prevents crash
     // in case we switch layout before previous one was initially loaded
-    if(CGRectIsEmpty(self.bounds) || !_collectionViewFlags.doneFirstLayout) {
+    if(CGRectIsEmpty(self.contentRect) || !_collectionViewFlags.doneFirstLayout) {
         _layout.collectionView = nil;
         _collectionViewData = [[TUICollectionViewData alloc] initWithCollectionView:self layout:layout];
         viewLayout.collectionView = self;
@@ -990,7 +990,6 @@ static void TUICollectionViewCommonSetup(TUICollectionView *self) {
 // TODO: use now parameter.
 - (void)updateVisibleCellsNow:(BOOL)now {
     NSArray *layoutAttributesArray = [_collectionViewData layoutAttributesForElementsInRect:self.bounds];
-	NSLog(@"layoutAttributesArray %@", layoutAttributesArray);
 
     // create ItemKey/Attributes dictionary
     NSMutableDictionary *itemKeysToAddDict = [NSMutableDictionary dictionary];
@@ -1031,7 +1030,6 @@ static void TUICollectionViewCommonSetup(TUICollectionView *self) {
 
         // check if cell is in visible dict; add it if not.
         TUICollectionReusableView *view = _allVisibleViewsDict[itemKey];
-		NSLog(@"view %@, keys %@", view, itemKey);
         if (!view) {
             if (itemKey.type == TUICollectionViewItemTypeCell) {
                 view = [self createPreparedCellForItemAtIndexPath:itemKey.indexPath withLayoutAttributes:layoutAttributes];
@@ -1058,14 +1056,14 @@ static void TUICollectionViewCommonSetup(TUICollectionView *self) {
 - (TUICollectionViewCell *)createPreparedCellForItemAtIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(TUICollectionViewLayoutAttributes *)layoutAttributes {
 
     TUICollectionViewCell *cell = [self.dataSource collectionView:self cellForItemAtIndexPath:indexPath];
-	NSLog(@"hi");
+	
     // reset selected/highlight state
     [cell setHighlighted:[_indexPathsForHighlightedItems containsObject:indexPath]];
     [cell setSelected:[_indexPathsForSelectedItems containsObject:indexPath]];
 
     // voiceover support
-    cell.isAccessibilityElement = YES;
-
+    //cell.isAccessibilityElement = YES;
+	
     [cell applyLayoutAttributes:layoutAttributes];
     return cell;
 }
@@ -1112,7 +1110,7 @@ static void TUICollectionViewCommonSetup(TUICollectionView *self) {
 
 - (void)addControlledSubview:(TUICollectionReusableView *)subview {
 	// avoids placing views above the scroll indicator
-    [self insertSubview:subview atIndex:self.subviews.count - (self.dragging ? 1 : 0)];
+    [self addSubview:subview];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
