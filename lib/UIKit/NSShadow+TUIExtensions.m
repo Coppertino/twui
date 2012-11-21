@@ -18,22 +18,13 @@
 
 @implementation NSShadow (TUIExtensions)
 
-+ (NSShadow *)shadow {
-	return [[self.class alloc] init];
-}
-
-+ (NSShadow *)shadowWithRadius:(CGFloat)radius offset:(CGSize)offset color:(NSColor *)color {
-	return [[self.class alloc] initWithRadius:radius offset:offset color:color];
-}
-
-- (id)initWithRadius:(CGFloat)radius offset:(CGSize)offset color:(NSColor *)color {
-	if((self = [super init])) {
-		self.shadowBlurRadius = radius;
-		self.shadowOffset = offset;
-		self.shadowColor = color;
-	}
++ (NSShadow *)tui_shadowWithRadius:(CGFloat)radius offset:(CGSize)offset color:(NSColor *)color {
+	NSShadow *shadow = [[self.class alloc] init];
+	shadow.shadowBlurRadius = radius;
+	shadow.shadowOffset = offset;
+	shadow.shadowColor = color;
 	
-	return self;
+	return shadow;
 }
 
 @end

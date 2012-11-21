@@ -16,54 +16,10 @@
 
 #import "TUIGeometry.h"
 
-const TUIEdgeInsets TUIEdgeInsetsZero = { 0.0, 0.0, 0.0, 0.0 };
-
-NSString* NSStringFromCGPoint(CGPoint point) {
-    return NSStringFromPoint(NSPointFromCGPoint(point));
-}
-
-NSString* NSStringFromCGRect(CGRect rect) {
-    return NSStringFromRect(NSRectFromCGRect(rect));
-}
-
-NSString* NSStringFromCGSize(CGSize size) {
-    return NSStringFromSize(NSSizeFromCGSize(size));
-}
-
-NSString* NSStringFromCGAffineTransform(CGAffineTransform transform) {
-    return [NSString stringWithFormat:@"[%lg, %lg, %lg, %lg, %lg, %lg]",
-			transform.a, transform.b, transform.c, transform.d, transform.tx, transform.ty];
-}
+const TUIEdgeInsets TUIEdgeInsetsZero = { .top = 0.0f, .left = 0.0f, .bottom = 0.0f, .right = 0.0f };
 
 NSString* NSStringFromTUIEdgeInsets(TUIEdgeInsets insets) {
-    return [NSString stringWithFormat:@"{%lg, %lg, %lg, %lg}",
-			insets.top, insets.left, insets.bottom, insets.right];
-}
-
-CGPoint CGPointFromNSString(NSString *string) {
-	return NSPointToCGPoint(NSPointFromString(string));
-}
-
-CGRect CGRectFromNSString(NSString *string) {
-	return NSRectToCGRect(NSRectFromString(string));
-}
-
-CGSize CGSizeFromNSString(NSString *string) {
-	return NSSizeToCGSize(NSSizeFromString(string));
-}
-
-CGAffineTransform CGAffineTransformFromNSString(NSString *string) {
-	CGAffineTransform result = CGAffineTransformIdentity;
-	
-	if(string != nil) {
-		double a, b, c, d, tx, ty;
-		const char *input = [string cStringUsingEncoding:NSUTF8StringEncoding];
-		
-        sscanf(input, "[%lg, %lg, %lg, %lg, %lg, %lg]", &a, &b, &c, &d, &tx, &ty);
-		result = (CGAffineTransform) {a, b, c, d, tx, ty};
-	}
-	
-	return result;
+	return [NSString stringWithFormat:@"{%lg, %lg, %lg, %lg}", insets.top, insets.left, insets.bottom, insets.right];
 }
 
 TUIEdgeInsets TUIEdgeInsetsFromNSString(NSString *string) {
@@ -71,11 +27,23 @@ TUIEdgeInsets TUIEdgeInsetsFromNSString(NSString *string) {
 	
 	if(string != nil) {
 		double top, left, bottom, right;
-		const char *input = [string cStringUsingEncoding:NSUTF8StringEncoding];
-		
-        sscanf(input, "[%lg, %lg, %lg, %lg]", &top, &left, &bottom, &right);
-		result = (TUIEdgeInsets) {top, left, bottom, right};
+		sscanf(string.UTF8String, "{%lg, %lg, %lg, %lg}", &top, &left, &bottom, &right);
+		result = TUIEdgeInsetsMake(top, left, bottom, right);
 	}
 	
 	return result;
 }
+
+@implementation NSValue (TUIExtensions)
+
++ (NSValue *)tui_valueWithTUIEdgeInsets:(TUIEdgeInsets)insets {
+	return [NSValue valueWithBytes:&insets objCType:@encode(TUIEdgeInsets)];
+}
+
+- (TUIEdgeInsets)tui_TUIEdgeInsetsValue {
+	TUIEdgeInsets insets = TUIEdgeInsetsZero;
+	[self getValue:&insets];
+	return insets;
+}
+
+@end
