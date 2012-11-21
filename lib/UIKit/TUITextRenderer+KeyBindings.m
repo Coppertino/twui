@@ -23,47 +23,92 @@
 #import "TUIView+TUIBridgedView.h"
 #import "TUIScrollView+TUIBridgedScrollView.h"
 
-static NSAttributedString *killBuffer = nil;
+static NSAttributedString *TUITextRendererKillBuffer = nil;
 
-@interface NSString (ABTokenizerAdditions)
+@interface NSString (TUITextRendererExtensions)
+
+- (CFIndex)ab_beginningOfLineGivenCursor:(CFIndex)cursor;
+- (CFIndex)ab_endOfLineGivenCursor:(CFIndex)cursor;
+
+- (CFIndex)ab_beginningOfWordGivenCursor:(CFIndex)cursor;
+- (CFIndex)ab_endOfWordGivenCursor:(CFIndex)cursor;
+
 @end
 
-@implementation NSString (ABTokenizerAdditions)
+@implementation NSString (TUITextRendererExtensions)
 
-- (CFIndex)ab_endOfWordGivenCursor:(CFIndex)cursor // if cursor is in word, return end of current word, if past, end of next word
-{
-	__block CFIndex ret = -1;
-	[self enumerateSubstringsInRange:NSMakeRange(0, [self length]) 
-							 options:NSStringEnumerationByWords|NSStringEnumerationSubstringNotRequired
+- (CFIndex)ab_beginningOfLineGivenCursor:(CFIndex)cursor {
+	__block CFIndex ret = kCFNotFound;
+	
+	[self enumerateSubstringsInRange:NSMakeRange(0, self.length)
+							 options:NSStringEnumerationByLines|NSStringEnumerationReverse|NSStringEnumerationSubstringNotRequired
 						  usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-							  CFIndex l = substringRange.location + substringRange.length;
-							  if(l > cursor) {
-								  ret = l;
-								  *stop = YES;
-							  }
-						  }];
-	if(ret == -1) {
-		ret = [self length]; // go to end
-	}
-	return ret;
+		CFIndex location = substringRange.location;
+		
+		if(location <= cursor) {
+			ret = location;
+			*stop = YES;
+		}
+	}];
+	
+	// Go to the start, if not found.
+	return ((ret == kCFNotFound) ? 0 : ret);
 }
 
-- (CFIndex)ab_beginningOfWordGivenCursor:(CFIndex)cursor // if cursor is in word, return end of current word, if past, end of next word
-{
-	__block CFIndex ret = -1;
-	[self enumerateSubstringsInRange:NSMakeRange(0, [self length]) 
+- (CFIndex)ab_endOfLineGivenCursor:(CFIndex)cursor {
+	__block CFIndex ret = kCFNotFound;
+	
+	[self enumerateSubstringsInRange:NSMakeRange(0, self.length)
+							 options:NSStringEnumerationByLines|NSStringEnumerationSubstringNotRequired
+						  usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+		CFIndex location = substringRange.location + substringRange.length;
+		
+		if(location >= cursor) {
+			ret = location;
+			*stop = YES;
+		}
+	 }];
+	
+	// Go to the end, if not found.
+	return ((ret == kCFNotFound) ? self.length : ret);
+}
+
+// If cursor is in a word, return the end of current word, and if past, the end of the next word.
+- (CFIndex)ab_beginningOfWordGivenCursor:(CFIndex)cursor {
+	__block CFIndex ret = kCFNotFound;
+	
+	[self enumerateSubstringsInRange:NSMakeRange(0, self.length)
 							 options:NSStringEnumerationByWords|NSStringEnumerationReverse|NSStringEnumerationSubstringNotRequired
 						  usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-							  CFIndex l = substringRange.location;
-							  if(l < cursor) {
-								  ret = l;
-								  *stop = YES;
-							  }
-						  }];
-	if(ret == -1) {
-		ret = 0; // go to beginning
-	}
-	return ret;
+		CFIndex location = substringRange.location;
+		
+		if(location < cursor) {
+			ret = location;
+			*stop = YES;
+		}
+	}];
+	
+	// Go to the start, if not found.
+	return ((ret == kCFNotFound) ? 0 : ret);
+}
+
+// If cursor is in a word, return the end of current word, and if past, the end of the next word.
+- (CFIndex)ab_endOfWordGivenCursor:(CFIndex)cursor {
+	__block CFIndex ret = kCFNotFound;
+	
+	[self enumerateSubstringsInRange:NSMakeRange(0, self.length)
+							 options:NSStringEnumerationByWords|NSStringEnumerationSubstringNotRequired
+						  usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+		CFIndex location = substringRange.location + substringRange.length;
+		
+		if(location > cursor) {
+			ret = location;
+			*stop = YES;
+		}
+	}];
+	
+	// Go to the end, if not found.
+	return ((ret == kCFNotFound) ? self.length : ret);
 }
 
 @end
@@ -72,8 +117,7 @@ static NSAttributedString *killBuffer = nil;
 
 #define TEXT self.textStorage.string
 
-- (TUITextEditor *)_textEditor
-{
+- (TUITextEditor *)_textEditor {
 	if([self isKindOfClass:[TUITextEditor class]])
 		return (TUITextEditor *)self;
 	return nil;
@@ -100,8 +144,7 @@ static NSAttributedString *killBuffer = nil;
 	}
 }
 
-- (CFIndex)_indexByMovingIndex:(CFIndex)index
-							by:(CFIndex)incr {
+- (CFIndex)_indexByMovingIndex:(CFIndex)index by:(CFIndex)incr {
 	CFIndex lineIndex;
 	float xPosition;
 	AB_CTFrameGetLinePositionOfIndex(TEXT, [self ctFrame], index, &lineIndex, &xPosition);
@@ -129,174 +172,147 @@ static NSAttributedString *killBuffer = nil;
 		}
 	}
 	
-	// Oops! Something went wrong. Return error (-1).
-	return -1;
+	// Oops! Something went wrong.
+	return kCFNotFound;
 }
 
-- (void)moveUp:(id)sender
-{
+- (void)moveUp:(id)sender {
 	NSInteger selectionLength = labs(_selectionStart - _selectionEnd);
 	if(selectionLength)
-		_selectionStart = _selectionEnd = MIN(_selectionEnd,_selectionStart);
+		_selectionStart = _selectionEnd = MIN(_selectionEnd, _selectionStart);
 	else
-		_selectionEnd = _selectionStart = [self _indexByMovingIndex:MIN(_selectionStart,_selectionEnd)
-																 by:-1];
+		_selectionEnd = _selectionStart = [self _indexByMovingIndex:MIN(_selectionStart, _selectionEnd) by:-1];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveUpAndModifySelection:(id)sender
-{
-	_selectionEnd = [self _indexByMovingIndex:MIN(_selectionStart,_selectionEnd)
-										   by:-1];
+- (void)moveUpAndModifySelection:(id)sender {
+	_selectionEnd = [self _indexByMovingIndex:MIN(_selectionStart, _selectionEnd) by:-1];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveDown:(id)sender
-{
+- (void)moveDown:(id)sender {
 	NSInteger selectionLength = labs(_selectionStart - _selectionEnd);
 	if(selectionLength)
-		_selectionStart = _selectionEnd = MAX(_selectionEnd,_selectionStart);
+		_selectionStart = _selectionEnd = MAX(_selectionEnd, _selectionStart);
 	else
-		_selectionEnd = _selectionStart = [self _indexByMovingIndex:MAX(_selectionStart,_selectionEnd)
-																 by:1];
+		_selectionEnd = _selectionStart = [self _indexByMovingIndex:MAX(_selectionStart, _selectionEnd) by:1];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveDownAndModifySelection:(id)sender
-{
-	_selectionEnd = [self _indexByMovingIndex:MAX(_selectionStart,_selectionEnd)
-										   by:1];
+- (void)moveDownAndModifySelection:(id)sender {
+	_selectionEnd = [self _indexByMovingIndex:MAX(_selectionStart, _selectionEnd) by:1];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveRight:(id)sender
-{
+- (void)moveRight:(id)sender {
 	NSInteger selectionLength = labs(_selectionStart - _selectionEnd);
 	NSInteger max = [TEXT length];
-	_selectionStart = _selectionEnd = MIN(MAX(_selectionStart, _selectionEnd) + (selectionLength?0:1), max);
+	_selectionStart = _selectionEnd = MIN(MAX(_selectionStart, _selectionEnd) + (selectionLength ? 0 : 1), max);
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveLeft:(id)sender
-{
+- (void)moveLeft:(id)sender {
 	NSInteger selectionLength = labs(_selectionStart - _selectionEnd);
 	NSInteger min = 0;
-	_selectionStart = _selectionEnd = MAX(MIN(_selectionStart, _selectionEnd) - (selectionLength?0:1), min);
+	_selectionStart = _selectionEnd = MAX(MIN(_selectionStart, _selectionEnd) - (selectionLength ? 0 : 1), min);
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveRightAndModifySelection:(id)sender
-{
+- (void)moveRightAndModifySelection:(id)sender {
 	NSInteger max = [TEXT length];
 	_selectionEnd = MIN(_selectionEnd + 1, max);
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveLeftAndModifySelection:(id)sender
-{
+- (void)moveLeftAndModifySelection:(id)sender {
 	NSInteger min = 0;
 	_selectionEnd = MAX(_selectionEnd - 1, min);
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveWordRight:(id)sender
-{
+- (void)moveWordRight:(id)sender {
 	_selectionStart = _selectionEnd = [TEXT ab_endOfWordGivenCursor:MAX(_selectionStart, _selectionEnd)];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveWordLeft:(id)sender
-{
+- (void)moveWordLeft:(id)sender {
 	_selectionStart = _selectionEnd = [TEXT ab_beginningOfWordGivenCursor:MIN(_selectionStart, _selectionEnd)];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveWordRightAndModifySelection:(id)sender
-{
+- (void)moveWordRightAndModifySelection:(id)sender {
 	_selectionEnd = [TEXT ab_endOfWordGivenCursor:_selectionEnd];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveWordLeftAndModifySelection:(id)sender
-{
+- (void)moveWordLeftAndModifySelection:(id)sender {
 	_selectionEnd = [TEXT ab_beginningOfWordGivenCursor:_selectionEnd];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveToBeginningOfLineAndModifySelection:(id)sender
-{
-	_selectionEnd = 0; // fixme for multiline
+- (void)moveToBeginningOfLineAndModifySelection:(id)sender {
+	_selectionEnd = [TEXT ab_beginningOfLineGivenCursor:_selectionEnd];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveToEndOfLineAndModifySelection:(id)sender
-{
-	_selectionEnd = [TEXT length]; // fixme for multiline
+- (void)moveToEndOfLineAndModifySelection:(id)sender {
+	_selectionEnd = [TEXT ab_endOfLineGivenCursor:_selectionEnd];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveToBeginningOfLine:(id)sender
-{
-	_selectionStart = _selectionEnd = 0;
+- (void)moveToBeginningOfLine:(id)sender {
+	_selectionStart = _selectionEnd = [TEXT ab_beginningOfLineGivenCursor:MIN(_selectionEnd, _selectionStart)];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveToEndOfLine:(id)sender
-{
-	_selectionStart = _selectionEnd = [TEXT length];
+- (void)moveToEndOfLine:(id)sender {
+	_selectionStart = _selectionEnd = [TEXT ab_endOfLineGivenCursor:MAX(_selectionEnd,_selectionStart)];
 	[self.view setNeedsDisplay];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveToBeginningOfParagraphAndModifySelection:(id)sender
-{
+- (void)moveToBeginningOfParagraphAndModifySelection:(id)sender {
 	[self moveToBeginningOfLineAndModifySelection:sender];
 }
 
-- (void)moveToEndOfParagraphAndModifySelection:(id)sender
-{
+- (void)moveToEndOfParagraphAndModifySelection:(id)sender {
 	[self moveToEndOfLineAndModifySelection:sender];
 }
 
-- (void)moveToBeginningOfDocumentAndModifySelection:(id)sender
-{
+- (void)moveToBeginningOfDocumentAndModifySelection:(id)sender {
 	[self moveToBeginningOfLineAndModifySelection:sender];
 }
 
-- (void)moveToEndOfDocumentAndModifySelection:(id)sender
-{
+- (void)moveToEndOfDocumentAndModifySelection:(id)sender {
 	[self moveToEndOfLineAndModifySelection:sender];
 }
 
-- (void)insertNewline:(id)sender
-{
+- (void)insertNewline:(id)sender {
 	[[self _textEditor] insertText:@"\n"];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)insertNewlineIgnoringFieldEditor:(id)sender
-{
+- (void)insertNewlineIgnoringFieldEditor:(id)sender {
 	[[self _textEditor] insertText:@"\n"];
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)deleteBackward:(id)sender
-{
+- (void)deleteBackward:(id)sender {
 	// Find the range to delete, handling an empty selection and the input point being at 0
 	NSRange deleteRange = [self selectedRange];
 	if(deleteRange.length == 0) {
@@ -312,8 +328,7 @@ static NSAttributedString *killBuffer = nil;
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)deleteForward:(id)sender
-{
+- (void)deleteForward:(id)sender {
 	// Find the range to delete, handling an empty selection and the input point being at the end
 	NSRange deleteRange = [self selectedRange];
 	if(deleteRange.length == 0) {
@@ -329,8 +344,7 @@ static NSAttributedString *killBuffer = nil;
 }
 
 
-- (void)deleteToBeginningOfLine:(id)sender
-{
+- (void)deleteToBeginningOfLine:(id)sender {
 	NSInteger selectionLength = labs(_selectionStart - _selectionEnd);
 	if(selectionLength == 0) {
 		[[self _textEditor] deleteCharactersInRange:NSMakeRange(0, _selectionStart)];
@@ -340,8 +354,7 @@ static NSAttributedString *killBuffer = nil;
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)deleteWordBackward:(id)sender
-{
+- (void)deleteWordBackward:(id)sender {
 	NSInteger selectionLength = labs(_selectionStart - _selectionEnd);
 	if(selectionLength == 0) {
 		_selectionEnd = [TEXT ab_beginningOfWordGivenCursor:_selectionEnd];
@@ -352,8 +365,7 @@ static NSAttributedString *killBuffer = nil;
 	[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 }
 
-- (void)moveToBeginningOfParagraph:(id)sender
-{
+- (void)moveToBeginningOfParagraph:(id)sender {
 	CFIndex cursor = MIN(_selectionStart, _selectionEnd);
 	__block CFIndex ret = -1;
 	[TEXT enumerateSubstringsInRange:NSMakeRange(0, [TEXT length]) options:NSStringEnumerationByParagraphs | NSStringEnumerationReverse | NSStringEnumerationSubstringNotRequired usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
@@ -373,8 +385,7 @@ static NSAttributedString *killBuffer = nil;
 	[self.view setNeedsDisplay];
 }
 
-- (void)moveToEndOfParagraph:(id)sender
-{
+- (void)moveToEndOfParagraph:(id)sender {
 	CFIndex cursor = MAX(_selectionStart, _selectionEnd);
 	__block CFIndex ret = -1;
 	[TEXT enumerateSubstringsInRange:NSMakeRange(0, [TEXT length]) options:NSStringEnumerationByParagraphs | NSStringEnumerationSubstringNotRequired usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
@@ -394,52 +405,45 @@ static NSAttributedString *killBuffer = nil;
 	[self.view setNeedsDisplay];
 }
 
-- (void)moveToBeginningOfDocument:(id)sender
-{
+- (void)moveToBeginningOfDocument:(id)sender {
 	_selectionStart = _selectionEnd = 0;
 	
 	[self.view setNeedsDisplay];
 }
 
-- (void)moveToEndOfDocument:(id)sender
-{
+- (void)moveToEndOfDocument:(id)sender {
 	_selectionStart = _selectionEnd = [TEXT length];
 	
 	[self.view setNeedsDisplay];
 }
-- (void)deleteToBeginningOfParagraph:(id)sender
-{
+- (void)deleteToBeginningOfParagraph:(id)sender {
 	NSRange deleteRange = [self selectedRange];
 	if(deleteRange.length == 0)
 		deleteRange.length = [TEXT length] - deleteRange.location;
-	killBuffer = [[self _textEditor].backingStore attributedSubstringFromRange:deleteRange];
+	TUITextRendererKillBuffer = [[self _textEditor].backingStore attributedSubstringFromRange:deleteRange];
 	[self deleteToBeginningOfLine:sender];
 }
 
-- (void)deleteToEndOfLine:(id)sender
-{
+- (void)deleteToEndOfLine:(id)sender {
 	NSRange deleteRange = [self selectedRange];
 	if(deleteRange.length == 0)
 		deleteRange.length = [TEXT length] - deleteRange.location;
-	killBuffer = [[self _textEditor].backingStore attributedSubstringFromRange:deleteRange];
+	TUITextRendererKillBuffer = [[self _textEditor].backingStore attributedSubstringFromRange:deleteRange];
 	[[self _textEditor] deleteCharactersInRange:deleteRange];
 	[self _scrollToIndex:MAX(_selectionStart, _selectionEnd)];
 }
 
-- (void)deleteToEndOfParagraph:(id)sender
-{
+- (void)deleteToEndOfParagraph:(id)sender {
 	NSRange deleteRange = [self selectedRange];
 	if(deleteRange.length == 0)
 		deleteRange.length = [TEXT length] - deleteRange.location;
-	killBuffer = [[self _textEditor].backingStore attributedSubstringFromRange:deleteRange];
+	TUITextRendererKillBuffer = [[self _textEditor].backingStore attributedSubstringFromRange:deleteRange];
 	[self deleteToEndOfLine:sender];
 }
 
-- (void)yank:(id)sender
-{
-	if(killBuffer)
-	{
-		[[self _textEditor] insertText:killBuffer];
+- (void)yank:(id)sender {
+	if(TUITextRendererKillBuffer) {
+		[[self _textEditor] insertText:TUITextRendererKillBuffer];
 		[self _scrollToIndex:MIN(_selectionStart, _selectionEnd)];
 	}
 }
