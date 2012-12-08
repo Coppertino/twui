@@ -63,7 +63,6 @@ NSString *const TUIFlowLayoutRowVerticalAlignmentKey = @"TUIFlowLayoutRowVertica
 @synthesize minimumLineSpacing = _lineSpacing;
 @synthesize minimumInteritemSpacing = _interitemSpacing;
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (void)commonInit {
@@ -101,7 +100,6 @@ NSString *const TUIFlowLayoutRowVerticalAlignmentKey = @"TUIFlowLayoutRowVertica
     return self;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - TUICollectionViewLayout
 
 static char kTUICachedItemRectsKey;
@@ -230,7 +228,6 @@ static char kTUICachedItemRectsKey;
     return _data.contentSize;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Invalidating the Layout
 
 - (void)invalidateLayout {
@@ -255,7 +252,6 @@ static char kTUICachedItemRectsKey;
     [self fetchItemsInfo];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private
 
 - (void)fetchItemsInfo {

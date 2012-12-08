@@ -5,7 +5,6 @@
 //  AppKit Port: Copyright (c) 2012 Indragie Karunaratne. All rights reserved.
 //
 
-#import "TUICollectionViewCommon.h"
 #import "TUICollectionViewLayout.h"
 
 extern NSString *const TUICollectionElementKTUICell;

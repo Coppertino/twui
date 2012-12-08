@@ -25,7 +25,6 @@
 
 @implementation TUIGridLayoutInfo
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (id)init {
@@ -39,7 +38,6 @@
     return [NSString stringWithFormat:@"<%@: %p dimension:%.1f horizontal:%d contentSize:%@ sections:%@>", NSStringFromClass([self class]), self, self.dimension, self.horizontal, NSStringFromSize(self.contentSize), self.sections];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (TUIGridLayoutInfo *)snapshot {

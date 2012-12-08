@@ -5,15 +5,11 @@
 //  AppKit Port: Copyright (c) 2012 Indragie Karunaratne. All rights reserved.
 //
 
-#import "TUICollectionViewCommon.h"
-#import <CoreGraphics/CoreGraphics.h>
-#import <QuartzCore/QuartzCore.h>
-
-typedef NS_ENUM(NSUInteger, TUICollectionViewItemType) {
+typedef enum TUICollectionViewItemType : NSUInteger {
     TUICollectionViewItemTypeCell,
     TUICollectionViewItemTypeSupplementaryView,
     TUICollectionViewItemTypeDecorationView
-};
+} TUICollectionViewItemType;
 
 // The TUICollectionViewLayout class is provided as an abstract class for subclassing to define custom collection layouts.
 // Defining a custom layout is an advanced operation intended for applications with complex needs.
@@ -49,9 +45,6 @@ typedef NS_ENUM(NSUInteger, TUICollectionViewItemType) {
 - (BOOL)isCell;
 @end
 
-// used internally for deserialization until I figure out the proper way.
-extern NSString *const TUICollectionViewLayoutAwokeFromNib;
-
 @interface TUICollectionViewLayout : NSObject <NSCoding>
 
 // Methods in this class are meant to be overridden and will be called by its collection view to gather layout information.
@@ -64,7 +57,6 @@ extern NSString *const TUICollectionViewLayoutAwokeFromNib;
 
 /// @name Registering Decoration Views
 - (void)registerClass:(Class)viewClass forDecorationViewWithReuseIdentifier:(NSString *)identifier;
-- (void)registerNib:(NSNib *)nib forDecorationViewWithReuseIdentifier:(NSString *)identifier;
 
 @end
 

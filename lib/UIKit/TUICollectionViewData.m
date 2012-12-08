@@ -51,7 +51,6 @@
 
 @implementation TUICollectionViewData
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (id)initWithCollectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout *)layout {
@@ -71,7 +70,6 @@
     return [NSString stringWithFormat:@"<%@: %p numItems:%ld numSections:%ld globalItems:%@>", NSStringFromClass([self class]), self, self.numberOfItems, self.numberOfSections, _globalItems];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)invalidate {
@@ -146,7 +144,6 @@
     _collectionViewDataFlags.layoutIsPrepared = layoutIsPrepared;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Fetch Layout Attributes
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
@@ -154,7 +151,6 @@
     return _cellLayoutAttributes;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private
 
 // ensure item count is valid and loaded

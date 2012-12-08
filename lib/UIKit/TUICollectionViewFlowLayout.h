@@ -11,22 +11,10 @@
 extern NSString *const TUICollectionElementKindSectionHeader;
 extern NSString *const TUICollectionElementKindSectionFooter;
 
-typedef NS_ENUM(NSInteger, TUICollectionViewScrollDirection) {
+typedef enum TUICollectionViewScrollDirection : NSInteger {
     TUICollectionViewScrollDirectionVertical,
     TUICollectionViewScrollDirectionHorizontal
-};
-
-@protocol TUICollectionViewDelegateFlowLayout <TUICollectionViewDelegate>
-@optional
-
-- (CGSize)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
-- (TUIEdgeInsets)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section;
-- (CGFloat)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section;
-- (CGFloat)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section;
-- (CGSize)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section;
-- (CGSize)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section;
-
-@end
+} TUICollectionViewScrollDirection;
 
 @class TUIGridLayoutInfo;
 
@@ -68,6 +56,20 @@ typedef NS_ENUM(NSInteger, TUIFlowLayoutHorizontalAlignment) {
 };
 // TODO: settings for UIFlowLayoutRowVerticalAlignmentKey
 
+@protocol TUICollectionViewDelegate;
+@class TUICollectionView;
+
+@protocol TUICollectionViewDelegateFlowLayout <TUICollectionViewDelegate>
+@optional
+
+- (CGSize)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
+- (TUIEdgeInsets)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section;
+- (CGFloat)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section;
+- (CGFloat)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section;
+- (CGSize)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section;
+- (CGSize)collectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout*)collectionViewLayout referenceSizeForFooterInSection:(NSInteger)section;
+
+@end
 
 /*
 @interface TUICollectionViewFlowLayout (Private)

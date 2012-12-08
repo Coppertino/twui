@@ -33,13 +33,11 @@
 		
 		ExampleCollectionViewLineLayout *l = [ExampleCollectionViewLineLayout new];
 		ExampleCollectionViewController *vc = [[ExampleCollectionViewController alloc] initWithCollectionViewLayout:l];
-		//ExampleTableViewController *tableViewController = [[ExampleTableViewController alloc] initWithNibName:nil bundle:nil];
+		//ExampleTableViewController *vc = [[ExampleTableViewController alloc] initWithNibName:nil bundle:nil];
 		_navigationController = [[TUINavigationController alloc] initWithRootViewController:vc];
+		_navigationController.view.autoresizingMask = TUIViewAutoresizingFlexibleSize;
+		_navigationController.view.frame = self.bounds;
 		[self addSubview:_navigationController.view];
-		[_navigationController.view addLayoutConstraint:[TUILayoutConstraint constraintWithAttribute:TUILayoutConstraintAttributeWidth relativeTo:@"superview" attribute:TUILayoutConstraintAttributeWidth]];
-		[_navigationController.view addLayoutConstraint:[TUILayoutConstraint constraintWithAttribute:TUILayoutConstraintAttributeHeight relativeTo:@"superview" attribute:TUILayoutConstraintAttributeHeight offset:-TAB_HEIGHT]];
-		[_navigationController.view addLayoutConstraint:[TUILayoutConstraint constraintWithAttribute:TUILayoutConstraintAttributeMinX relativeTo:@"superview" attribute:TUILayoutConstraintAttributeMinX]];
-		[_navigationController.view addLayoutConstraint:[TUILayoutConstraint constraintWithAttribute:TUILayoutConstraintAttributeMinY relativeTo:@"superview" attribute:TUILayoutConstraintAttributeMinY offset:TAB_HEIGHT]];
 		
 		/*
 		 Note by default scroll views (and therefore table views) don't
@@ -55,7 +53,7 @@
 			rect.size.height = TAB_HEIGHT; // only take up the bottom 60px
 			return rect;
 		};
-		[self addSubview:_tabBar];
+		//[self addSubview:_tabBar];
 		
 		// setup individual tabs
 		for(TUIView *tabView in _tabBar.tabViews) {

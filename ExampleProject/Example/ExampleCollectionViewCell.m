@@ -22,7 +22,7 @@
     if((self = [super initWithFrame:frame])) {
 		self.backgroundColor = [NSColor redColor];
         self.contentView.layer.borderWidth = 1.0f;
-        self.contentView.layer.borderColor = [NSColor whiteColor].CGColor;
+        self.contentView.layer.borderColor = [NSColor whiteColor].tui_CGColor;
 		
         self.label = [[TUILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, frame.size.width, frame.size.height)];
         self.label.autoresizingMask = TUIViewAutoresizingFlexibleSize;

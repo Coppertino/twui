@@ -5,11 +5,10 @@
 //  AppKit Port: Copyright (c) 2012 Indragie Karunaratne. All rights reserved.
 //
 
-#import "TUICollectionViewCommon.h"
+#import "TUICollectionView.h"
 
 @class TUICollectionView, TUICollectionViewLayout, TUICollectionViewLayoutAttributes;
 
-// https://github.com/steipete/iOS6-Runtime-Headers/blob/master/UICollectionViewData.h
 @interface TUICollectionViewData : NSObject
 
 /// Designated initializer.

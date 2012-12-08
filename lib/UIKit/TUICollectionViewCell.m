@@ -24,12 +24,10 @@
 
 @implementation TUICollectionReusableView
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (void)TUICollectionReusableViewCommonSetup
 {
-    self.layer.backgroundColor = [NSColor greenColor].CGColor;
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -46,11 +44,6 @@
     return self;
 }
 
-- (void)awakeFromNib {
-    self.reuseIdentifier = [self valueForKeyPath:@"reuseIdentifier"];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)prepareForReuse {
@@ -105,12 +98,10 @@
     BOOL _highlighted;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (void)TUICollectionViewCellCommonSetup
 {
-    self.layer.backgroundColor = [NSColor purpleColor].CGColor;
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -146,7 +137,6 @@
     return self;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)prepareForReuse {

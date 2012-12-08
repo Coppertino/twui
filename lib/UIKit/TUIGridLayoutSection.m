@@ -7,7 +7,6 @@
 
 #import "TUIGeometry.h"
 
-#import "TUICollectionViewCommon.h"
 #import "TUIGridLayoutSection.h"
 #import "TUIGridLayoutItem.h"
 #import "TUIGridLayoutRow.h"
@@ -34,7 +33,6 @@
 
 @implementation TUIGridLayoutSection
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (id)init {
@@ -49,7 +47,6 @@
     return [NSString stringWithFormat:@"<%@: %p itemCount:%ld frame:%@ rows:%@>", NSStringFromClass([self class]), self, self.itemsCount, NSStringFromRect(self.frame), self.rows];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)invalidate {

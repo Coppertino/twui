@@ -25,7 +25,6 @@
 
 @implementation TUIGridLayoutRow
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (id)init {
@@ -39,7 +38,6 @@
     return [NSString stringWithFormat:@"<%@: %p frame:%@ index:%ld items:%@>", NSStringFromClass([self class]), self, NSStringFromRect(self.rowFrame), self.index, self.items];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)invalidate {

@@ -25,7 +25,7 @@
 - (id)init {
     if((self = [super init])) {
         self.itemSize = CGSizeMake(ITEM_SIZE, ITEM_SIZE);
-        //self.scrollDirection = TUICollectionViewScrollDirectionHorizontal;
+        self.scrollDirection = TUICollectionViewScrollDirectionHorizontal;
         self.sectionInset = TUIEdgeInsetsMake(200, 0.0, 200, 0.0);
         self.minimumLineSpacing = 50.0;
     }
@@ -33,15 +33,13 @@
     return self;
 }
 
-/*- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)oldBounds {
+- (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)oldBounds {
     return YES;
-}//*/
+}
 
-/*- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
+- (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
     NSArray *array = [super layoutAttributesForElementsInRect:rect];
-    CGRect visibleRect;
-    visibleRect.origin = self.collectionView.contentOffset;
-    visibleRect.size = self.collectionView.bounds.size;
+    CGRect visibleRect = self.collectionView.contentRect;
     
     for (TUICollectionViewLayoutAttributes *attributes in array) {
         if (CGRectIntersectsRect(attributes.frame, rect)) {
@@ -56,14 +54,16 @@
     }
 	
     return array;
-}//*/
+}
 
-/*- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity {
+- (CGPoint)targetContentOffsetForProposedContentOffset:(CGPoint)proposedContentOffset withScrollingVelocity:(CGPoint)velocity {
     CGFloat offsetAdjustment = MAXFLOAT;
     CGFloat horizontalCenter = proposedContentOffset.x + (CGRectGetWidth(self.collectionView.bounds) / 2.0);
     
-    CGRect targetRect = CGRectMake(proposedContentOffset.x, 0.0,
-								   self.collectionView.bounds.size.width, self.collectionView.bounds.size.height);
+    CGRect targetRect = (CGRect) {
+		.origin.x = proposedContentOffset.x,
+		.size = self.collectionView.bounds.size
+	};
     NSArray* array = [super layoutAttributesForElementsInRect:targetRect];
     
     for (TUICollectionViewLayoutAttributes *layoutAttributes in array) {
@@ -74,6 +74,6 @@
     }
 	
     return CGPointMake(proposedContentOffset.x + offsetAdjustment, proposedContentOffset.y);
-}//*/
+}
 
 @end

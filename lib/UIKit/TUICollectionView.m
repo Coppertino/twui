@@ -16,27 +16,29 @@
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
-@interface TUICollectionViewLayout (Internal)
+@interface TUICollectionViewLayout ()
+
 @property (nonatomic, unsafe_unretained) TUICollectionView *collectionView;
+
 @end
 
-@interface TUICollectionViewData (Internal)
+@interface TUICollectionViewData ()
+
 - (void)prepareToLoadData;
+
 @end
 
+@interface TUICollectionViewUpdateItem ()
 
-@interface TUICollectionViewUpdateItem()
 - (NSIndexPath *)indexPath;
 - (BOOL)isSectionOperation;
-@end
 
+@end
 
 @class TUICollectionViewExt;
 
-@interface TUICollectionView() {
-    // ivar layout needs to EQUAL to UICollectionView.
+@interface TUICollectionView () {
     TUICollectionViewLayout *_layout;
-    __unsafe_unretained id<TUICollectionViewDataSource> _dataSource;
     TUIView *_backgroundView;
     NSMutableSet *_indexPathsForSelectedItems;
     NSMutableDictionary *_cellReuseQueues;
@@ -48,11 +50,8 @@
     int _firstResponderViewType;
     NSString *_firstResponderViewKind;
     NSIndexPath *_firstResponderIndexPath;
-    NSMutableDictionary *_allVisibleViewsDict;
     NSIndexPath *_pendingSelectionIndexPath;
     NSMutableSet *_pendingDeselectionIndexPaths;
-    TUICollectionViewData *_collectionViewData;
-    id _update;
     CGRect _visibleBoundRects;
     CGRect _preRotationBounds;
     CGPoint _rotationBoundsOffset;
@@ -65,13 +64,9 @@
     NSArray *_originalInsertItems;
     NSArray *_originalDeleteItems;
     NSEvent *_currentEvent;
-    void (^_updateCompletionHandler)();
+    void (^_updateCompletionHandler)(BOOL);
     NSMutableDictionary *_cellClassDict;
-    NSMutableDictionary *_cellNibDict;
     NSMutableDictionary *_supplementaryViewClassDict;
-    NSMutableDictionary *_supplementaryViewNibDict;
-    NSMutableDictionary *_cellNibExternalObjectsTables;
-    NSMutableDictionary *_supplementaryViewNibExternalObjectsTables;
     struct {
         unsigned int delegateShouldHighlightItemAtIndexPath : 1;
         unsigned int delegateDidHighlightItemAtIndexPath : 1;
@@ -99,41 +94,25 @@
         unsigned int layoutInvalidatedSinceLastCellUpdate : 1;
         unsigned int doneFirstLayout : 1;
     } _collectionViewFlags;
-    CGPoint _lastLayoutOffset;
-    
 }
-@property (nonatomic, strong) TUICollectionViewData *collectionViewData;
-@property (nonatomic, strong, readonly) TUICollectionViewExt *extVars;
-@property (nonatomic, readonly) id currentUpdate;
-@property (nonatomic, readonly) NSDictionary *visibleViewsDict;
-@property (nonatomic, assign) CGRect visibleBoundRects;
-@property (nonatomic, assign) CGSize contentSize;
-@end
 
-// Used by TUICollectionView for external variables.
-// (We need to keep the total class size equal to the UICollectionView variant)
-@interface TUICollectionViewExt : NSObject
-@property (nonatomic, strong) id nibObserverToken;
-@property (nonatomic, strong) TUICollectionViewLayout *nibLayout;
-@property (nonatomic, strong) NSDictionary *nibCellsExternalObjects;
+@property (nonatomic, strong) TUICollectionViewData *collectionViewData;
+@property (nonatomic, strong) NSDictionary *currentUpdate;
+@property (nonatomic, strong) NSMutableDictionary *allVisibleViewsDict;
+@property (nonatomic, assign) CGRect visibleBoundRects;
+
 @property (nonatomic, strong) NSDictionary *supplementaryViewsExternalObjects;
 @property (nonatomic, strong) NSIndexPath *touchingIndexPath;
-@end
 
-@implementation TUICollectionViewExt @end
-const char kTUIColletionViewExt;
+@end
 
 @implementation TUICollectionView
 
 @synthesize collectionViewLayout = _layout;
-@synthesize currentUpdate = _update;
-@synthesize visibleViewsDict = _allVisibleViewsDict;
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
-- (void)TUICollectionViewCommonSetup
-{
+- (void)TUICollectionViewCommonSetup {
     self.allowsSelection = YES;
     _indexPathsForSelectedItems = [NSMutableSet new];
     _indexPathsForHighlightedItems = [NSMutableSet new];
@@ -141,19 +120,13 @@ const char kTUIColletionViewExt;
     _supplementaryViewReuseQueues = [NSMutableDictionary new];
     _allVisibleViewsDict = [NSMutableDictionary new];
     _cellClassDict = [NSMutableDictionary new];
-    _cellNibDict = [NSMutableDictionary new];
     _supplementaryViewClassDict = [NSMutableDictionary new];
-	_supplementaryViewNibDict = [NSMutableDictionary new];
-    
-    // add class that saves additional ivars
-    objc_setAssociatedObject(self, &kTUIColletionViewExt, [TUICollectionViewExt new], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    
-    self.layer.backgroundColor = [NSColor blueColor].CGColor;
 }
 
 - (id)initWithFrame:(CGRect)frame collectionViewLayout:(TUICollectionViewLayout *)viewLayout {
     if ((self = [super initWithFrame:frame])) {
         [self TUICollectionViewCommonSetup];
+		
         self.collectionViewLayout = viewLayout;
         _collectionViewData = [[TUICollectionViewData alloc] initWithCollectionView:self layout:viewLayout];
     }
@@ -163,48 +136,18 @@ const char kTUIColletionViewExt;
 - (id)initWithCoder:(NSCoder *)inCoder {
     if ((self = [super initWithCoder:inCoder])) {
         [self TUICollectionViewCommonSetup];
-        // add observer for nib deserialization.
-
-        id nibObserverToken = [[NSNotificationCenter defaultCenter] addObserverForName:TUICollectionViewLayoutAwokeFromNib object:nil queue:nil usingBlock:^(NSNotification *note) {
-            self.extVars.nibLayout = note.object;
-        }];
-        self.extVars.nibObserverToken = nibObserverToken;
     }
     return self;
-}
-
-- (void)awakeFromNib {
-    [super awakeFromNib];
-
-    // check if NIB deserialization found a layout.
-    id nibObserverToken = self.extVars.nibObserverToken;
-    if (nibObserverToken) {
-        [[NSNotificationCenter defaultCenter] removeObserver:nibObserverToken];
-        self.extVars.nibObserverToken = nil;
-    }
-
-    TUICollectionViewLayout *nibLayout = self.extVars.nibLayout;
-    if (nibLayout) {
-        self.collectionViewLayout = nibLayout;
-        self.extVars.nibLayout = nil;
-    }
 }
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"%@ collection view layout: %@", [super description], self.collectionViewLayout];
 }
 
-- (void)dealloc {
-    id nibObserverToken = self.extVars.nibObserverToken;
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    if (nibObserverToken) [nc removeObserver:nibObserverToken];
-    [nc removeObserver:self];
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - TUIView
 
 - (void)layoutSubviews {
+	[super layoutSubviews];
 	
     // Adding alpha animation to make the relayouting smooth
     if (_collectionViewFlags.fadeCellsForBoundsChange) {
@@ -214,7 +157,7 @@ const char kTUIColletionViewExt;
         transition.type = kCATransitionFade;
         //[self.layer addAnimation:transition forKey:@"rotationAnimation"];
     }
-
+	
     [_collectionViewData validateLayoutInRect:self.visibleRect];
 
     // update cells
@@ -258,7 +201,6 @@ const char kTUIColletionViewExt;
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)registerClass:(Class)cellClass forCellWithReuseIdentifier:(NSString *)identifier {
@@ -275,25 +217,6 @@ const char kTUIColletionViewExt;
     _supplementaryViewClassDict[kindAndIdentifier] = viewClass;
 }
 
-- (void)registerNib:(NSNib *)nib forCellWithReuseIdentifier:(NSString *)identifier {
-    NSArray *topLevelObjects = nil;
-    [nib instantiateWithOwner:nil topLevelObjects:&topLevelObjects];
-#pragma unused(topLevelObjects)
-    NSAssert(topLevelObjects.count == 1 && [topLevelObjects[0] isKindOfClass:TUICollectionViewCell.class], @"must contain exactly 1 top level object which is a TUICollectionViewCell");
-
-    _cellNibDict[identifier] = nib;
-}
-
-- (void)registerNib:(NSNib *)nib forSupplementaryViewOfKind:(NSString *)kind withReuseIdentifier:(NSString *)identifier {
-    NSArray *topLevelObjects = nil;
-    [nib instantiateWithOwner:nil topLevelObjects:&topLevelObjects];
-#pragma unused(topLevelObjects)
-    NSAssert(topLevelObjects.count == 1 && [topLevelObjects[0] isKindOfClass:TUICollectionReusableView.class], @"must contain exactly 1 top level object which is a TUICollectionReusableView");
-
-	NSString *kindAndIdentifier = [NSString stringWithFormat:@"%@/%@", kind, identifier];
-    _supplementaryViewNibDict[kindAndIdentifier] = nib;
-}
-
 - (id)dequeueReusableCellWithReuseIdentifier:(NSString *)identifier forIndexPath:(NSIndexPath *)indexPath {
     // de-queue cell (if available)
     NSMutableArray *reusableCells = _cellReuseQueues[identifier];
@@ -301,32 +224,17 @@ const char kTUIColletionViewExt;
     if (cell) {
         [reusableCells removeObjectAtIndex:[reusableCells count]-1];
     }else {
-        if (_cellNibDict[identifier]) {
-            // Cell was registered via registerNib:forCellWithReuseIdentifier:
-            NSNib *cellNib = _cellNibDict[identifier];
-            NSMutableDictionary *externalObjects = [NSMutableDictionary dictionaryWithDictionary:self.extVars.nibCellsExternalObjects[identifier]];
-            if (externalObjects) {
-                NSMutableArray *topLevelObjects = [NSMutableArray array];
-                externalObjects[NSNibTopLevelObjects] = topLevelObjects;
-                [cellNib instantiateNibWithExternalNameTable:externalObjects];
-                cell = topLevelObjects[0];
-            } else {
-                NSArray *topLevelObjects = nil;
-                [cellNib instantiateWithOwner:self topLevelObjects:&topLevelObjects];
-                cell = topLevelObjects[0];
-            }
-        } else {
-            Class cellClass = _cellClassDict[identifier];
-            if (cellClass == nil) {
-                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"Class not registered for identifier %@", identifier] userInfo:nil];
-            }
-            if (self.collectionViewLayout) {
-                TUICollectionViewLayoutAttributes *attributes = [self.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath];
-                cell = [[cellClass alloc] initWithFrame:attributes.frame];
-            } else {
-                cell = [cellClass new];
-            }
-        }
+        Class cellClass = _cellClassDict[identifier];
+		if (cellClass == nil) {
+			@throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"Class not registered for identifier %@", identifier] userInfo:nil];
+		}
+		if (self.collectionViewLayout) {
+			TUICollectionViewLayoutAttributes *attributes = [self.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath];
+			cell = [[cellClass alloc] initWithFrame:attributes.frame];
+		} else {
+			cell = [cellClass new];
+		}
+		
         TUICollectionViewLayout *viewLayout = [self collectionViewLayout];
         if ([viewLayout isKindOfClass:[TUICollectionViewFlowLayout class]]) {
             CGSize itemSize = ((TUICollectionViewFlowLayout *)viewLayout).itemSize;
@@ -345,33 +253,17 @@ const char kTUIColletionViewExt;
     if (view) {
         [reusableViews removeObjectAtIndex:reusableViews.count - 1];
     } else {
-        if (_supplementaryViewNibDict[kindAndIdentifier]) {
-            // supplementary view was registered via registerNib:forCellWithReuseIdentifier:
-            NSNib *supplementaryViewNib = _supplementaryViewNibDict[kindAndIdentifier];
-			NSMutableDictionary *externalObjects = [NSMutableDictionary dictionaryWithDictionary:self.extVars.supplementaryViewsExternalObjects[kindAndIdentifier]];
-			if (externalObjects) {
-                NSMutableArray *topLevelObjects = [NSMutableArray array];
-                externalObjects[NSNibTopLevelObjects] = topLevelObjects;
-                [supplementaryViewNib instantiateNibWithExternalNameTable:externalObjects];
-                view = topLevelObjects[0];
-            } else {
-                NSArray *topLevelObjects = nil;
-                [supplementaryViewNib instantiateWithOwner:self topLevelObjects:&topLevelObjects];
-                view = topLevelObjects[0];
-            }
-        } else {
-			Class viewClass = _supplementaryViewClassDict[kindAndIdentifier];
-			if (viewClass == nil) {
-				@throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"Class not registered for kind/identifier %@", kindAndIdentifier] userInfo:nil];
-			}
-			if (self.collectionViewLayout) {
-				TUICollectionViewLayoutAttributes *attributes = [self.collectionViewLayout layoutAttributesForSupplementaryViewOfKind:elementKind
-																														  atIndexPath:indexPath];
-				view = [[viewClass alloc] initWithFrame:attributes.frame];
-			} else {
-				view = [viewClass new];
-			}
-        }
+        Class viewClass = _supplementaryViewClassDict[kindAndIdentifier];
+		if (viewClass == nil) {
+			@throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"Class not registered for kind/identifier %@", kindAndIdentifier] userInfo:nil];
+		}
+		if (self.collectionViewLayout) {
+			TUICollectionViewLayoutAttributes *attributes = [self.collectionViewLayout layoutAttributesForSupplementaryViewOfKind:elementKind
+																													  atIndexPath:indexPath];
+			view = [[viewClass alloc] initWithFrame:attributes.frame];
+		} else {
+			view = [viewClass new];
+		}
         view.collectionView = self;
         view.reuseIdentifier = identifier;
     }
@@ -380,13 +272,13 @@ const char kTUIColletionViewExt;
 
 
 - (NSArray *)allCells {
-    return [[_allVisibleViewsDict allValues] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+    return [[self.allVisibleViewsDict allValues] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
         return [evaluatedObject isKindOfClass:[TUICollectionViewCell class]];
     }]];
 }
 
 - (NSArray *)visibleCells {
-    return [[_allVisibleViewsDict allValues] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+    return [[self.allVisibleViewsDict allValues] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
         return [evaluatedObject isKindOfClass:[TUICollectionViewCell class]] && CGRectIntersectsRect(self.visibleRect, [evaluatedObject frame]);
     }]];
 }
@@ -394,12 +286,12 @@ const char kTUIColletionViewExt;
 - (void)reloadData {
     if (_reloadingSuspendedCount != 0) return;
     [self invalidateLayout];
-    [_allVisibleViewsDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+    [self.allVisibleViewsDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
         if ([obj isKindOfClass:[TUIView class]]) {
             [obj removeFromSuperview];
         }
     }];
-    [_allVisibleViewsDict removeAllObjects];
+    [self.allVisibleViewsDict removeAllObjects];
 
     for(NSIndexPath *indexPath in _indexPathsForSelectedItems) {
         TUICollectionViewCell *selectedCell = [self cellForItemAtIndexPath:indexPath];
@@ -416,7 +308,6 @@ const char kTUIColletionViewExt;
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Query Grid
 
 - (NSInteger)numberOfSections {
@@ -437,7 +328,7 @@ const char kTUIColletionViewExt;
 
 - (NSIndexPath *)indexPathForItemAtPoint:(CGPoint)point {
     __block NSIndexPath *indexPath = nil;
-    [_allVisibleViewsDict enumerateKeysAndObjectsWithOptions:kNilOptions usingBlock:^(id key, id obj, BOOL *stop) {
+    [self.allVisibleViewsDict enumerateKeysAndObjectsWithOptions:kNilOptions usingBlock:^(id key, id obj, BOOL *stop) {
         TUICollectionViewItemKey *itemKey = (TUICollectionViewItemKey *)key;
         if (itemKey.type == TUICollectionViewItemTypeCell) {
             TUICollectionViewCell *cell = (TUICollectionViewCell *)obj;
@@ -452,7 +343,7 @@ const char kTUIColletionViewExt;
 
 - (NSIndexPath *)indexPathForCell:(TUICollectionViewCell *)cell {
     __block NSIndexPath *indexPath = nil;
-    [_allVisibleViewsDict enumerateKeysAndObjectsWithOptions:kNilOptions usingBlock:^(id key, id obj, BOOL *stop) {
+    [self.allVisibleViewsDict enumerateKeysAndObjectsWithOptions:kNilOptions usingBlock:^(id key, id obj, BOOL *stop) {
         TUICollectionViewItemKey *itemKey = (TUICollectionViewItemKey *)key;
         if (itemKey.type == TUICollectionViewItemTypeCell) {
             TUICollectionViewCell *currentCell = (TUICollectionViewCell *)obj;
@@ -469,7 +360,7 @@ const char kTUIColletionViewExt;
     // NSInteger index = [_collectionViewData globalIndexForItemAtIndexPath:indexPath];
     // TODO Apple uses some kind of globalIndex for this.
     __block TUICollectionViewCell *cell = nil;
-    [_allVisibleViewsDict enumerateKeysAndObjectsWithOptions:0 usingBlock:^(id key, id obj, BOOL *stop) {
+    [self.allVisibleViewsDict enumerateKeysAndObjectsWithOptions:0 usingBlock:^(id key, id obj, BOOL *stop) {
         TUICollectionViewItemKey *itemKey = (TUICollectionViewItemKey *)key;
         if (itemKey.type == TUICollectionViewItemTypeCell) {
             if ([itemKey.indexPath isEqual:indexPath]) {
@@ -482,9 +373,9 @@ const char kTUIColletionViewExt;
 }
 
 - (NSArray *)indexPathsForVisibleItems {
-	NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:[_allVisibleViewsDict count]];
+	NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:[self.allVisibleViewsDict count]];
 
-	[_allVisibleViewsDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+	[self.allVisibleViewsDict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
 		TUICollectionViewItemKey *itemKey = (TUICollectionViewItemKey *)key;
         if (itemKey.type == TUICollectionViewItemTypeCell) {
 			[indexPaths addObject:itemKey.indexPath];
@@ -520,7 +411,6 @@ const char kTUIColletionViewExt;
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Mouse Event Handling
 
 - (void)mouseDown:(NSEvent *)theEvent
@@ -543,21 +433,21 @@ const char kTUIColletionViewExt;
         
         [self highlightItemAtIndexPath:indexPath animated:YES scrollPosition:TUICollectionViewScrollPositionNone notifyDelegate:YES];
         
-        self.extVars.touchingIndexPath = indexPath;
+        self.touchingIndexPath = indexPath;
     }
 }
 
 - (void)mouseDragged:(NSEvent *)theEvent
 {
     [super mouseDragged:theEvent];
-    if (self.extVars.touchingIndexPath) {
+    if (self.touchingIndexPath) {
         CGPoint touchPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
         NSIndexPath *indexPath = [self indexPathForItemAtPoint:touchPoint];
-        if ([indexPath isEqual:self.extVars.touchingIndexPath]) {
+        if ([indexPath isEqual:self.touchingIndexPath]) {
             [self highlightItemAtIndexPath:indexPath animated:YES scrollPosition:TUICollectionViewScrollPositionNone notifyDelegate:YES];
         }
         else {
-            [self unhighlightItemAtIndexPath:self.extVars.touchingIndexPath animated:YES notifyDelegate:YES];
+            [self unhighlightItemAtIndexPath:self.touchingIndexPath animated:YES notifyDelegate:YES];
         }
     }
 }
@@ -567,11 +457,11 @@ const char kTUIColletionViewExt;
     [super mouseUp:theEvent];
     CGPoint touchPoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     NSIndexPath *indexPath = [self indexPathForItemAtPoint:touchPoint];
-    if ([indexPath isEqual:self.extVars.touchingIndexPath]) {
+    if ([indexPath isEqual:self.touchingIndexPath]) {
         [self userSelectedItemAtIndexPath:indexPath];
         
         [self unhighlightAllItems];
-        self.extVars.touchingIndexPath = nil;
+        self.touchingIndexPath = nil;
     }
     else {
         [self cellTouchCancelled];
@@ -589,7 +479,7 @@ const char kTUIColletionViewExt;
     }
 
     [self unhighlightAllItems];
-    self.extVars.touchingIndexPath = nil;
+    self.touchingIndexPath = nil;
 }
 
 - (void)userSelectedItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -708,7 +598,6 @@ const char kTUIColletionViewExt;
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Update Grid
 
 - (void)insertSections:(NSIndexSet *)sections {
@@ -761,7 +650,7 @@ const char kTUIColletionViewExt;
 
 }
 
-- (void)performBatchUpdates:(void (^)(void))updates completion:(void (^)(void))completion {
+- (void)performBatchUpdates:(void (^)(void))updates completion:(void (^)(BOOL finished))completion {
     if(!updates) return;
     
     [self setupCellAnimations];
@@ -773,7 +662,6 @@ const char kTUIColletionViewExt;
     [self endItemAnimations];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Properties
 
 - (void)setBackgroundView:(TUIView *)backgroundView {
@@ -820,7 +708,7 @@ const char kTUIColletionViewExt;
             [selectedCellKeys addObject:[TUICollectionViewItemKey collectionItemKeyForCellWithIndexPath:indexPath]];
         }
         
-        NSArray *previouslyVisibleItemsKeys = [_allVisibleViewsDict allKeys];
+        NSArray *previouslyVisibleItemsKeys = [self.allVisibleViewsDict allKeys];
         NSSet *previouslyVisibleItemsKeysSet = [NSSet setWithArray:previouslyVisibleItemsKeys];
         NSMutableSet *previouslyVisibleItemsKeysSetMutable = [NSMutableSet setWithArray:previouslyVisibleItemsKeys];
 
@@ -828,7 +716,7 @@ const char kTUIColletionViewExt;
             [previouslyVisibleItemsKeysSetMutable intersectSet:previouslyVisibleItemsKeysSetMutable];
         }
         
-        TUIView *previouslyVisibleView = _allVisibleViewsDict[[previouslyVisibleItemsKeysSetMutable anyObject]];
+        TUIView *previouslyVisibleView = self.allVisibleViewsDict[[previouslyVisibleItemsKeysSetMutable anyObject]];
         [previouslyVisibleView removeFromSuperview];
 		[self addSubview:previouslyVisibleView];
         
@@ -872,7 +760,7 @@ const char kTUIColletionViewExt;
             TUICollectionViewLayoutAttributes *newAttr = nil;
             
             if(key.type == TUICollectionViewItemTypeDecorationView) {
-                TUICollectionReusableView *decorView = _allVisibleViewsDict[key];
+                TUICollectionReusableView *decorView = self.allVisibleViewsDict[key];
                 prevAttr = [self.collectionViewLayout layoutAttributesForDecorationViewWithReuseIdentifier:decorView.reuseIdentifier
                                                                                                atIndexPath:key.indexPath];
                 newAttr = [layout layoutAttributesForDecorationViewWithReuseIdentifier:decorView.reuseIdentifier
@@ -883,7 +771,7 @@ const char kTUIColletionViewExt;
                 newAttr = [layout layoutAttributesForItemAtIndexPath:key.indexPath];
             }
             else {
-                TUICollectionReusableView* suuplView = _allVisibleViewsDict[key];
+                TUICollectionReusableView* suuplView = self.allVisibleViewsDict[key];
                 prevAttr = [self.collectionViewLayout layoutAttributesForSupplementaryViewOfKind:suuplView.layoutAttributes.representedElementKind
                                                                                      atIndexPath:key.indexPath];
                 newAttr = [layout layoutAttributesForSupplementaryViewOfKind:suuplView.layoutAttributes.representedElementKind
@@ -896,18 +784,18 @@ const char kTUIColletionViewExt;
 
         for(TUICollectionViewItemKey *key in [layoutInterchangeData keyEnumerator]) {
             if(key.type == TUICollectionViewItemTypeCell) {
-                TUICollectionViewCell* cell = _allVisibleViewsDict[key];
+                TUICollectionViewCell* cell = self.allVisibleViewsDict[key];
                 
                 if (!cell) {
                     cell = [self createPreparedCellForItemAtIndexPath:key.indexPath
                                                  withLayoutAttributes:layoutInterchangeData[key][@"previousLayoutInfos"]];
-                    _allVisibleViewsDict[key] = cell;
+                    self.allVisibleViewsDict[key] = cell;
                     [self addControlledSubview:cell];
                 }
                 else [cell applyLayoutAttributes:layoutInterchangeData[key][@"previousLayoutInfos"]];
             }
             else if(key.type == TUICollectionViewItemTypeSupplementaryView) {
-                TUICollectionReusableView *view = _allVisibleViewsDict[key];
+                TUICollectionReusableView *view = self.allVisibleViewsDict[key];
                 if (!view) {
                     TUICollectionViewLayoutAttributes *attrs = layoutInterchangeData[key][@"previousLayoutInfos"];
                     view = [self createPreparedSupplementaryViewForElementOfKind:attrs.representedElementKind
@@ -925,22 +813,22 @@ const char kTUIColletionViewExt;
         void (^applyNewLayoutBlock)(void) = ^{
             NSEnumerator *keys = [layoutInterchangeData keyEnumerator];
             for(TUICollectionViewItemKey *key in keys) {
-                [(TUICollectionViewCell *)_allVisibleViewsDict[key] applyLayoutAttributes:layoutInterchangeData[key][@"newLayoutInfos"]];
+                [(TUICollectionViewCell *)self.allVisibleViewsDict[key] applyLayoutAttributes:layoutInterchangeData[key][@"newLayoutInfos"]];
             }
         };
         
         void (^freeUnusedViews)(void) = ^ {
-            for(TUICollectionViewItemKey *key in [_allVisibleViewsDict keyEnumerator]) {
+            for(TUICollectionViewItemKey *key in [self.allVisibleViewsDict keyEnumerator]) {
                 if(![newlyVisibleItemsKeys containsObject:key]) {
-                    if(key.type == TUICollectionViewItemTypeCell) [self reuseCell:_allVisibleViewsDict[key]];
+                    if(key.type == TUICollectionViewItemTypeCell) [self reuseCell:self.allVisibleViewsDict[key]];
                     else if(key.type == TUICollectionViewItemTypeSupplementaryView)
-                        [self reuseSupplementaryView:_allVisibleViewsDict[key]];
+                        [self reuseSupplementaryView:self.allVisibleViewsDict[key]];
                 }
             }
         };
         
         if(animated) {
-            [TUIView animateWithDuration:.3 animations:^ {
+            [TUIView animateWithDuration:0.25f animations:^ {
                  _collectionViewFlags.updatingLayout = YES;
                  applyNewLayoutBlock();
              } completion:^(BOOL finished) {
@@ -1028,12 +916,7 @@ const char kTUIColletionViewExt;
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private
-
-- (TUICollectionViewExt *)extVars {
-    return objc_getAssociatedObject(self, &kTUIColletionViewExt);
-}
 
 - (void)invalidateLayout {
     [self.collectionViewLayout invalidateLayout];
@@ -1053,15 +936,15 @@ const char kTUIColletionViewExt;
     }
 
     // detect what items should be removed and queued back.
-    NSMutableSet *allVisibleItemKeys = [NSMutableSet setWithArray:[_allVisibleViewsDict allKeys]];
+    NSMutableSet *allVisibleItemKeys = [NSMutableSet setWithArray:[self.allVisibleViewsDict allKeys]];
     [allVisibleItemKeys minusSet:[NSSet setWithArray:[itemKeysToAddDict allKeys]]];
 
     // remove views that have not been processed and prepare them for re-use.
     for (TUICollectionViewItemKey *itemKey in allVisibleItemKeys) {
-        TUICollectionReusableView *reusableView = _allVisibleViewsDict[itemKey];
+        TUICollectionReusableView *reusableView = self.allVisibleViewsDict[itemKey];
         if (reusableView) {
             [reusableView removeFromSuperview];
-            [_allVisibleViewsDict removeObjectForKey:itemKey];
+            [self.allVisibleViewsDict removeObjectForKey:itemKey];
             if (itemKey.type == TUICollectionViewItemTypeCell) {
                 if (_collectionViewFlags.delegateDidEndDisplayingCell) {
                     [self.delegate collectionView:self didEndDisplayingCell:(TUICollectionViewCell *)reusableView forItemAtIndexPath:itemKey.indexPath];
@@ -1083,7 +966,7 @@ const char kTUIColletionViewExt;
         TUICollectionViewLayoutAttributes *layoutAttributes = obj;
 
         // check if cell is in visible dict; add it if not.
-        TUICollectionReusableView *view = _allVisibleViewsDict[itemKey];
+        TUICollectionReusableView *view = self.allVisibleViewsDict[itemKey];
         if (!view) {
             if (itemKey.type == TUICollectionViewItemTypeCell) {
                 view = [self createPreparedCellForItemAtIndexPath:itemKey.indexPath withLayoutAttributes:layoutAttributes];
@@ -1096,7 +979,7 @@ const char kTUIColletionViewExt;
 
 			//Supplementary views are optional
 			if (view) {
-				_allVisibleViewsDict[itemKey] = view;
+				self.allVisibleViewsDict[itemKey] = view;
 				[self addControlledSubview:view];
 			}
         }else {
@@ -1164,7 +1047,6 @@ const char kTUIColletionViewExt;
     [self addSubview:subview];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Updating grid internal functionality
 
 - (void)suspendReloads {
@@ -1224,7 +1106,7 @@ const char kTUIColletionViewExt;
             
             TUICollectionViewLayoutAttributes *finalAttrs = [_layout finalLayoutAttributesForDisappearingItemAtIndexPath:indexPath];
             TUICollectionViewItemKey *key = [TUICollectionViewItemKey collectionItemKeyForCellWithIndexPath:indexPath];
-            TUICollectionReusableView *view = _allVisibleViewsDict[key];
+            TUICollectionReusableView *view = self.allVisibleViewsDict[key];
             if (view) {
                 TUICollectionViewLayoutAttributes *startAttrs = view.layoutAttributes;
                 
@@ -1233,7 +1115,7 @@ const char kTUIColletionViewExt;
                     finalAttrs.alpha = 0;
                 }
                 [animations addObject:@{@"view": view, @"previousLayoutInfos": startAttrs, @"newLayoutInfos": finalAttrs}];
-                [_allVisibleViewsDict removeObjectForKey:key];
+                [self.allVisibleViewsDict removeObjectForKey:key];
             }
         }
         else if(updateItem.updateAction == TUICollectionUpdateActionInsert) {
@@ -1266,14 +1148,14 @@ const char kTUIColletionViewExt;
             
             TUICollectionViewItemKey *keyBefore = [TUICollectionViewItemKey collectionItemKeyForCellWithIndexPath:indexPathBefore];
             TUICollectionViewItemKey *keyAfter = [TUICollectionViewItemKey collectionItemKeyForCellWithIndexPath:indexPathAfter];
-            TUICollectionReusableView *view = _allVisibleViewsDict[keyBefore];
+            TUICollectionReusableView *view = self.allVisibleViewsDict[keyBefore];
             
             TUICollectionViewLayoutAttributes *startAttrs = nil;
             TUICollectionViewLayoutAttributes *finalAttrs = [_layout layoutAttributesForItemAtIndexPath:indexPathAfter];
             
             if(view) {
                 startAttrs = view.layoutAttributes;
-                [_allVisibleViewsDict removeObjectForKey:keyBefore];
+                [self.allVisibleViewsDict removeObjectForKey:keyBefore];
                 newAllVisibleView[keyAfter] = view;
             }
             else {
@@ -1288,11 +1170,11 @@ const char kTUIColletionViewExt;
         }
     }
     
-    for (TUICollectionViewItemKey *key in [_allVisibleViewsDict keyEnumerator]) {
-        TUICollectionReusableView *view = _allVisibleViewsDict[key];
-        NSInteger oldGlobalIndex = [_update[@"oldModel"] globalIndexForItemAtIndexPath:key.indexPath];
-        NSInteger newGlobalIndex = [_update[@"oldToNewIndexMap"][oldGlobalIndex] intValue];
-        NSIndexPath *newIndexPath = [_update[@"newModel"] indexPathForItemAtGlobalIndex:newGlobalIndex];
+    for (TUICollectionViewItemKey *key in [self.allVisibleViewsDict keyEnumerator]) {
+        TUICollectionReusableView *view = self.allVisibleViewsDict[key];
+        NSInteger oldGlobalIndex = [self.currentUpdate[@"oldModel"] globalIndexForItemAtIndexPath:key.indexPath];
+        NSInteger newGlobalIndex = [self.currentUpdate[@"oldToNewIndexMap"][oldGlobalIndex] intValue];
+        NSIndexPath *newIndexPath = [self.currentUpdate[@"newModel"] indexPathForItemAtGlobalIndex:newGlobalIndex];
         
         TUICollectionViewLayoutAttributes* startAttrs =
         [_layout initialLayoutAttributesForAppearingItemAtIndexPath:newIndexPath];
@@ -1323,7 +1205,7 @@ const char kTUIColletionViewExt;
         }
     }
     
-    _allVisibleViewsDict = newAllVisibleView;
+    self.allVisibleViewsDict = newAllVisibleView;
 
     for(NSDictionary *animation in animations) {
         TUICollectionReusableView *view = animation[@"view"];
@@ -1331,7 +1213,7 @@ const char kTUIColletionViewExt;
         [view applyLayoutAttributes:attr];
     };
 
-    [TUIView animateWithDuration:.3 animations:^{
+    [TUIView animateWithDuration:0.25f animations:^{
          _collectionViewFlags.updatingLayout = YES;
          for(NSDictionary *animation in animations) {
              TUICollectionReusableView* view = animation[@"view"];
@@ -1345,19 +1227,19 @@ const char kTUIColletionViewExt;
              [set addObject: [TUICollectionViewItemKey collectionItemKeyForLayoutAttributes:attrs]];
 
          NSMutableSet *toRemove =  [NSMutableSet set];
-         for(TUICollectionViewItemKey *key in [_allVisibleViewsDict keyEnumerator]) {
+         for(TUICollectionViewItemKey *key in [self.allVisibleViewsDict keyEnumerator]) {
              if(![set containsObject:key]) {
-                 [self reuseCell:_allVisibleViewsDict[key]];
+                 [self reuseCell:self.allVisibleViewsDict[key]];
                  [toRemove addObject:key];
              }
          }
          for(id key in toRemove)
-             [_allVisibleViewsDict removeObjectForKey:key];
+             [self.allVisibleViewsDict removeObjectForKey:key];
          
          _collectionViewFlags.updatingLayout = NO;
          
          if(_updateCompletionHandler) {
-             _updateCompletionHandler();
+             _updateCompletionHandler(finished);
              _updateCompletionHandler = nil;
          }
      }];
@@ -1645,7 +1527,7 @@ const char kTUIColletionViewExt;
         }
     }
 
-    _update = @{@"oldModel":oldCollectionViewData, @"newModel":_collectionViewData, @"oldToNewIndexMap":oldToNewMap, @"newToOldIndexMap":newToOldMap};
+    self.currentUpdate = @{@"oldModel":oldCollectionViewData, @"newModel":_collectionViewData, @"oldToNewIndexMap":oldToNewMap, @"newToOldIndexMap":newToOldMap};
 
     [self updateWithItems:someMutableArr1];
     
@@ -1655,7 +1537,7 @@ const char kTUIColletionViewExt;
     _deleteItems = nil;
     _moveItems = nil;
     _reloadItems = nil;
-    _update = nil;
+    self.currentUpdate = nil;
     _updateCount--;
     _collectionViewFlags.updating = NO;
     [self resumeReloads];

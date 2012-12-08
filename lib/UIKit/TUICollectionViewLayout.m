@@ -46,7 +46,6 @@
 
 @implementation TUICollectionViewLayoutAttributes
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Static
 
 + (instancetype)layoutAttributesForCellWithIndexPath:(NSIndexPath *)indexPath {
@@ -71,7 +70,6 @@
     return attributes;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (id)init {
@@ -100,7 +98,6 @@
     return [NSString stringWithFormat:@"<%@: %p frame:%@ indexPath:%@ elementKind:%@>", NSStringFromClass([self class]), self, NSStringFromRect(self.frame), self.indexPath, self.elementKind];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (TUICollectionViewItemType)representedElementCategory {
@@ -113,7 +110,6 @@
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private
 
 - (NSString *)representedElementKind {
@@ -148,7 +144,6 @@
     _center = (CGPoint){CGRectGetMidX(_frame), CGRectGetMidY(_frame)};
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone {
@@ -176,36 +171,25 @@
     NSMutableIndexSet *_deletedSectionsSet;
     NSMutableIndexSet *_insertedSectionsSet;
     NSMutableDictionary *_decorationViewClassDict;
-    NSMutableDictionary *_decorationViewNibDict;
     NSMutableDictionary *_decorationViewExternalObjectsTables;
 }
 @property (nonatomic, unsafe_unretained) TUICollectionView *collectionView;
 @end
 
-NSString *const TUICollectionViewLayoutAwokeFromNib = @"TUICollectionViewLayoutAwokeFromNib";
-
 @implementation TUICollectionViewLayout
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (id)init {
     if((self = [super init])) {
         _decorationViewClassDict = [NSMutableDictionary new];
-        _decorationViewNibDict = [NSMutableDictionary new];
         _decorationViewExternalObjectsTables = [NSMutableDictionary new];
         _initialAnimationLayoutAttributesDict = [NSMutableDictionary new];
         _finalAnimationLayoutAttributesDict = [NSMutableDictionary new];
         _insertedSectionsSet = [NSMutableIndexSet new];
         _deletedSectionsSet = [NSMutableIndexSet new];
-
-        [[NSNotificationCenter defaultCenter] postNotificationName:TUICollectionViewLayoutAwokeFromNib object:self];
     }
     return self;
-}
-
-- (void)awakeFromNib {
-    [super awakeFromNib];
 }
 
 - (void)setCollectionView:(TUICollectionView *)collectionView {
@@ -214,7 +198,6 @@ NSString *const TUICollectionViewLayoutAwokeFromNib = @"TUICollectionViewLayoutA
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Invalidating the Layout
 
 - (void)invalidateLayout {
@@ -224,7 +207,6 @@ NSString *const TUICollectionViewLayoutAwokeFromNib = @"TUICollectionViewLayoutA
     return NO; // return YES to requery the layout for geometry information
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Providing Layout Attributes
 
 - (void)prepareLayout {
@@ -255,7 +237,6 @@ NSString *const TUICollectionViewLayoutAwokeFromNib = @"TUICollectionViewLayoutA
     return CGSizeZero;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Responding to Collection View Updates
 
 - (void)prepareForCollectionViewUpdates:(NSArray *)updateItems {
@@ -372,23 +353,17 @@ NSString *const TUICollectionViewLayoutAwokeFromNib = @"TUICollectionViewLayoutA
     [_insertedSectionsSet removeAllIndexes];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Registering Decoration Views
 
 - (void)registerClass:(Class)viewClass forDecorationViewWithReuseIdentifier:(NSString *)identifier {
 }
 
-- (void)registerNib:(NSNib *)nib forDecorationViewWithReuseIdentifier:(NSString *)identifier {
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private
 
 - (void)setCollectionViewBoundsSize:(CGSize)size {
     _collectionViewBoundsSize = size;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSCoding
 
 - (id)initWithCoder:(NSCoder *)coder {

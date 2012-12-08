@@ -13,7 +13,6 @@ NSString *const TUICollectionElementKindDecorationView = @"TUICollectionElementK
 
 @implementation TUICollectionViewItemKey
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Static
 
 + (id)collectionItemKeyForCellWithIndexPath:(NSIndexPath *)indexPath {
@@ -58,7 +57,6 @@ NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (NSString *)description {
@@ -81,7 +79,6 @@ NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
     return NO;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone {
