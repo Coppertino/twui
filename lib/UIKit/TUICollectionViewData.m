@@ -1,24 +1,14 @@
-/*
- Copyright 2011 Twitter, Inc.
- 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this work except in compliance with the License.
- You may obtain a copy of the License in the LICENSE file, or at:
- 
- http://www.apache.org/licenses/LICENSE-2.0
- 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- */
-
-#import "NSIndexPath+TUIExtensions.h"
+//
+//  TUICollectionViewData.m
+//
+//  Original Source: Copyright (c) 2012 Peter Steinberger. All rights reserved.
+//  AppKit Port: Copyright (c) 2012 Indragie Karunaratne. All rights reserved.
+//
 
 #import "TUICollectionViewData.h"
 #import "TUICollectionView.h"
 #import "TUICollectionViewLayout.h"
+#import "NSIndexPath+TUIExtensions.h"
 
 @interface TUICollectionViewData () {
     CGRect _validLayoutRect;
@@ -26,24 +16,42 @@
     NSInteger _numItems;
     NSInteger _numSections;
     NSInteger *_sectionItemCounts;
-    NSArray *_globalItems;
+    NSArray *_globalItems; // Apple uses id *_globalItems; - a C array?
+
+/*
+ // At this point, I've no idea how _screenPageDict is structured. Looks like some optimization for layoutAttributesForElementsInRect.
+ And why UICGPointKey? Isn't that doable with NSValue?
+
+ "<UICGPointKey: 0x11432d40>" = "<NSMutableIndexSet: 0x11432c60>[number of indexes: 9 (in 1 ranges), indexes: (0-8)]";
+ "<UICGPointKey: 0xb94bf60>" = "<NSMutableIndexSet: 0x18dea7e0>[number of indexes: 11 (in 2 ranges), indexes: (6-15 17)]";
+ 
+ (lldb) p (CGPoint)[[[[[collectionView valueForKey:@"_collectionViewData"] valueForKey:@"_screenPageDict"] allKeys] objectAtIndex:0] point]
+ (CGPoint) $11 = (x=15, y=159)
+ (lldb) p (CGPoint)[[[[[collectionView valueForKey:@"_collectionViewData"] valueForKey:@"_screenPageDict"] allKeys] objectAtIndex:1] point]
+ (CGPoint) $12 = (x=15, y=1128)
+
+ // https://github.com/steipete/iOS6-Runtime-Headers/blob/master/UICGPointKey.h
+
+ NSMutableDictionary *_screenPageDict;
+ */
+
+    // @steipete
     NSArray *_cellLayoutAttributes;
+
     CGSize _contentSize;
-	
     struct {
-        unsigned contentSizeIsValid:1;
-        unsigned itemCountsAreValid:1;
-        unsigned layoutIsPrepared:1;
+        unsigned int contentSizeIsValid:1;
+        unsigned int itemCountsAreValid:1;
+        unsigned int layoutIsPrepared:1;
     } _collectionViewDataFlags;
 }
-
 @property (nonatomic, unsafe_unretained) TUICollectionView *collectionView;
 @property (nonatomic, unsafe_unretained) TUICollectionViewLayout *layout;
-
 @end
 
 @implementation TUICollectionViewData
 
+///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (id)initWithCollectionView:(TUICollectionView *)collectionView layout:(TUICollectionViewLayout *)layout {
@@ -56,32 +64,35 @@
 }
 
 - (void)dealloc {
-    if(_sectionItemCounts)
-		free(_sectionItemCounts);
+    if(_sectionItemCounts) free(_sectionItemCounts);
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<%@: %p numItems:%ld numSections:%ld globalItems:%@>",
-			NSStringFromClass([self class]), self, self.numberOfItems, self.numberOfSections, _globalItems];
+    return [NSString stringWithFormat:@"<%@: %p numItems:%ld numSections:%ld globalItems:%@>", NSStringFromClass([self class]), self, self.numberOfItems, self.numberOfSections, _globalItems];
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)invalidate {
     _collectionViewDataFlags.itemCountsAreValid = NO;
     _collectionViewDataFlags.layoutIsPrepared = NO;
-    _validLayoutRect = CGRectZero;
+    _validLayoutRect = CGRectNull;  // don't set CGRectZero in case of _contentSize=CGSizeZero
 }
 
 - (CGRect)collectionViewContentRect {
     return (CGRect){.size=_contentSize};
 }
 
-// TODO: check if we need to fetch data from layout
 - (void)validateLayoutInRect:(CGRect)rect {
     [self validateItemCounts];
     [self prepareToLoadData];
-	
+    
+    // rect.size should be within _contentSize
+    rect.size.width = fminf(rect.size.width, _contentSize.width);
+    rect.size.height = fminf(rect.size.height, _contentSize.height);
+    
+    // TODO: check if we need to fetch data from layout
     if (!CGRectEqualToRect(_validLayoutRect, rect)) {
         _validLayoutRect = rect;
         _cellLayoutAttributes = [self.layout layoutAttributesForElementsInRect:rect];
@@ -99,17 +110,14 @@
 
 - (NSInteger)numberOfItemsInSection:(NSInteger)section {
     [self validateItemCounts];
-	
-    if(section > _numSections || section < 0) {
-        @throw [NSException exceptionWithName:NSInvalidArgumentException
-									   reason:[NSString stringWithFormat:@"Section %ld out of range: 0...%ld",
-											   section, _numSections] userInfo:nil];
+    if (section > _numSections || section < 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"Section %ld out of range: 0...%ld", section, _numSections] userInfo:nil];
     }
     
     NSInteger numberOfItemsInSection = 0;
-    if(_sectionItemCounts)
+    if (_sectionItemCounts) {
         numberOfItemsInSection = _sectionItemCounts[section];
-	
+    }
     return numberOfItemsInSection;
 }
 
@@ -138,6 +146,7 @@
     _collectionViewDataFlags.layoutIsPrepared = layoutIsPrepared;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Fetch Layout Attributes
 
 - (NSArray *)layoutAttributesForElementsInRect:(CGRect)rect {
@@ -145,51 +154,46 @@
     return _cellLayoutAttributes;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private
 
-// Ensure item count is valid and loaded.
+// ensure item count is valid and loaded
 - (void)validateItemCounts {
     if (!_collectionViewDataFlags.itemCountsAreValid) {
         [self updateItemCounts];
     }
 }
 
-// Query dataSource for new data.
+// query dataSource for new data
 - (void)updateItemCounts {
-	
-    // Query how many sections there will be.
+    // query how many sections there will be
     _numSections = 1;
-    if([self.collectionView.dataSource respondsToSelector:@selector(numberOfSectionsInCollectionView:)]) {
+    if ([self.collectionView.dataSource respondsToSelector:@selector(numberOfSectionsInCollectionView:)]) {
         _numSections = [self.collectionView.dataSource numberOfSectionsInCollectionView:self.collectionView];
     }
-	
-    if(_numSections <= 0) {
+    if (_numSections <= 0) { // early bail-out
         _numItems = 0;
-        free(_sectionItemCounts);
-		_sectionItemCounts = 0;
-        
-		return;
+        free(_sectionItemCounts); _sectionItemCounts = 0;
+        return;
     }
-	
-    // Allocate space.
-    if (!_sectionItemCounts)
+    // allocate space
+    if (!_sectionItemCounts) {
         _sectionItemCounts = malloc(_numSections * sizeof(NSInteger));
-    else
+    }else {
         _sectionItemCounts = realloc(_sectionItemCounts, _numSections * sizeof(NSInteger));
+    }
 
-    // Query cells per section.
+    // query cells per section
     _numItems = 0;
-    for (NSInteger i = 0; i < _numSections; i++) {
+    for (NSInteger i=0; i<_numSections; i++) {
         NSInteger cellCount = [self.collectionView.dataSource collectionView:self.collectionView numberOfItemsInSection:i];
         _sectionItemCounts[i] = cellCount;
         _numItems += cellCount;
     }
-    
-	NSMutableArray *globalIndexPaths = [[NSMutableArray alloc] initWithCapacity:_numItems];
-    for(NSInteger section = 0; section < _numSections; section++)
-        for(NSInteger item = 0; item < _sectionItemCounts[section]; item++)
+    NSMutableArray* globalIndexPaths = [[NSMutableArray alloc] initWithCapacity:_numItems];
+    for(NSInteger section = 0;section<_numSections;section++)
+        for(NSInteger item=0;item<_sectionItemCounts[section];item++)
             [globalIndexPaths addObject:[NSIndexPath indexPathForItem:item inSection:section]];
-	
     _globalItems = [NSArray arrayWithArray:globalIndexPaths];
     _collectionViewDataFlags.itemCountsAreValid = YES;
 }

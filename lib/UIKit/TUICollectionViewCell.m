@@ -1,37 +1,56 @@
-/*
- Copyright 2011 Twitter, Inc.
- 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this work except in compliance with the License.
- You may obtain a copy of the License in the LICENSE file, or at:
- 
- http://www.apache.org/licenses/LICENSE-2.0
- 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- */
+//
+//  TUICollectionViewCell.m
+//
+//  Original Source: Copyright (c) 2012 Peter Steinberger. All rights reserved.
+//  AppKit Port: Copyright (c) 2012 Indragie Karunaratne. All rights reserved.
+//
 
 #import "TUICollectionView.h"
 #import "TUICollectionViewCell.h"
 #import "TUICollectionViewLayout.h"
 
-@interface TUICollectionReusableView () {
+@interface TUICollectionReusableView() {
+    TUICollectionViewLayoutAttributes *_layoutAttributes;
+    NSString *_reuseIdentifier;
+    __unsafe_unretained TUICollectionView *_collectionView;
     struct {
-        unsigned inUpdateAnimation:1;
+        unsigned int inUpdateAnimation : 1;
     } _reusableViewFlags;
 }
-
 @property (nonatomic, copy) NSString *reuseIdentifier;
 @property (nonatomic, unsafe_unretained) TUICollectionView *collectionView;
 @property (nonatomic, strong) TUICollectionViewLayoutAttributes *layoutAttributes;
-
 @end
 
 @implementation TUICollectionReusableView
 
+///////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - NSObject
+
+- (void)TUICollectionReusableViewCommonSetup
+{
+    self.layer.backgroundColor = [NSColor greenColor].CGColor;
+}
+
+- (id)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
+        [self TUICollectionReusableViewCommonSetup];
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    if((self = [super initWithCoder:aDecoder])) {
+        [self TUICollectionReusableViewCommonSetup];
+    }
+    return self;
+}
+
+- (void)awakeFromNib {
+    self.reuseIdentifier = [self valueForKeyPath:@"reuseIdentifier"];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)prepareForReuse {
@@ -41,14 +60,12 @@
 - (void)applyLayoutAttributes:(TUICollectionViewLayoutAttributes *)layoutAttributes {
     if (layoutAttributes != _layoutAttributes) {
         _layoutAttributes = layoutAttributes;
-
-        self.layer.frame = layoutAttributes.frame;
-        self.layer.position = layoutAttributes.center;
-
+        self.frame = layoutAttributes.frame;
+        self.alpha = layoutAttributes.alpha;
         self.hidden = layoutAttributes.isHidden;
         self.layer.transform = layoutAttributes.transform3D;
         self.layer.zPosition = layoutAttributes.zIndex;
-        self.layer.opacity = layoutAttributes.alpha;
+        // TODO more attributes
     }
 }
 
@@ -70,20 +87,35 @@
 
 @end
 
+
 @implementation TUICollectionViewCell {
+    TUIView *_contentView;
+    TUIView *_backgroundView;
+    TUIView *_selectedBackgroundView;
+    id _selectionSegueTemplate;
+    id _highlightingSupport;
     struct {
-        unsigned selected:1;
-        unsigned highlighted:1;
-        unsigned showingMenu:1;
-        unsigned clearSelectionWhenMenuDisappears:1;
-        unsigned waitingForSelectionAnimationHalfwayPoint:1;
+        unsigned int selected : 1;
+        unsigned int highlighted : 1;
+        unsigned int showingMenu : 1;
+        unsigned int clearSelectionWhenMenuDisappears : 1;
+        unsigned int waitingForSelectionAnimationHalfwayPoint : 1;
     } _collectionCellFlags;
+    BOOL _selected;
+    BOOL _highlighted;
 }
 
-#pragma mark - Initialization
+///////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - NSObject
+
+- (void)TUICollectionViewCellCommonSetup
+{
+    self.layer.backgroundColor = [NSColor purpleColor].CGColor;
+}
 
 - (id)initWithFrame:(CGRect)frame {
-    if((self = [super initWithFrame:frame])) {
+    if ((self = [super initWithFrame:frame])) {
+        [self TUICollectionReusableViewCommonSetup];
         _backgroundView = [[TUIView alloc] initWithFrame:self.bounds];
         _backgroundView.autoresizingMask = TUIViewAutoresizingFlexibleSize;
         [self addSubview:_backgroundView];
@@ -92,10 +124,29 @@
         _contentView.autoresizingMask = TUIViewAutoresizingFlexibleSize;
         [self addSubview:_contentView];
     }
-	
     return self;
 }
 
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if ((self = [super initWithCoder:aDecoder])) {
+        [self TUICollectionReusableViewCommonSetup];
+        if ([[self subviews] count] > 0) {
+            _contentView = [self subviews][0];
+        } else {
+            _contentView = [[TUIView alloc] initWithFrame:self.bounds];
+            _contentView.autoresizingMask = TUIViewAutoresizingFlexibleSize;
+            [self addSubview:_contentView];
+        }
+        
+        _backgroundView = [[TUIView alloc] initWithFrame:self.bounds];
+        _backgroundView.autoresizingMask = TUIViewAutoresizingFlexibleSize;
+		[self insertSubview:_backgroundView belowSubview:_contentView];
+    }
+    return self;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
 - (void)prepareForReuse {
@@ -105,17 +156,15 @@
 }
 
 - (void)setSelected:(BOOL)selected {
-    if(_collectionCellFlags.selected != selected) {
+    if (_collectionCellFlags.selected != selected) {
         _collectionCellFlags.selected = selected;
-		
         [self updateBackgroundView];
     }
 }
 
 - (void)setHighlighted:(BOOL)highlighted {
-    if(_collectionCellFlags.highlighted != highlighted) {
+    if (_collectionCellFlags.highlighted != highlighted) {
         _collectionCellFlags.highlighted = highlighted;
-		
         [self updateBackgroundView];
     }
 }
@@ -127,34 +176,36 @@
 }
 
 - (void)setHighlighted:(BOOL)highlighted forViews:(id)subviews {
-    for(id view in subviews) {
-        if([view respondsToSelector:@selector(setHighlighted:)]) {
+    for (id view in subviews) {
+        if ([view respondsToSelector:@selector(setHighlighted:)]) {
             [view setHighlighted:highlighted];
         }
-		
         [self setHighlighted:highlighted forViews:[view subviews]];
     }
 }
 
 - (void)setBackgroundView:(TUIView *)backgroundView {
-    if(_backgroundView != backgroundView) {
+    if (_backgroundView != backgroundView) {
+        [_backgroundView removeFromSuperview];
         _backgroundView = backgroundView;
-        [self insertSubview:_backgroundView atIndex:0];
+        _backgroundView.frame = self.bounds;
+        _backgroundView.autoresizingMask = TUIViewAutoresizingFlexibleSize;
+        [self addSubview:_backgroundView];
     }
 }
 
 - (void)setSelectedBackgroundView:(TUIView *)selectedBackgroundView {
-    if(_selectedBackgroundView != selectedBackgroundView) {
+    if (_selectedBackgroundView != selectedBackgroundView) {
+        [_selectedBackgroundView removeFromSuperview];
         _selectedBackgroundView = selectedBackgroundView;
         _selectedBackgroundView.frame = self.bounds;
-		
-        _selectedBackgroundView.autoresizingMask = TUIViewAutoresizingFlexibleWidth | TUIViewAutoresizingFlexibleHeight;
+        _selectedBackgroundView.autoresizingMask = TUIViewAutoresizingFlexibleSize;
         _selectedBackgroundView.alpha = self.selected ? 1.0f : 0.0f;
-        
-		if(_backgroundView)
-            [self insertSubview:_selectedBackgroundView aboveSubview:_backgroundView];
-        else
-            [self insertSubview:_selectedBackgroundView atIndex:0];
+        if (_backgroundView) {
+			[self insertSubview:_selectedBackgroundView aboveSubview:_backgroundView];
+        } else {
+			[self insertSubview:_selectedBackgroundView belowSubview:_backgroundView];
+        }
     }
 }
 
@@ -165,5 +216,4 @@
 - (BOOL)isHighlighted {
     return _collectionCellFlags.highlighted;
 }
-
 @end

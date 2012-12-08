@@ -18,60 +18,81 @@
 		48373DF5160EAE9400322CA7 /* TUITextRenderer+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 48373DF4160EAE9400322CA7 /* TUITextRenderer+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		48373DF6160EAE9400322CA7 /* TUITextRenderer+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 48373DF4160EAE9400322CA7 /* TUITextRenderer+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		48373DF7160EAE9400322CA7 /* TUITextRenderer+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 48373DF4160EAE9400322CA7 /* TUITextRenderer+Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		48694DCC1658AACD00BE65BF /* TUICollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DB31658AACD00BE65BF /* TUICollectionView.h */; };
-		48694DCD1658AACD00BE65BF /* TUICollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DB31658AACD00BE65BF /* TUICollectionView.h */; };
-		48694DCE1658AACD00BE65BF /* TUICollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DB31658AACD00BE65BF /* TUICollectionView.h */; };
-		48694DCF1658AACD00BE65BF /* TUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DB41658AACD00BE65BF /* TUICollectionView.m */; };
-		48694DD01658AACD00BE65BF /* TUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DB41658AACD00BE65BF /* TUICollectionView.m */; };
-		48694DD11658AACD00BE65BF /* TUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DB41658AACD00BE65BF /* TUICollectionView.m */; };
-		48694DD21658AACD00BE65BF /* TUICollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DB51658AACD00BE65BF /* TUICollectionViewCell.h */; };
-		48694DD31658AACD00BE65BF /* TUICollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DB51658AACD00BE65BF /* TUICollectionViewCell.h */; };
-		48694DD41658AACD00BE65BF /* TUICollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DB51658AACD00BE65BF /* TUICollectionViewCell.h */; };
-		48694DD51658AACD00BE65BF /* TUICollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DB61658AACD00BE65BF /* TUICollectionViewCell.m */; };
-		48694DD61658AACD00BE65BF /* TUICollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DB61658AACD00BE65BF /* TUICollectionViewCell.m */; };
-		48694DD71658AACD00BE65BF /* TUICollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DB61658AACD00BE65BF /* TUICollectionViewCell.m */; };
-		48694DDB1658AACD00BE65BF /* TUICollectionViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DB81658AACD00BE65BF /* TUICollectionViewController.h */; };
-		48694DDC1658AACD00BE65BF /* TUICollectionViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DB81658AACD00BE65BF /* TUICollectionViewController.h */; };
-		48694DDD1658AACD00BE65BF /* TUICollectionViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DB81658AACD00BE65BF /* TUICollectionViewController.h */; };
-		48694DDE1658AACD00BE65BF /* TUICollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DB91658AACD00BE65BF /* TUICollectionViewController.m */; };
-		48694DDF1658AACD00BE65BF /* TUICollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DB91658AACD00BE65BF /* TUICollectionViewController.m */; };
-		48694DE01658AACD00BE65BF /* TUICollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DB91658AACD00BE65BF /* TUICollectionViewController.m */; };
-		48694DE11658AACD00BE65BF /* TUICollectionViewData.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DBA1658AACD00BE65BF /* TUICollectionViewData.h */; };
-		48694DE21658AACD00BE65BF /* TUICollectionViewData.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DBA1658AACD00BE65BF /* TUICollectionViewData.h */; };
-		48694DE31658AACD00BE65BF /* TUICollectionViewData.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DBA1658AACD00BE65BF /* TUICollectionViewData.h */; };
-		48694DE41658AACD00BE65BF /* TUICollectionViewData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DBB1658AACD00BE65BF /* TUICollectionViewData.m */; };
-		48694DE51658AACD00BE65BF /* TUICollectionViewData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DBB1658AACD00BE65BF /* TUICollectionViewData.m */; };
-		48694DE61658AACD00BE65BF /* TUICollectionViewData.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DBB1658AACD00BE65BF /* TUICollectionViewData.m */; };
-		48694DE71658AACD00BE65BF /* TUICollectionViewFlowLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DBC1658AACD00BE65BF /* TUICollectionViewFlowLayout.h */; };
-		48694DE81658AACD00BE65BF /* TUICollectionViewFlowLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DBC1658AACD00BE65BF /* TUICollectionViewFlowLayout.h */; };
-		48694DE91658AACD00BE65BF /* TUICollectionViewFlowLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DBC1658AACD00BE65BF /* TUICollectionViewFlowLayout.h */; };
-		48694DEA1658AACD00BE65BF /* TUICollectionViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DBD1658AACD00BE65BF /* TUICollectionViewFlowLayout.m */; };
-		48694DEB1658AACD00BE65BF /* TUICollectionViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DBD1658AACD00BE65BF /* TUICollectionViewFlowLayout.m */; };
-		48694DEC1658AACD00BE65BF /* TUICollectionViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DBD1658AACD00BE65BF /* TUICollectionViewFlowLayout.m */; };
-		48694DED1658AACD00BE65BF /* TUICollectionViewItemKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DBE1658AACD00BE65BF /* TUICollectionViewItemKey.h */; };
-		48694DEE1658AACD00BE65BF /* TUICollectionViewItemKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DBE1658AACD00BE65BF /* TUICollectionViewItemKey.h */; };
-		48694DEF1658AACD00BE65BF /* TUICollectionViewItemKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DBE1658AACD00BE65BF /* TUICollectionViewItemKey.h */; };
-		48694DF01658AACD00BE65BF /* TUICollectionViewItemKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DBF1658AACD00BE65BF /* TUICollectionViewItemKey.m */; };
-		48694DF11658AACD00BE65BF /* TUICollectionViewItemKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DBF1658AACD00BE65BF /* TUICollectionViewItemKey.m */; };
-		48694DF21658AACD00BE65BF /* TUICollectionViewItemKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DBF1658AACD00BE65BF /* TUICollectionViewItemKey.m */; };
-		48694DF31658AACE00BE65BF /* TUICollectionViewLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DC01658AACD00BE65BF /* TUICollectionViewLayout.h */; };
-		48694DF41658AACE00BE65BF /* TUICollectionViewLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DC01658AACD00BE65BF /* TUICollectionViewLayout.h */; };
-		48694DF51658AACE00BE65BF /* TUICollectionViewLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DC01658AACD00BE65BF /* TUICollectionViewLayout.h */; };
-		48694DF61658AACE00BE65BF /* TUICollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DC11658AACD00BE65BF /* TUICollectionViewLayout.m */; };
-		48694DF71658AACE00BE65BF /* TUICollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DC11658AACD00BE65BF /* TUICollectionViewLayout.m */; };
-		48694DF81658AACE00BE65BF /* TUICollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DC11658AACD00BE65BF /* TUICollectionViewLayout.m */; };
-		48694DF91658AACE00BE65BF /* TUICollectionViewUpdateItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DC21658AACD00BE65BF /* TUICollectionViewUpdateItem.h */; };
-		48694DFA1658AACE00BE65BF /* TUICollectionViewUpdateItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DC21658AACD00BE65BF /* TUICollectionViewUpdateItem.h */; };
-		48694DFB1658AACE00BE65BF /* TUICollectionViewUpdateItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DC21658AACD00BE65BF /* TUICollectionViewUpdateItem.h */; };
-		48694DFC1658AACE00BE65BF /* TUICollectionViewUpdateItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DC31658AACD00BE65BF /* TUICollectionViewUpdateItem.m */; };
-		48694DFD1658AACE00BE65BF /* TUICollectionViewUpdateItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DC31658AACD00BE65BF /* TUICollectionViewUpdateItem.m */; };
-		48694DFE1658AACE00BE65BF /* TUICollectionViewUpdateItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DC31658AACD00BE65BF /* TUICollectionViewUpdateItem.m */; };
-		48694DFF1658AACE00BE65BF /* TUIGridLayoutInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DC41658AACD00BE65BF /* TUIGridLayoutInfo.h */; };
-		48694E001658AACE00BE65BF /* TUIGridLayoutInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DC41658AACD00BE65BF /* TUIGridLayoutInfo.h */; };
-		48694E011658AACE00BE65BF /* TUIGridLayoutInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 48694DC41658AACD00BE65BF /* TUIGridLayoutInfo.h */; };
-		48694E021658AACE00BE65BF /* TUIGridLayoutInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DC51658AACD00BE65BF /* TUIGridLayoutInfo.m */; };
-		48694E031658AACE00BE65BF /* TUIGridLayoutInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DC51658AACD00BE65BF /* TUIGridLayoutInfo.m */; };
-		48694E041658AACE00BE65BF /* TUIGridLayoutInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 48694DC51658AACD00BE65BF /* TUIGridLayoutInfo.m */; };
+		4885C494167320CE00C75B3F /* TUICollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C47B167320C900C75B3F /* TUICollectionView.h */; };
+		4885C495167320CE00C75B3F /* TUICollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C47B167320C900C75B3F /* TUICollectionView.h */; };
+		4885C496167320CE00C75B3F /* TUICollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C47B167320C900C75B3F /* TUICollectionView.h */; };
+		4885C497167320CE00C75B3F /* TUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C47C167320C900C75B3F /* TUICollectionView.m */; };
+		4885C498167320CE00C75B3F /* TUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C47C167320C900C75B3F /* TUICollectionView.m */; };
+		4885C499167320CE00C75B3F /* TUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C47C167320C900C75B3F /* TUICollectionView.m */; };
+		4885C49A167320CE00C75B3F /* TUICollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C47D167320CA00C75B3F /* TUICollectionViewCell.h */; };
+		4885C49B167320CE00C75B3F /* TUICollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C47D167320CA00C75B3F /* TUICollectionViewCell.h */; };
+		4885C49C167320CE00C75B3F /* TUICollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C47D167320CA00C75B3F /* TUICollectionViewCell.h */; };
+		4885C49D167320CE00C75B3F /* TUICollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C47E167320CA00C75B3F /* TUICollectionViewCell.m */; };
+		4885C49E167320CE00C75B3F /* TUICollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C47E167320CA00C75B3F /* TUICollectionViewCell.m */; };
+		4885C49F167320CE00C75B3F /* TUICollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C47E167320CA00C75B3F /* TUICollectionViewCell.m */; };
+		4885C4A0167320CE00C75B3F /* TUICollectionViewCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C47F167320CA00C75B3F /* TUICollectionViewCommon.h */; };
+		4885C4A1167320CE00C75B3F /* TUICollectionViewCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C47F167320CA00C75B3F /* TUICollectionViewCommon.h */; };
+		4885C4A2167320CE00C75B3F /* TUICollectionViewCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C47F167320CA00C75B3F /* TUICollectionViewCommon.h */; };
+		4885C4A3167320CE00C75B3F /* TUICollectionViewData.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C480167320CA00C75B3F /* TUICollectionViewData.h */; };
+		4885C4A4167320CE00C75B3F /* TUICollectionViewData.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C480167320CA00C75B3F /* TUICollectionViewData.h */; };
+		4885C4A5167320CE00C75B3F /* TUICollectionViewData.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C480167320CA00C75B3F /* TUICollectionViewData.h */; };
+		4885C4A6167320CE00C75B3F /* TUICollectionViewData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C481167320CB00C75B3F /* TUICollectionViewData.m */; };
+		4885C4A7167320CE00C75B3F /* TUICollectionViewData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C481167320CB00C75B3F /* TUICollectionViewData.m */; };
+		4885C4A8167320CE00C75B3F /* TUICollectionViewData.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C481167320CB00C75B3F /* TUICollectionViewData.m */; };
+		4885C4A9167320CE00C75B3F /* TUICollectionViewFlowLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C482167320CB00C75B3F /* TUICollectionViewFlowLayout.h */; };
+		4885C4AA167320CE00C75B3F /* TUICollectionViewFlowLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C482167320CB00C75B3F /* TUICollectionViewFlowLayout.h */; };
+		4885C4AB167320CE00C75B3F /* TUICollectionViewFlowLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C482167320CB00C75B3F /* TUICollectionViewFlowLayout.h */; };
+		4885C4AC167320CE00C75B3F /* TUICollectionViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C483167320CB00C75B3F /* TUICollectionViewFlowLayout.m */; };
+		4885C4AD167320CE00C75B3F /* TUICollectionViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C483167320CB00C75B3F /* TUICollectionViewFlowLayout.m */; };
+		4885C4AE167320CE00C75B3F /* TUICollectionViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C483167320CB00C75B3F /* TUICollectionViewFlowLayout.m */; };
+		4885C4AF167320CE00C75B3F /* TUICollectionViewItemKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C484167320CB00C75B3F /* TUICollectionViewItemKey.h */; };
+		4885C4B0167320CE00C75B3F /* TUICollectionViewItemKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C484167320CB00C75B3F /* TUICollectionViewItemKey.h */; };
+		4885C4B1167320CE00C75B3F /* TUICollectionViewItemKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C484167320CB00C75B3F /* TUICollectionViewItemKey.h */; };
+		4885C4B2167320CE00C75B3F /* TUICollectionViewItemKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C485167320CB00C75B3F /* TUICollectionViewItemKey.m */; };
+		4885C4B3167320CE00C75B3F /* TUICollectionViewItemKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C485167320CB00C75B3F /* TUICollectionViewItemKey.m */; };
+		4885C4B4167320CE00C75B3F /* TUICollectionViewItemKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C485167320CB00C75B3F /* TUICollectionViewItemKey.m */; };
+		4885C4B5167320CE00C75B3F /* TUICollectionViewLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C486167320CC00C75B3F /* TUICollectionViewLayout.h */; };
+		4885C4B6167320CE00C75B3F /* TUICollectionViewLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C486167320CC00C75B3F /* TUICollectionViewLayout.h */; };
+		4885C4B7167320CE00C75B3F /* TUICollectionViewLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C486167320CC00C75B3F /* TUICollectionViewLayout.h */; };
+		4885C4B8167320CE00C75B3F /* TUICollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C487167320CC00C75B3F /* TUICollectionViewLayout.m */; };
+		4885C4B9167320CE00C75B3F /* TUICollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C487167320CC00C75B3F /* TUICollectionViewLayout.m */; };
+		4885C4BA167320CE00C75B3F /* TUICollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C487167320CC00C75B3F /* TUICollectionViewLayout.m */; };
+		4885C4C1167320CE00C75B3F /* TUICollectionViewUpdateItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C48A167320CC00C75B3F /* TUICollectionViewUpdateItem.h */; };
+		4885C4C2167320CE00C75B3F /* TUICollectionViewUpdateItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C48A167320CC00C75B3F /* TUICollectionViewUpdateItem.h */; };
+		4885C4C3167320CE00C75B3F /* TUICollectionViewUpdateItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C48A167320CC00C75B3F /* TUICollectionViewUpdateItem.h */; };
+		4885C4C4167320CE00C75B3F /* TUICollectionViewUpdateItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C48B167320CD00C75B3F /* TUICollectionViewUpdateItem.m */; };
+		4885C4C5167320CE00C75B3F /* TUICollectionViewUpdateItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C48B167320CD00C75B3F /* TUICollectionViewUpdateItem.m */; };
+		4885C4C6167320CE00C75B3F /* TUICollectionViewUpdateItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C48B167320CD00C75B3F /* TUICollectionViewUpdateItem.m */; };
+		4885C4C7167320CE00C75B3F /* TUIGridLayoutInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C48C167320CD00C75B3F /* TUIGridLayoutInfo.h */; };
+		4885C4C8167320CE00C75B3F /* TUIGridLayoutInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C48C167320CD00C75B3F /* TUIGridLayoutInfo.h */; };
+		4885C4C9167320CE00C75B3F /* TUIGridLayoutInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C48C167320CD00C75B3F /* TUIGridLayoutInfo.h */; };
+		4885C4CA167320CE00C75B3F /* TUIGridLayoutInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C48D167320CD00C75B3F /* TUIGridLayoutInfo.m */; };
+		4885C4CB167320CE00C75B3F /* TUIGridLayoutInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C48D167320CD00C75B3F /* TUIGridLayoutInfo.m */; };
+		4885C4CC167320CE00C75B3F /* TUIGridLayoutInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C48D167320CD00C75B3F /* TUIGridLayoutInfo.m */; };
+		4885C4CD167320CE00C75B3F /* TUIGridLayoutItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C48E167320CD00C75B3F /* TUIGridLayoutItem.h */; };
+		4885C4CE167320CE00C75B3F /* TUIGridLayoutItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C48E167320CD00C75B3F /* TUIGridLayoutItem.h */; };
+		4885C4CF167320CE00C75B3F /* TUIGridLayoutItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C48E167320CD00C75B3F /* TUIGridLayoutItem.h */; };
+		4885C4D0167320CE00C75B3F /* TUIGridLayoutItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C48F167320CD00C75B3F /* TUIGridLayoutItem.m */; };
+		4885C4D1167320CE00C75B3F /* TUIGridLayoutItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C48F167320CD00C75B3F /* TUIGridLayoutItem.m */; };
+		4885C4D2167320CE00C75B3F /* TUIGridLayoutItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C48F167320CD00C75B3F /* TUIGridLayoutItem.m */; };
+		4885C4D3167320CE00C75B3F /* TUIGridLayoutRow.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C490167320CE00C75B3F /* TUIGridLayoutRow.h */; };
+		4885C4D4167320CE00C75B3F /* TUIGridLayoutRow.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C490167320CE00C75B3F /* TUIGridLayoutRow.h */; };
+		4885C4D5167320CE00C75B3F /* TUIGridLayoutRow.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C490167320CE00C75B3F /* TUIGridLayoutRow.h */; };
+		4885C4D6167320CE00C75B3F /* TUIGridLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C491167320CE00C75B3F /* TUIGridLayoutRow.m */; };
+		4885C4D7167320CE00C75B3F /* TUIGridLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C491167320CE00C75B3F /* TUIGridLayoutRow.m */; };
+		4885C4D8167320CE00C75B3F /* TUIGridLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C491167320CE00C75B3F /* TUIGridLayoutRow.m */; };
+		4885C4D9167320CE00C75B3F /* TUIGridLayoutSection.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C492167320CE00C75B3F /* TUIGridLayoutSection.h */; };
+		4885C4DA167320CE00C75B3F /* TUIGridLayoutSection.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C492167320CE00C75B3F /* TUIGridLayoutSection.h */; };
+		4885C4DB167320CE00C75B3F /* TUIGridLayoutSection.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C492167320CE00C75B3F /* TUIGridLayoutSection.h */; };
+		4885C4DC167320CE00C75B3F /* TUIGridLayoutSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C493167320CE00C75B3F /* TUIGridLayoutSection.m */; };
+		4885C4DD167320CE00C75B3F /* TUIGridLayoutSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C493167320CE00C75B3F /* TUIGridLayoutSection.m */; };
+		4885C4DE167320CE00C75B3F /* TUIGridLayoutSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C493167320CE00C75B3F /* TUIGridLayoutSection.m */; };
+		4885C4E11673275100C75B3F /* TUICollectionViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C4DF1673274D00C75B3F /* TUICollectionViewController.h */; };
+		4885C4E21673275100C75B3F /* TUICollectionViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C4DF1673274D00C75B3F /* TUICollectionViewController.h */; };
+		4885C4E31673275100C75B3F /* TUICollectionViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4885C4DF1673274D00C75B3F /* TUICollectionViewController.h */; };
+		4885C4E41673275100C75B3F /* TUICollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C4E01673274F00C75B3F /* TUICollectionViewController.m */; };
+		4885C4E51673275100C75B3F /* TUICollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C4E01673274F00C75B3F /* TUICollectionViewController.m */; };
+		4885C4E61673275100C75B3F /* TUICollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4885C4E01673274F00C75B3F /* TUICollectionViewController.m */; };
 		488A5833162FBE9B006CBF8B /* TUITableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 488A5831162FBE9B006CBF8B /* TUITableViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		488A5834162FBE9B006CBF8B /* TUITableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 488A5831162FBE9B006CBF8B /* TUITableViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		488A5835162FBE9B006CBF8B /* TUITableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 488A5831162FBE9B006CBF8B /* TUITableViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -492,25 +513,32 @@
 		482010C01658B07900CFDC11 /* NSIndexPath+TUIExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+TUIExtensions.h"; sourceTree = "<group>"; };
 		482010C11658B07900CFDC11 /* NSIndexPath+TUIExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+TUIExtensions.m"; sourceTree = "<group>"; };
 		48373DF4160EAE9400322CA7 /* TUITextRenderer+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TUITextRenderer+Private.h"; sourceTree = "<group>"; };
-		48694DB31658AACD00BE65BF /* TUICollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionView.h; sourceTree = "<group>"; };
-		48694DB41658AACD00BE65BF /* TUICollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionView.m; sourceTree = "<group>"; };
-		48694DB51658AACD00BE65BF /* TUICollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewCell.h; sourceTree = "<group>"; };
-		48694DB61658AACD00BE65BF /* TUICollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewCell.m; sourceTree = "<group>"; };
-		48694DB81658AACD00BE65BF /* TUICollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewController.h; sourceTree = "<group>"; };
-		48694DB91658AACD00BE65BF /* TUICollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewController.m; sourceTree = "<group>"; };
-		48694DBA1658AACD00BE65BF /* TUICollectionViewData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewData.h; sourceTree = "<group>"; };
-		48694DBB1658AACD00BE65BF /* TUICollectionViewData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewData.m; sourceTree = "<group>"; };
-		48694DBC1658AACD00BE65BF /* TUICollectionViewFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewFlowLayout.h; sourceTree = "<group>"; };
-		48694DBD1658AACD00BE65BF /* TUICollectionViewFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewFlowLayout.m; sourceTree = "<group>"; };
-		48694DBE1658AACD00BE65BF /* TUICollectionViewItemKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewItemKey.h; sourceTree = "<group>"; };
-		48694DBF1658AACD00BE65BF /* TUICollectionViewItemKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewItemKey.m; sourceTree = "<group>"; };
-		48694DC01658AACD00BE65BF /* TUICollectionViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewLayout.h; sourceTree = "<group>"; };
-		48694DC11658AACD00BE65BF /* TUICollectionViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewLayout.m; sourceTree = "<group>"; };
-		48694DC21658AACD00BE65BF /* TUICollectionViewUpdateItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewUpdateItem.h; sourceTree = "<group>"; };
-		48694DC31658AACD00BE65BF /* TUICollectionViewUpdateItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewUpdateItem.m; sourceTree = "<group>"; };
-		48694DC41658AACD00BE65BF /* TUIGridLayoutInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUIGridLayoutInfo.h; sourceTree = "<group>"; };
-		48694DC51658AACD00BE65BF /* TUIGridLayoutInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUIGridLayoutInfo.m; sourceTree = "<group>"; };
 		487068981628CBCF005D7096 /* TUITableViewCell+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TUITableViewCell+Private.h"; sourceTree = "<group>"; };
+		4885C47B167320C900C75B3F /* TUICollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionView.h; sourceTree = "<group>"; };
+		4885C47C167320C900C75B3F /* TUICollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionView.m; sourceTree = "<group>"; };
+		4885C47D167320CA00C75B3F /* TUICollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewCell.h; sourceTree = "<group>"; };
+		4885C47E167320CA00C75B3F /* TUICollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewCell.m; sourceTree = "<group>"; };
+		4885C47F167320CA00C75B3F /* TUICollectionViewCommon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewCommon.h; sourceTree = "<group>"; };
+		4885C480167320CA00C75B3F /* TUICollectionViewData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewData.h; sourceTree = "<group>"; };
+		4885C481167320CB00C75B3F /* TUICollectionViewData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewData.m; sourceTree = "<group>"; };
+		4885C482167320CB00C75B3F /* TUICollectionViewFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewFlowLayout.h; sourceTree = "<group>"; };
+		4885C483167320CB00C75B3F /* TUICollectionViewFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewFlowLayout.m; sourceTree = "<group>"; };
+		4885C484167320CB00C75B3F /* TUICollectionViewItemKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewItemKey.h; sourceTree = "<group>"; };
+		4885C485167320CB00C75B3F /* TUICollectionViewItemKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewItemKey.m; sourceTree = "<group>"; };
+		4885C486167320CC00C75B3F /* TUICollectionViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewLayout.h; sourceTree = "<group>"; };
+		4885C487167320CC00C75B3F /* TUICollectionViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewLayout.m; sourceTree = "<group>"; };
+		4885C48A167320CC00C75B3F /* TUICollectionViewUpdateItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewUpdateItem.h; sourceTree = "<group>"; };
+		4885C48B167320CD00C75B3F /* TUICollectionViewUpdateItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewUpdateItem.m; sourceTree = "<group>"; };
+		4885C48C167320CD00C75B3F /* TUIGridLayoutInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUIGridLayoutInfo.h; sourceTree = "<group>"; };
+		4885C48D167320CD00C75B3F /* TUIGridLayoutInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUIGridLayoutInfo.m; sourceTree = "<group>"; };
+		4885C48E167320CD00C75B3F /* TUIGridLayoutItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUIGridLayoutItem.h; sourceTree = "<group>"; };
+		4885C48F167320CD00C75B3F /* TUIGridLayoutItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUIGridLayoutItem.m; sourceTree = "<group>"; };
+		4885C490167320CE00C75B3F /* TUIGridLayoutRow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUIGridLayoutRow.h; sourceTree = "<group>"; };
+		4885C491167320CE00C75B3F /* TUIGridLayoutRow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUIGridLayoutRow.m; sourceTree = "<group>"; };
+		4885C492167320CE00C75B3F /* TUIGridLayoutSection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUIGridLayoutSection.h; sourceTree = "<group>"; };
+		4885C493167320CE00C75B3F /* TUIGridLayoutSection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUIGridLayoutSection.m; sourceTree = "<group>"; };
+		4885C4DF1673274D00C75B3F /* TUICollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICollectionViewController.h; sourceTree = "<group>"; };
+		4885C4E01673274F00C75B3F /* TUICollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICollectionViewController.m; sourceTree = "<group>"; };
 		488A5831162FBE9B006CBF8B /* TUITableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUITableViewController.h; sourceTree = "<group>"; };
 		488A5832162FBE9B006CBF8B /* TUITableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUITableViewController.m; sourceTree = "<group>"; };
 		48A10E7D15B7769A007F9EE3 /* TUILayoutConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUILayoutConstraint.h; sourceTree = "<group>"; };
@@ -869,26 +897,33 @@
 				886EBA7D13D64393006DE018 /* TUIControl+Private.h */,
 				886EBA7E13D64393006DE018 /* TUIControl+Private.m */,
 				CBB74C4B13BE6E1900C85CB5 /* TUIControl+TargetAction.m */,
-				48694DB31658AACD00BE65BF /* TUICollectionView.h */,
-				48694DB41658AACD00BE65BF /* TUICollectionView.m */,
-				48694DB51658AACD00BE65BF /* TUICollectionViewCell.h */,
-				48694DB61658AACD00BE65BF /* TUICollectionViewCell.m */,
-				48694DC01658AACD00BE65BF /* TUICollectionViewLayout.h */,
-				48694DC11658AACD00BE65BF /* TUICollectionViewLayout.m */,
-				48694DBC1658AACD00BE65BF /* TUICollectionViewFlowLayout.h */,
-				48694DBD1658AACD00BE65BF /* TUICollectionViewFlowLayout.m */,
-				48694DC21658AACD00BE65BF /* TUICollectionViewUpdateItem.h */,
-				48694DC31658AACD00BE65BF /* TUICollectionViewUpdateItem.m */,
-				48694DB81658AACD00BE65BF /* TUICollectionViewController.h */,
-				48694DB91658AACD00BE65BF /* TUICollectionViewController.m */,
-				48694DBA1658AACD00BE65BF /* TUICollectionViewData.h */,
-				48694DBB1658AACD00BE65BF /* TUICollectionViewData.m */,
-				48694DBE1658AACD00BE65BF /* TUICollectionViewItemKey.h */,
-				48694DBF1658AACD00BE65BF /* TUICollectionViewItemKey.m */,
-				48694DC41658AACD00BE65BF /* TUIGridLayoutInfo.h */,
-				48694DC51658AACD00BE65BF /* TUIGridLayoutInfo.m */,
 				CBB74C4C13BE6E1900C85CB5 /* TUIControl.h */,
 				CBB74C4D13BE6E1900C85CB5 /* TUIControl.m */,
+				4885C47B167320C900C75B3F /* TUICollectionView.h */,
+				4885C47C167320C900C75B3F /* TUICollectionView.m */,
+				4885C47D167320CA00C75B3F /* TUICollectionViewCell.h */,
+				4885C47E167320CA00C75B3F /* TUICollectionViewCell.m */,
+				4885C47F167320CA00C75B3F /* TUICollectionViewCommon.h */,
+				4885C4DF1673274D00C75B3F /* TUICollectionViewController.h */,
+				4885C4E01673274F00C75B3F /* TUICollectionViewController.m */,
+				4885C480167320CA00C75B3F /* TUICollectionViewData.h */,
+				4885C481167320CB00C75B3F /* TUICollectionViewData.m */,
+				4885C482167320CB00C75B3F /* TUICollectionViewFlowLayout.h */,
+				4885C483167320CB00C75B3F /* TUICollectionViewFlowLayout.m */,
+				4885C484167320CB00C75B3F /* TUICollectionViewItemKey.h */,
+				4885C485167320CB00C75B3F /* TUICollectionViewItemKey.m */,
+				4885C486167320CC00C75B3F /* TUICollectionViewLayout.h */,
+				4885C487167320CC00C75B3F /* TUICollectionViewLayout.m */,
+				4885C48A167320CC00C75B3F /* TUICollectionViewUpdateItem.h */,
+				4885C48B167320CD00C75B3F /* TUICollectionViewUpdateItem.m */,
+				4885C48C167320CD00C75B3F /* TUIGridLayoutInfo.h */,
+				4885C48D167320CD00C75B3F /* TUIGridLayoutInfo.m */,
+				4885C48E167320CD00C75B3F /* TUIGridLayoutItem.h */,
+				4885C48F167320CD00C75B3F /* TUIGridLayoutItem.m */,
+				4885C490167320CE00C75B3F /* TUIGridLayoutRow.h */,
+				4885C491167320CE00C75B3F /* TUIGridLayoutRow.m */,
+				4885C492167320CE00C75B3F /* TUIGridLayoutSection.h */,
+				4885C493167320CE00C75B3F /* TUIGridLayoutSection.m */,
 				CBB74C5213BE6E1900C85CB5 /* TUIGeometry.h */,
 				CBB74C5313BE6E1900C85CB5 /* TUIGeometry.m */,
 				D0C7650415B6156A00E7AC2C /* TUIHostView.h */,
@@ -1044,16 +1079,20 @@
 				D0EA12F315C34FEA00FAA603 /* NSColor+TUIExtensions.h in Headers */,
 				48373DF7160EAE9400322CA7 /* TUITextRenderer+Private.h in Headers */,
 				488A5835162FBE9B006CBF8B /* TUITableViewController.h in Headers */,
-				48694DCE1658AACD00BE65BF /* TUICollectionView.h in Headers */,
-				48694DD41658AACD00BE65BF /* TUICollectionViewCell.h in Headers */,
-				48694DDD1658AACD00BE65BF /* TUICollectionViewController.h in Headers */,
-				48694DE31658AACD00BE65BF /* TUICollectionViewData.h in Headers */,
-				48694DE91658AACD00BE65BF /* TUICollectionViewFlowLayout.h in Headers */,
-				48694DEF1658AACD00BE65BF /* TUICollectionViewItemKey.h in Headers */,
-				48694DF51658AACE00BE65BF /* TUICollectionViewLayout.h in Headers */,
-				48694DFB1658AACE00BE65BF /* TUICollectionViewUpdateItem.h in Headers */,
-				48694E011658AACE00BE65BF /* TUIGridLayoutInfo.h in Headers */,
 				482010C41658B07900CFDC11 /* NSIndexPath+TUIExtensions.h in Headers */,
+				4885C496167320CE00C75B3F /* TUICollectionView.h in Headers */,
+				4885C49C167320CE00C75B3F /* TUICollectionViewCell.h in Headers */,
+				4885C4A2167320CE00C75B3F /* TUICollectionViewCommon.h in Headers */,
+				4885C4A5167320CE00C75B3F /* TUICollectionViewData.h in Headers */,
+				4885C4AB167320CE00C75B3F /* TUICollectionViewFlowLayout.h in Headers */,
+				4885C4B1167320CE00C75B3F /* TUICollectionViewItemKey.h in Headers */,
+				4885C4B7167320CE00C75B3F /* TUICollectionViewLayout.h in Headers */,
+				4885C4C3167320CE00C75B3F /* TUICollectionViewUpdateItem.h in Headers */,
+				4885C4C9167320CE00C75B3F /* TUIGridLayoutInfo.h in Headers */,
+				4885C4CF167320CE00C75B3F /* TUIGridLayoutItem.h in Headers */,
+				4885C4D5167320CE00C75B3F /* TUIGridLayoutRow.h in Headers */,
+				4885C4DB167320CE00C75B3F /* TUIGridLayoutSection.h in Headers */,
+				4885C4E31673275100C75B3F /* TUICollectionViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1127,16 +1166,20 @@
 				D0EA12F115C34FEA00FAA603 /* NSColor+TUIExtensions.h in Headers */,
 				48373DF5160EAE9400322CA7 /* TUITextRenderer+Private.h in Headers */,
 				488A5833162FBE9B006CBF8B /* TUITableViewController.h in Headers */,
-				48694DCC1658AACD00BE65BF /* TUICollectionView.h in Headers */,
-				48694DD21658AACD00BE65BF /* TUICollectionViewCell.h in Headers */,
-				48694DDB1658AACD00BE65BF /* TUICollectionViewController.h in Headers */,
-				48694DE11658AACD00BE65BF /* TUICollectionViewData.h in Headers */,
-				48694DE71658AACD00BE65BF /* TUICollectionViewFlowLayout.h in Headers */,
-				48694DED1658AACD00BE65BF /* TUICollectionViewItemKey.h in Headers */,
-				48694DF31658AACE00BE65BF /* TUICollectionViewLayout.h in Headers */,
-				48694DF91658AACE00BE65BF /* TUICollectionViewUpdateItem.h in Headers */,
-				48694DFF1658AACE00BE65BF /* TUIGridLayoutInfo.h in Headers */,
 				482010C21658B07900CFDC11 /* NSIndexPath+TUIExtensions.h in Headers */,
+				4885C494167320CE00C75B3F /* TUICollectionView.h in Headers */,
+				4885C49A167320CE00C75B3F /* TUICollectionViewCell.h in Headers */,
+				4885C4A0167320CE00C75B3F /* TUICollectionViewCommon.h in Headers */,
+				4885C4A3167320CE00C75B3F /* TUICollectionViewData.h in Headers */,
+				4885C4A9167320CE00C75B3F /* TUICollectionViewFlowLayout.h in Headers */,
+				4885C4AF167320CE00C75B3F /* TUICollectionViewItemKey.h in Headers */,
+				4885C4B5167320CE00C75B3F /* TUICollectionViewLayout.h in Headers */,
+				4885C4C1167320CE00C75B3F /* TUICollectionViewUpdateItem.h in Headers */,
+				4885C4C7167320CE00C75B3F /* TUIGridLayoutInfo.h in Headers */,
+				4885C4CD167320CE00C75B3F /* TUIGridLayoutItem.h in Headers */,
+				4885C4D3167320CE00C75B3F /* TUIGridLayoutRow.h in Headers */,
+				4885C4D9167320CE00C75B3F /* TUIGridLayoutSection.h in Headers */,
+				4885C4E11673275100C75B3F /* TUICollectionViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1172,16 +1215,20 @@
 				D0EA12F215C34FEA00FAA603 /* NSColor+TUIExtensions.h in Headers */,
 				48373DF6160EAE9400322CA7 /* TUITextRenderer+Private.h in Headers */,
 				488A5834162FBE9B006CBF8B /* TUITableViewController.h in Headers */,
-				48694DCD1658AACD00BE65BF /* TUICollectionView.h in Headers */,
-				48694DD31658AACD00BE65BF /* TUICollectionViewCell.h in Headers */,
-				48694DDC1658AACD00BE65BF /* TUICollectionViewController.h in Headers */,
-				48694DE21658AACD00BE65BF /* TUICollectionViewData.h in Headers */,
-				48694DE81658AACD00BE65BF /* TUICollectionViewFlowLayout.h in Headers */,
-				48694DEE1658AACD00BE65BF /* TUICollectionViewItemKey.h in Headers */,
-				48694DF41658AACE00BE65BF /* TUICollectionViewLayout.h in Headers */,
-				48694DFA1658AACE00BE65BF /* TUICollectionViewUpdateItem.h in Headers */,
-				48694E001658AACE00BE65BF /* TUIGridLayoutInfo.h in Headers */,
 				482010C31658B07900CFDC11 /* NSIndexPath+TUIExtensions.h in Headers */,
+				4885C495167320CE00C75B3F /* TUICollectionView.h in Headers */,
+				4885C49B167320CE00C75B3F /* TUICollectionViewCell.h in Headers */,
+				4885C4A1167320CE00C75B3F /* TUICollectionViewCommon.h in Headers */,
+				4885C4A4167320CE00C75B3F /* TUICollectionViewData.h in Headers */,
+				4885C4AA167320CE00C75B3F /* TUICollectionViewFlowLayout.h in Headers */,
+				4885C4B0167320CE00C75B3F /* TUICollectionViewItemKey.h in Headers */,
+				4885C4B6167320CE00C75B3F /* TUICollectionViewLayout.h in Headers */,
+				4885C4C2167320CE00C75B3F /* TUICollectionViewUpdateItem.h in Headers */,
+				4885C4C8167320CE00C75B3F /* TUIGridLayoutInfo.h in Headers */,
+				4885C4CE167320CE00C75B3F /* TUIGridLayoutItem.h in Headers */,
+				4885C4D4167320CE00C75B3F /* TUIGridLayoutRow.h in Headers */,
+				4885C4DA167320CE00C75B3F /* TUIGridLayoutSection.h in Headers */,
+				4885C4E21673275100C75B3F /* TUICollectionViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1463,16 +1510,19 @@
 				D0EA12F615C34FEA00FAA603 /* NSColor+TUIExtensions.m in Sources */,
 				488A5838162FBE9B006CBF8B /* TUITableViewController.m in Sources */,
 				5000874A1652C4380067ED42 /* TUINavigationController.m in Sources */,
-				48694DD11658AACD00BE65BF /* TUICollectionView.m in Sources */,
-				48694DD71658AACD00BE65BF /* TUICollectionViewCell.m in Sources */,
-				48694DE01658AACD00BE65BF /* TUICollectionViewController.m in Sources */,
-				48694DE61658AACD00BE65BF /* TUICollectionViewData.m in Sources */,
-				48694DEC1658AACD00BE65BF /* TUICollectionViewFlowLayout.m in Sources */,
-				48694DF21658AACD00BE65BF /* TUICollectionViewItemKey.m in Sources */,
-				48694DF81658AACE00BE65BF /* TUICollectionViewLayout.m in Sources */,
-				48694DFE1658AACE00BE65BF /* TUICollectionViewUpdateItem.m in Sources */,
-				48694E041658AACE00BE65BF /* TUIGridLayoutInfo.m in Sources */,
 				482010C71658B07900CFDC11 /* NSIndexPath+TUIExtensions.m in Sources */,
+				4885C499167320CE00C75B3F /* TUICollectionView.m in Sources */,
+				4885C49F167320CE00C75B3F /* TUICollectionViewCell.m in Sources */,
+				4885C4A8167320CE00C75B3F /* TUICollectionViewData.m in Sources */,
+				4885C4AE167320CE00C75B3F /* TUICollectionViewFlowLayout.m in Sources */,
+				4885C4B4167320CE00C75B3F /* TUICollectionViewItemKey.m in Sources */,
+				4885C4BA167320CE00C75B3F /* TUICollectionViewLayout.m in Sources */,
+				4885C4C6167320CE00C75B3F /* TUICollectionViewUpdateItem.m in Sources */,
+				4885C4CC167320CE00C75B3F /* TUIGridLayoutInfo.m in Sources */,
+				4885C4D2167320CE00C75B3F /* TUIGridLayoutItem.m in Sources */,
+				4885C4D8167320CE00C75B3F /* TUIGridLayoutRow.m in Sources */,
+				4885C4DE167320CE00C75B3F /* TUIGridLayoutSection.m in Sources */,
+				4885C4E61673275100C75B3F /* TUICollectionViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1548,16 +1598,19 @@
 				D0EA12F415C34FEA00FAA603 /* NSColor+TUIExtensions.m in Sources */,
 				488A5836162FBE9B006CBF8B /* TUITableViewController.m in Sources */,
 				5000874916524B1F0067ED42 /* TUINavigationController.m in Sources */,
-				48694DCF1658AACD00BE65BF /* TUICollectionView.m in Sources */,
-				48694DD51658AACD00BE65BF /* TUICollectionViewCell.m in Sources */,
-				48694DDE1658AACD00BE65BF /* TUICollectionViewController.m in Sources */,
-				48694DE41658AACD00BE65BF /* TUICollectionViewData.m in Sources */,
-				48694DEA1658AACD00BE65BF /* TUICollectionViewFlowLayout.m in Sources */,
-				48694DF01658AACD00BE65BF /* TUICollectionViewItemKey.m in Sources */,
-				48694DF61658AACE00BE65BF /* TUICollectionViewLayout.m in Sources */,
-				48694DFC1658AACE00BE65BF /* TUICollectionViewUpdateItem.m in Sources */,
-				48694E021658AACE00BE65BF /* TUIGridLayoutInfo.m in Sources */,
 				482010C51658B07900CFDC11 /* NSIndexPath+TUIExtensions.m in Sources */,
+				4885C497167320CE00C75B3F /* TUICollectionView.m in Sources */,
+				4885C49D167320CE00C75B3F /* TUICollectionViewCell.m in Sources */,
+				4885C4A6167320CE00C75B3F /* TUICollectionViewData.m in Sources */,
+				4885C4AC167320CE00C75B3F /* TUICollectionViewFlowLayout.m in Sources */,
+				4885C4B2167320CE00C75B3F /* TUICollectionViewItemKey.m in Sources */,
+				4885C4B8167320CE00C75B3F /* TUICollectionViewLayout.m in Sources */,
+				4885C4C4167320CE00C75B3F /* TUICollectionViewUpdateItem.m in Sources */,
+				4885C4CA167320CE00C75B3F /* TUIGridLayoutInfo.m in Sources */,
+				4885C4D0167320CE00C75B3F /* TUIGridLayoutItem.m in Sources */,
+				4885C4D6167320CE00C75B3F /* TUIGridLayoutRow.m in Sources */,
+				4885C4DC167320CE00C75B3F /* TUIGridLayoutSection.m in Sources */,
+				4885C4E41673275100C75B3F /* TUICollectionViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1638,16 +1691,19 @@
 				D05D23A415BF7239000ED14F /* NSImage+TUIExtensions.m in Sources */,
 				D0EA12F515C34FEA00FAA603 /* NSColor+TUIExtensions.m in Sources */,
 				488A5837162FBE9B006CBF8B /* TUITableViewController.m in Sources */,
-				48694DD01658AACD00BE65BF /* TUICollectionView.m in Sources */,
-				48694DD61658AACD00BE65BF /* TUICollectionViewCell.m in Sources */,
-				48694DDF1658AACD00BE65BF /* TUICollectionViewController.m in Sources */,
-				48694DE51658AACD00BE65BF /* TUICollectionViewData.m in Sources */,
-				48694DEB1658AACD00BE65BF /* TUICollectionViewFlowLayout.m in Sources */,
-				48694DF11658AACD00BE65BF /* TUICollectionViewItemKey.m in Sources */,
-				48694DF71658AACE00BE65BF /* TUICollectionViewLayout.m in Sources */,
-				48694DFD1658AACE00BE65BF /* TUICollectionViewUpdateItem.m in Sources */,
-				48694E031658AACE00BE65BF /* TUIGridLayoutInfo.m in Sources */,
 				482010C61658B07900CFDC11 /* NSIndexPath+TUIExtensions.m in Sources */,
+				4885C498167320CE00C75B3F /* TUICollectionView.m in Sources */,
+				4885C49E167320CE00C75B3F /* TUICollectionViewCell.m in Sources */,
+				4885C4A7167320CE00C75B3F /* TUICollectionViewData.m in Sources */,
+				4885C4AD167320CE00C75B3F /* TUICollectionViewFlowLayout.m in Sources */,
+				4885C4B3167320CE00C75B3F /* TUICollectionViewItemKey.m in Sources */,
+				4885C4B9167320CE00C75B3F /* TUICollectionViewLayout.m in Sources */,
+				4885C4C5167320CE00C75B3F /* TUICollectionViewUpdateItem.m in Sources */,
+				4885C4CB167320CE00C75B3F /* TUIGridLayoutInfo.m in Sources */,
+				4885C4D1167320CE00C75B3F /* TUIGridLayoutItem.m in Sources */,
+				4885C4D7167320CE00C75B3F /* TUIGridLayoutRow.m in Sources */,
+				4885C4DD167320CE00C75B3F /* TUIGridLayoutSection.m in Sources */,
+				4885C4E51673275100C75B3F /* TUICollectionViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

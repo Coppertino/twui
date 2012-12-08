@@ -1,54 +1,26 @@
-/*
- Copyright 2011 Twitter, Inc.
- 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this work except in compliance with the License.
- You may obtain a copy of the License in the LICENSE file, or at:
- 
- http://www.apache.org/licenses/LICENSE-2.0
- 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- */
+//
+//  TUICollectionViewItemKey.m
+//
+//  Original Source: Copyright (c) 2012 Peter Steinberger. All rights reserved.
+//  AppKit Port: Copyright (c) 2012 Indragie Karunaratne. All rights reserved.
+//
 
 #import "TUICollectionViewItemKey.h"
 #import "TUICollectionViewLayout.h"
 
-NSString *const TUICollectionElementKindCell = @"UICollectionElementKindCell";
+NSString *const TUICollectionElementKTUICell = @"TUICollectionElementKTUICell";
 NSString *const TUICollectionElementKindDecorationView = @"TUICollectionElementKindDecorationView";
-
-NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
-    switch (type) {
-        case TUICollectionViewItemTypeCell: return @"Cell";
-        case TUICollectionViewItemTypeDecorationView: return @"Decoration";
-        case TUICollectionViewItemTypeSupplementaryView: return @"Supplementary";
-        default: return @"<INVALID>";
-    }
-}
-
-@interface TUICollectionViewLayoutAttributes ()
-
-@property (nonatomic, readonly) NSString *representedElementKind;
-@property (nonatomic, readonly) TUICollectionViewItemType representedElementCategory;
-
-- (BOOL)isDecorationView;
-- (BOOL)isSupplementaryView;
-- (BOOL)isCell;
-
-@end
 
 @implementation TUICollectionViewItemKey
 
-#pragma mark - Factory
+///////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Static
 
 + (id)collectionItemKeyForCellWithIndexPath:(NSIndexPath *)indexPath {
     TUICollectionViewItemKey *key = [[self class] new];
     key.indexPath = indexPath;
     key.type = TUICollectionViewItemTypeCell;
-    key.identifier = TUICollectionElementKindCell;
+    key.identifier = TUICollectionElementKTUICell;
     return key;
 }
 
@@ -60,6 +32,7 @@ NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
     return key;
 }
 
+// elementKind or reuseIdentifier?
 + (id)collectionItemKeyForDecorationViewOfKind:(NSString *)elementKind andIndexPath:(NSIndexPath *)indexPath {
     TUICollectionViewItemKey *key = [[self class] new];
     key.indexPath = indexPath;
@@ -76,6 +49,16 @@ NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
     return key;
 }
 
+NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
+    switch (type) {
+        case TUICollectionViewItemTypeCell: return @"Cell";
+        case TUICollectionViewItemTypeDecorationView: return @"Decoration";
+        case TUICollectionViewItemTypeSupplementaryView: return @"Supplementary";
+        default: return @"<INVALID>";
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 - (NSString *)description {
@@ -90,15 +73,15 @@ NSString *TUICollectionViewItemTypeToString(TUICollectionViewItemType type) {
 - (BOOL)isEqual:(id)other {
     if ([other isKindOfClass:[self class]]) {
         TUICollectionViewItemKey *otherKeyItem = (TUICollectionViewItemKey *)other;
-		
-        if (_type == otherKeyItem.type && [_indexPath isEqual:otherKeyItem.indexPath] &&
-			([_identifier isEqualToString:otherKeyItem.identifier] || _identifier == otherKeyItem.identifier))
+        // identifier might be nil?
+        if (_type == otherKeyItem.type && [_indexPath isEqual:otherKeyItem.indexPath] && ([_identifier isEqualToString:otherKeyItem.identifier] || _identifier == otherKeyItem.identifier)) {
             return YES;
-	}
-	
+            }
+        }
     return NO;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone {

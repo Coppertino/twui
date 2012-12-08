@@ -1,26 +1,19 @@
-/*
- Copyright 2011 Twitter, Inc.
- 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this work except in compliance with the License.
- You may obtain a copy of the License in the LICENSE file, or at:
- 
- http://www.apache.org/licenses/LICENSE-2.0
- 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- */
+//
+//  TUICollectionViewLayout.h
+//
+//  Original Source: Copyright (c) 2012 Peter Steinberger. All rights reserved.
+//  AppKit Port: Copyright (c) 2012 Indragie Karunaratne. All rights reserved.
+//
 
-#import "TUICollectionView.h"
+#import "TUICollectionViewCommon.h"
+#import <CoreGraphics/CoreGraphics.h>
+#import <QuartzCore/QuartzCore.h>
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, TUICollectionViewItemType) {
     TUICollectionViewItemTypeCell,
     TUICollectionViewItemTypeSupplementaryView,
     TUICollectionViewItemTypeDecorationView
-} TUICollectionViewItemType;
+};
 
 // The TUICollectionViewLayout class is provided as an abstract class for subclassing to define custom collection layouts.
 // Defining a custom layout is an advanced operation intended for applications with complex needs.
@@ -48,6 +41,17 @@ typedef enum {
  */
 @end
 
+@interface TUICollectionViewLayoutAttributes(Private)
+@property (nonatomic, readonly) NSString *representedElementKind;
+@property (nonatomic, readonly) TUICollectionViewItemType representedElementCategory;
+- (BOOL)isDecorationView;
+- (BOOL)isSupplementaryView;
+- (BOOL)isCell;
+@end
+
+// used internally for deserialization until I figure out the proper way.
+extern NSString *const TUICollectionViewLayoutAwokeFromNib;
+
 @interface TUICollectionViewLayout : NSObject <NSCoding>
 
 // Methods in this class are meant to be overridden and will be called by its collection view to gather layout information.
@@ -60,6 +64,7 @@ typedef enum {
 
 /// @name Registering Decoration Views
 - (void)registerClass:(Class)viewClass forDecorationViewWithReuseIdentifier:(NSString *)identifier;
+- (void)registerNib:(NSNib *)nib forDecorationViewWithReuseIdentifier:(NSString *)identifier;
 
 @end
 
