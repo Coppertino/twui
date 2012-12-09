@@ -16,7 +16,7 @@
 
 #import "TUIKit.h"
 #import "ExampleCollectionViewCell.h"
-#import "ExampleCollectionViewLineLayout.h"
+#import "ExampleCollectionViewLayout.h"
 
 @interface ExampleCollectionViewController : TUICollectionViewController
 

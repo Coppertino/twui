@@ -31,7 +31,7 @@
 		b.size.height -= TAB_HEIGHT;
 		
 		
-		ExampleCollectionViewLineLayout *l = [ExampleCollectionViewLineLayout new];
+		ExampleCollectionViewLayout *l = [ExampleCollectionViewLayout new];
 		ExampleCollectionViewController *vc = [[ExampleCollectionViewController alloc] initWithCollectionViewLayout:l];
 		//ExampleTableViewController *vc = [[ExampleTableViewController alloc] initWithNibName:nil bundle:nil];
 		_navigationController = [[TUINavigationController alloc] initWithRootViewController:vc];

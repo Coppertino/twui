@@ -16,6 +16,12 @@
 
 #import "TUIKit.h"
 
-@interface ExampleCollectionViewLineLayout : TUICollectionViewFlowLayout
+@interface ExampleCollectionViewLayout : TUICollectionViewLayout {
+    NSMutableArray *_insertedIndexPaths;
+}
+
+@property (nonatomic, assign) CGPoint center;
+@property (nonatomic, assign) CGFloat radius;
+@property (nonatomic, assign) NSInteger cellCount;
 
 @end

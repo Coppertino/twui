@@ -24,12 +24,14 @@
         self.contentView.layer.borderWidth = 1.0f;
         self.contentView.layer.borderColor = [NSColor whiteColor].tui_CGColor;
 		
-        self.label = [[TUILabel alloc] initWithFrame:CGRectMake(0.0, 0.0, frame.size.width, frame.size.height)];
+        self.label = [[TUILabel alloc] initWithFrame:self.bounds];
         self.label.autoresizingMask = TUIViewAutoresizingFlexibleSize;
         self.label.alignment = TUITextAlignmentCenter;
         self.label.font = [NSFont boldSystemFontOfSize:50.0f];
         self.label.backgroundColor = [NSColor underPageBackgroundColor];
-        self.label.textColor = [NSColor blackColor];
+        self.label.textColor = [NSColor whiteColor];
+		self.label.backgroundColor = [NSColor clearColor];
+		self.label.userInteractionEnabled = NO;
         
 		[self.contentView addSubview:self.label];
     }

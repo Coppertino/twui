@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		482010DE1658C28B00CFDC11 /* ExampleCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 482010D91658C28B00CFDC11 /* ExampleCollectionViewCell.m */; };
-		482010DF1658C28B00CFDC11 /* ExampleCollectionViewLineLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 482010DB1658C28B00CFDC11 /* ExampleCollectionViewLineLayout.m */; };
+		482010DF1658C28B00CFDC11 /* ExampleCollectionViewLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 482010DB1658C28B00CFDC11 /* ExampleCollectionViewLayout.m */; };
 		482010E01658C28B00CFDC11 /* ExampleCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 482010DD1658C28B00CFDC11 /* ExampleCollectionViewController.m */; };
 		484C208B15F445EB00B3104E /* clock.png in Resources */ = {isa = PBXBuildFile; fileRef = 484C207315F445EB00B3104E /* clock.png */; };
 		484C208C15F445EB00B3104E /* clock@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 484C207415F445EB00B3104E /* clock@2x.png */; };
@@ -71,8 +71,8 @@
 /* Begin PBXFileReference section */
 		482010D81658C28B00CFDC11 /* ExampleCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleCollectionViewCell.h; sourceTree = "<group>"; };
 		482010D91658C28B00CFDC11 /* ExampleCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleCollectionViewCell.m; sourceTree = "<group>"; };
-		482010DA1658C28B00CFDC11 /* ExampleCollectionViewLineLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleCollectionViewLineLayout.h; sourceTree = "<group>"; };
-		482010DB1658C28B00CFDC11 /* ExampleCollectionViewLineLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleCollectionViewLineLayout.m; sourceTree = "<group>"; };
+		482010DA1658C28B00CFDC11 /* ExampleCollectionViewLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleCollectionViewLayout.h; sourceTree = "<group>"; };
+		482010DB1658C28B00CFDC11 /* ExampleCollectionViewLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleCollectionViewLayout.m; sourceTree = "<group>"; };
 		482010DC1658C28B00CFDC11 /* ExampleCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleCollectionViewController.h; sourceTree = "<group>"; };
 		482010DD1658C28B00CFDC11 /* ExampleCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleCollectionViewController.m; sourceTree = "<group>"; };
 		484C207315F445EB00B3104E /* clock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clock.png; sourceTree = "<group>"; };
@@ -142,8 +142,8 @@
 				484C208815F445EB00B3104E /* ExampleView.m */,
 				482010D81658C28B00CFDC11 /* ExampleCollectionViewCell.h */,
 				482010D91658C28B00CFDC11 /* ExampleCollectionViewCell.m */,
-				482010DA1658C28B00CFDC11 /* ExampleCollectionViewLineLayout.h */,
-				482010DB1658C28B00CFDC11 /* ExampleCollectionViewLineLayout.m */,
+				482010DA1658C28B00CFDC11 /* ExampleCollectionViewLayout.h */,
+				482010DB1658C28B00CFDC11 /* ExampleCollectionViewLayout.m */,
 				482010DC1658C28B00CFDC11 /* ExampleCollectionViewController.h */,
 				482010DD1658C28B00CFDC11 /* ExampleCollectionViewController.m */,
 				484C207915F445EB00B3104E /* MainMenu.xib */,
@@ -330,7 +330,7 @@
 				484C209815F445EB00B3104E /* main.m in Sources */,
 				500088B2165362E60067ED42 /* ExampleTableViewController.m in Sources */,
 				482010DE1658C28B00CFDC11 /* ExampleCollectionViewCell.m in Sources */,
-				482010DF1658C28B00CFDC11 /* ExampleCollectionViewLineLayout.m in Sources */,
+				482010DF1658C28B00CFDC11 /* ExampleCollectionViewLayout.m in Sources */,
 				482010E01658C28B00CFDC11 /* ExampleCollectionViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

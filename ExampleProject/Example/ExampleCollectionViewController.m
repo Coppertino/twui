@@ -35,5 +35,72 @@
     return cell;
 }
 
+- (BOOL)collectionView:(TUICollectionView *)collectionView shouldHighlightItemAtIndexPath:(NSIndexPath *)indexPath {
+	return YES;
+}
+
+- (void)collectionView:(TUICollectionView *)collectionView didUnhighlightItemAtIndexPath:(NSIndexPath *)indexPath {
+	if([self.view.collectionViewLayout isKindOfClass:[ExampleCollectionViewLayout class]])
+		[self.view setCollectionViewLayout:[TUICollectionViewFlowLayout new] animated:YES];
+    else
+        [self.view setCollectionViewLayout:[ExampleCollectionViewLayout new] animated:YES];
+}
+
+/* 
+ - (void)cellClicked:(Cell *)cell {
+ NSIndexPath *tappedCellPath = [self.collectionView indexPathForCell:cell];
+ NSLog(@"%@",self.sections[tappedCellPath.section][tappedCellPath.item]);
+ if (tappedCellPath != nil)
+ {
+ [self.sections[tappedCellPath.section] removeObjectAtIndex:tappedCellPath.item];
+ [self.collectionView performBatchUpdates:^{
+ [self.collectionView deleteItemsAtIndexPaths:@[tappedCellPath]];
+ } completion:^
+ {
+ NSLog(@"delete finished");
+ }];
+ }
+ else
+ {
+ NSInteger insertElements = 10;
+ NSInteger deleteElements = 10;
+ NSMutableSet* insertedIndexPaths = [NSMutableSet set];
+ NSMutableSet* deletedIndexPaths = [NSMutableSet set];
+ for(NSInteger i=0;i<deleteElements;i++)
+ {
+ NSInteger index = rand()%[self.sections[0] count];
+ NSIndexPath* indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+ if([deletedIndexPaths containsObject:indexPath])
+ {
+ i--;
+ continue;
+ }
+ [self.sections[0] removeObjectAtIndex:index];
+ [deletedIndexPaths addObject:indexPath];
+ }
+ for(NSInteger i=0;i<insertElements;i++)
+ {
+ NSInteger index = rand()%[self.sections[0] count];
+ NSIndexPath* indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+ if([insertedIndexPaths containsObject:indexPath])
+ {
+ i--;
+ continue;
+ }
+ [self.sections[0] insertObject:@(count++)
+ atIndex:index];
+ [insertedIndexPaths addObject:indexPath];
+ }
+ [self.collectionView performBatchUpdates:^{
+ [self.collectionView insertItemsAtIndexPaths:[insertedIndexPaths allObjects]];
+ [self.collectionView deleteItemsAtIndexPaths:[deletedIndexPaths allObjects]];
+ } completion:^
+ {
+ NSLog(@"insert finished");
+ }];
+ }
+}
+*/
+
 @end
 

@@ -99,7 +99,7 @@
 
 - (void)tableView:(TUITableView *)tableView didClickRowAtIndexPath:(NSIndexPath *)indexPath withEvent:(NSEvent *)event {
 	if(event.type == NSRightMouseUp) {
-		ExampleCollectionViewLineLayout *l = [ExampleCollectionViewLineLayout new];
+		ExampleCollectionViewLayout *l = [ExampleCollectionViewLayout new];
 		ExampleCollectionViewController *vc = [[ExampleCollectionViewController alloc] initWithCollectionViewLayout:l];
 		[self.navigationController pushViewController:vc animated:YES];
 	} else if(event.clickCount == 1) {
