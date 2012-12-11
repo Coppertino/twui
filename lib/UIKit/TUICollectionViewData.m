@@ -93,7 +93,7 @@
     // TODO: check if we need to fetch data from layout
     if (!CGRectEqualToRect(_validLayoutRect, rect)) {
         _validLayoutRect = rect;
-        _cellLayoutAttributes = [self.layout layoutAttributesForElementsInRect:rect];
+        _cellLayoutAttributes = [_layout layoutAttributesForElementsInRect:rect];
     }
 }
 
@@ -196,8 +196,8 @@
 
 - (void)prepareToLoadData {
     if (!self.layoutIsPrepared) {
-        [self.layout prepareLayout];
-        _contentSize = self.layout.collectionViewContentSize;
+        [_layout prepareLayout];
+        _contentSize = _layout.collectionViewContentSize;
         self.layoutIsPrepared = YES;
     }
 }

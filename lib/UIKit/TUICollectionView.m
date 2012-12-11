@@ -681,7 +681,7 @@
     // in case we switch layout before previous one was initially loaded
     if(CGRectIsEmpty(self.bounds) || !_collectionViewFlags.doneFirstLayout) {
         _layout.collectionView = nil;
-        _collectionViewData = [[TUICollectionViewData alloc] initWithCollectionView:self layout:layout];
+        _collectionViewData = [[TUICollectionViewData alloc] initWithCollectionView:self layout:viewLayout];
         viewLayout.collectionView = self;
         _layout = viewLayout;
         
@@ -698,7 +698,7 @@
     } else {
         viewLayout.collectionView = self;
         
-        _collectionViewData = [[TUICollectionViewData alloc] initWithCollectionView:self layout:layout];
+        _collectionViewData = [[TUICollectionViewData alloc] initWithCollectionView:self layout:viewLayout];
         [_collectionViewData prepareToLoadData];
 
         NSArray *previouslySelectedIndexPaths = [self indexPathsForSelectedItems];
@@ -737,17 +737,17 @@
             if(newKey.type == TUICollectionViewItemTypeDecorationView) {
                 prevAttr = [self.collectionViewLayout layoutAttributesForDecorationViewWithReuseIdentifier:attr.representedElementKind
                                                                                                atIndexPath:newKey.indexPath];
-                newAttr = [layout layoutAttributesForDecorationViewWithReuseIdentifier:attr.representedElementKind
+                newAttr = [viewLayout layoutAttributesForDecorationViewWithReuseIdentifier:attr.representedElementKind
                                                                            atIndexPath:newKey.indexPath];
             }
             else if(newKey.type == TUICollectionViewItemTypeCell) {
                 prevAttr = [self.collectionViewLayout layoutAttributesForItemAtIndexPath:newKey.indexPath];
-                newAttr = [layout layoutAttributesForItemAtIndexPath:newKey.indexPath];
+                newAttr = [viewLayout layoutAttributesForItemAtIndexPath:newKey.indexPath];
             }
             else {
                 prevAttr = [self.collectionViewLayout layoutAttributesForSupplementaryViewOfKind:attr.representedElementKind
                                                                                      atIndexPath:newKey.indexPath];
-                newAttr = [layout layoutAttributesForSupplementaryViewOfKind:attr.representedElementKind
+                newAttr = [viewLayout layoutAttributesForSupplementaryViewOfKind:attr.representedElementKind
                                                                  atIndexPath:newKey.indexPath];
             }
             
@@ -763,18 +763,18 @@
                 TUICollectionReusableView *decorView = self.allVisibleViewsDict[key];
                 prevAttr = [self.collectionViewLayout layoutAttributesForDecorationViewWithReuseIdentifier:decorView.reuseIdentifier
                                                                                                atIndexPath:key.indexPath];
-                newAttr = [layout layoutAttributesForDecorationViewWithReuseIdentifier:decorView.reuseIdentifier
+                newAttr = [viewLayout layoutAttributesForDecorationViewWithReuseIdentifier:decorView.reuseIdentifier
                                                                            atIndexPath:key.indexPath];
             }
             else if(key.type == TUICollectionViewItemTypeCell) {
                 prevAttr = [self.collectionViewLayout layoutAttributesForItemAtIndexPath:key.indexPath];
-                newAttr = [layout layoutAttributesForItemAtIndexPath:key.indexPath];
+                newAttr = [viewLayout layoutAttributesForItemAtIndexPath:key.indexPath];
             }
             else {
                 TUICollectionReusableView* suuplView = self.allVisibleViewsDict[key];
                 prevAttr = [self.collectionViewLayout layoutAttributesForSupplementaryViewOfKind:suuplView.layoutAttributes.representedElementKind
                                                                                      atIndexPath:key.indexPath];
-                newAttr = [layout layoutAttributesForSupplementaryViewOfKind:suuplView.layoutAttributes.representedElementKind
+                newAttr = [viewLayout layoutAttributesForSupplementaryViewOfKind:suuplView.layoutAttributes.representedElementKind
                                                                  atIndexPath:key.indexPath];
             }
             

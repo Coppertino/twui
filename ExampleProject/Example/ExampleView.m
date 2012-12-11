@@ -30,7 +30,6 @@
 		b.origin.y += TAB_HEIGHT;
 		b.size.height -= TAB_HEIGHT;
 		
-		
 		ExampleCollectionViewLayout *l = [ExampleCollectionViewLayout new];
 		ExampleCollectionViewController *vc = [[ExampleCollectionViewController alloc] initWithCollectionViewLayout:l];
 		//ExampleTableViewController *vc = [[ExampleTableViewController alloc] initWithNibName:nil bundle:nil];
