@@ -20,6 +20,8 @@
 
 @implementation TUIView (Dragging)
 
+#pragma mark - Dragging Control
+
 @dynamic draggingTypes;
 
 - (NSArray *)registeredDraggingTypes {
@@ -31,41 +33,19 @@
 	[self updateRegisteredDraggingTypes];
 }
 
-- (void)dragImage:(NSImage *)image at:(NSPoint)viewLocation
-			event:(NSEvent *)event pasteboard:(NSPasteboard *)pasteboard
-		   source:(id)source slideBack:(BOOL)slideFlag {
-	
-	[self.nsView dragImage:image at:viewLocation
-					offset:CGSizeZero event:event
-				pasteboard:pasteboard source:source
-				 slideBack:slideFlag];
-}
-
-- (BOOL)dragFile:(NSString *)filename fromRect:(NSRect)rect
-	   slideBack:(BOOL)aFlag event:(NSEvent *)event {
-	
-	return [self.nsView dragFile:filename fromRect:rect
-					   slideBack:aFlag event:event];
-}
-
-- (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray
-						fromRect:(NSRect)rect source:(id)sourceObject
-					   slideBack:(BOOL)aFlag event:(NSEvent *)event {
-	
-	[self.nsView registerViewToDragPromisedFiles:self];
-	return [self.nsView dragPromisedFilesOfTypes:typeArray
-										fromRect:rect source:sourceObject
-									   slideBack:aFlag event:event];
-}
-
-- (NSImage *)dragImageForPromisedFilesOfTypes:(NSArray *)typeArray {
+- (TUIDraggingSession *)beginDraggingSessionWithItems:(NSArray *)items
+												event:(NSEvent *)event
+											   source:(id <NSDraggingSource>)source {
 	return nil;
 }
+
+#pragma mark - TUIDraggingDestination
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
 	return NSDragOperationNone;
 }
 
+// FIXME: Needs to use cached value instead of method call.
 - (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender {
 	return [self draggingEntered:sender];
 }
@@ -89,5 +69,7 @@
 - (void)concludeDragOperation:(id <NSDraggingInfo>)sender {
 	
 }
+
+#pragma mark -
 
 @end
