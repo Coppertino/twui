@@ -20,7 +20,7 @@
 #import "TUIDraggingItem.h"
 #import "TUIDraggingSession.h"
 
-@interface TUIView (Dragging)
+@interface TUIView (Dragging) <TUIDraggingDestination>
 
 // Returns or sets the types registered for a view. Each element of the array
 // is a uniform type identifier. The returned elements are in no particular
@@ -44,6 +44,11 @@
 												event:(NSEvent *)event
 											   source:(id <NSDraggingSource>)source;
 
+// DEPRECATED
+- (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray
+						fromRect:(NSRect)rect source:(id)sourceObject
+					   slideBack:(BOOL)aFlag event:(NSEvent *)event;
 
+- (NSImage *)dragImageForPromisedFilesOfTypes:(NSArray *)typeArray;
 
 @end

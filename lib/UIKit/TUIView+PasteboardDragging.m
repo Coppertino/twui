@@ -72,4 +72,18 @@
 
 #pragma mark -
 
+- (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray
+						fromRect:(NSRect)rect source:(id)sourceObject
+					   slideBack:(BOOL)aFlag event:(NSEvent *)event {
+	
+	[self.nsView registerViewToDragPromisedFiles:self];
+	return [self.nsView dragPromisedFilesOfTypes:typeArray
+										fromRect:rect source:sourceObject
+									   slideBack:aFlag event:event];
+}
+
+- (NSImage *)dragImageForPromisedFilesOfTypes:(NSArray *)typeArray {
+	return nil;
+}
+
 @end

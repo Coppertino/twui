@@ -27,6 +27,8 @@
 // The view who is currently targeted to recieve NSDragDestination method calls.
 @property (nonatomic, strong) TUIView *currentDraggingView;
 
+@property (nonatomic, strong) TUIView *trackingView;
+
 // If a view decides to initiate a promised file drag, it must register itself.
 - (void)registerViewToDragPromisedFiles:(TUIView *)view;
 
