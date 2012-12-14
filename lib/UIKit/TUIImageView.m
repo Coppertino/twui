@@ -19,12 +19,6 @@
 #import "NSImage+TUIExtensions.h"
 #import "TUIStretchableImage.h"
 
-@interface TUIImageView ()
-
-@property (nonatomic, strong) NSURL *currentDropDestination;
-
-@end
-
 @implementation TUIImageView
 
 - (id)initWithFrame:(CGRect)frame {
@@ -177,14 +171,100 @@
 	if(!self.savable || !self.image)
 		return;
 	
+	// Prepare our drag and image rectangles.
 	CGRect dragRect = (CGRect) {
 		.origin = event.locationInWindow,
 		.size = CGSizeMake(32, 32)
 	};
 	
-	[self dragPromisedFilesOfTypes:@[NSPasteboardTypeTIFF] fromRect:dragRect
-							source:self slideBack:YES event:event];
+	CGRect imageRect = (CGRect) {
+		.origin = CGPointZero,
+		.size = self.layer.visibleRect.size
+	};
+	
+	// Prepare the drag image.
+	NSImage *dragImage = [NSImage tui_imageWithSize:imageRect.size drawing:^(CGContextRef ctx) {
+		CGContextSetAlpha(ctx, 0.5);
+		CGContextDrawImage(ctx, imageRect, self.image.tui_CGImage);
+	}];
+	
+	// Create a pasteboard item to lazy-write the content image.
+	NSPasteboardItem *pasteItem = [[NSPasteboardItem alloc] init];
+	[pasteItem setDataProvider:self forTypes:@[NSPasteboardTypeFilePromise]];
+	
+	// Create a dragging item to display an on-screen drag with the pasteboard item.
+	TUIDraggingItem *dragItem = [[TUIDraggingItem alloc] initWithPasteboardWriter:pasteItem];
+	[dragItem setDraggingFrame:dragRect contents:dragImage];
+	
+	// Begin dragging and modify the session so it slides back and doesn't group.
+	TUIDraggingSession *session = [self beginDraggingSessionWithItems:@[dragItem] event:event source:self];
+	session.reanimatesToSource = YES;
+	session.draggingFormation = NSDraggingFormationNone;
 }
+
+// Modify the context so that it's only possible to copy images outside the application.
+- (NSDragOperation)draggingSession:(TUIDraggingSession *)session sourceOperationForContext:(TUIDraggingContext)context {
+	return (context == TUIDraggingContextOutsideApplication? NSDragOperationCopy : NSDragOperationMove);
+}
+
+// Return the TIFF representation of our image when the pasteboard calls for it.
+- (void)pasteboard:(NSPasteboard *)sender item:(NSPasteboardItem *)item provideDataForType:(NSString *)type {
+	NSLog(@"pasteboard %@ item %@ requested data for type %@", sender, item, type);
+    
+	if([type compare:NSPasteboardTypeTIFF] == NSOrderedSame) {
+        [sender setData:self.image.TIFFRepresentation forType:type];
+    } else if([type compare:NSPasteboardTypeFilePromise] == NSOrderedSame) {
+		NSLog(@"saving...");
+		[sender setPropertyList:@[(id)kUTTypeImage] forType:type];
+	} else if([type compare:NSPasteboardTypePromiseContent] == NSOrderedSame) {
+		NSLog(@"checking..");
+		[sender setPropertyList:@[(id)kUTTypeImage] forType:type];
+	}
+}
+
+// When the pasteboard finishes writing, call the handler.
+- (void)pasteboardFinishedWithDataProvider:(NSPasteboard *)pasteboard {
+	if(self.imageSavedHandler)
+		self.imageSavedHandler();
+}
+
+- (NSArray *)namesOfPromisedFilesInSession:(TUIDraggingSession *)session droppedAtDestination:(NSURL *)destination {
+	session.sessionContext = destination;
+	
+	return @[@"test.png"];
+}
+
+- (void)draggingSession:(TUIDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation {
+	NSString *path = [[session.sessionContext path] stringByAppendingPathComponent:self.savedFilename ?: @"Photo"];
+	NSString *extension = @"png";
+	if(self.savedFiletype == NSTIFFFileType)
+		extension = @"tiff";
+	else if(self.savedFiletype == NSBMPFileType)
+		extension = @"bmp";
+	else if(self.savedFiletype == NSGIFFileType)
+		extension = @"gif";
+	else if(self.savedFiletype == NSJPEGFileType ||
+			self.savedFiletype == NSJPEG2000FileType)
+		extension = @"jpg";
+	
+    NSBitmapImageRep *imageRep = [NSBitmapImageRep imageRepWithData:self.image.TIFFRepresentation];
+    NSData *bitmapData = [imageRep representationUsingType:self.savedFiletype ?: NSPNGFileType properties:nil];
+	
+	NSUInteger existingFileCount = 0;
+	NSString *newPath = path;
+	while([[NSFileManager defaultManager] fileExistsAtPath:[newPath stringByAppendingPathExtension:extension]]) {
+		existingFileCount++;
+		newPath = [path stringByAppendingFormat:@" (%lu)", existingFileCount];
+	}
+	
+	[bitmapData writeToFile:[newPath stringByAppendingPathExtension:extension] atomically:YES];
+}
+
+
+
+
+
+
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
 	if(![sender.draggingSource isEqual:self] && self.editable &&
@@ -225,56 +305,6 @@
 
 - (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag {
 	return NSDragOperationCopy;
-}
-
-- (NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination {
-	self.currentDropDestination = dropDestination;
-	return @[[self.savedFilename ?: @"Photo" stringByAppendingPathExtension:@"png"]];
-}
-
-- (NSImage *)dragImageForPromisedFilesOfTypes:(NSArray *)typeArray {
-	CGRect imageRect = (CGRect) {
-		.origin = CGPointZero,
-		.size = self.layer.visibleRect.size
-	};
-	
-	return [NSImage tui_imageWithSize:imageRect.size drawing:^(CGContextRef ctx) {
-		CGContextSetAlpha(ctx, 0.5);
-		CGContextDrawImage(ctx, imageRect, self.image.tui_CGImage);
-	}];
-}
-
-- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)screenPoint operation:(NSDragOperation)operation {
-	if(!self.currentDropDestination)
-		return;
-	
-	NSString *path = [self.currentDropDestination.path stringByAppendingPathComponent:self.savedFilename ?: @"Photo"];
-	NSString *extension = @"png";
-	if(self.savedFiletype == NSTIFFFileType)
-		extension = @"tiff";
-	else if(self.savedFiletype == NSBMPFileType)
-		extension = @"bmp";
-	else if(self.savedFiletype == NSGIFFileType)
-		extension = @"gif";
-	else if(self.savedFiletype == NSJPEGFileType ||
-			self.savedFiletype == NSJPEG2000FileType)
-		extension = @"jpg";
-	
-    NSBitmapImageRep *imageRep = [NSBitmapImageRep imageRepWithData:self.image.TIFFRepresentation];
-    NSData *bitmapData = [imageRep representationUsingType:self.savedFiletype ?: NSPNGFileType properties:nil];
-	
-	NSUInteger existingFileCount = 0;
-	NSString *newPath = path;
-	while([[NSFileManager defaultManager] fileExistsAtPath:[newPath stringByAppendingPathExtension:extension]]) {
-		existingFileCount++;
-		newPath = [path stringByAppendingFormat:@" (%lu)", existingFileCount];
-	}
-	
-	[bitmapData writeToFile:[newPath stringByAppendingPathExtension:extension] atomically:YES];
-	self.currentDropDestination = nil;
-	
-	if(self.imageSavedHandler)
-		self.imageSavedHandler();
 }
 
 @end

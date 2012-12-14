@@ -27,6 +27,15 @@
 		484D62C816771D4000E3EFBA /* TUIDragging.h in Headers */ = {isa = PBXBuildFile; fileRef = 484D62C716771D4000E3EFBA /* TUIDragging.h */; };
 		484D62C916771D4000E3EFBA /* TUIDragging.h in Headers */ = {isa = PBXBuildFile; fileRef = 484D62C716771D4000E3EFBA /* TUIDragging.h */; };
 		484D62CA16771D4000E3EFBA /* TUIDragging.h in Headers */ = {isa = PBXBuildFile; fileRef = 484D62C716771D4000E3EFBA /* TUIDragging.h */; };
+		484D62D216784D3100E3EFBA /* TUIDraggingManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 484D62D016784D2C00E3EFBA /* TUIDraggingManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		484D62D316784D3100E3EFBA /* TUIDraggingManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 484D62D016784D2C00E3EFBA /* TUIDraggingManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		484D62D416784D3100E3EFBA /* TUIDraggingManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 484D62D016784D2C00E3EFBA /* TUIDraggingManager.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		484D62D516784D3100E3EFBA /* TUIDraggingManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 484D62D116784D2E00E3EFBA /* TUIDraggingManager.m */; };
+		484D62D616784D3100E3EFBA /* TUIDraggingManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 484D62D116784D2E00E3EFBA /* TUIDraggingManager.m */; };
+		484D62D716784D3100E3EFBA /* TUIDraggingManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 484D62D116784D2E00E3EFBA /* TUIDraggingManager.m */; };
+		484D62D9167AA33700E3EFBA /* TUIDragging+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 484D62D8167AA33500E3EFBA /* TUIDragging+Private.h */; };
+		484D62DA167AA33700E3EFBA /* TUIDragging+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 484D62D8167AA33500E3EFBA /* TUIDragging+Private.h */; };
+		484D62DB167AA33700E3EFBA /* TUIDragging+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 484D62D8167AA33500E3EFBA /* TUIDragging+Private.h */; };
 		488A5833162FBE9B006CBF8B /* TUITableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 488A5831162FBE9B006CBF8B /* TUITableViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		488A5834162FBE9B006CBF8B /* TUITableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 488A5831162FBE9B006CBF8B /* TUITableViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		488A5835162FBE9B006CBF8B /* TUITableViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 488A5831162FBE9B006CBF8B /* TUITableViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -453,6 +462,9 @@
 		484D62BF167717ED00E3EFBA /* TUIDraggingItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUIDraggingItem.h; sourceTree = "<group>"; };
 		484D62C0167717EE00E3EFBA /* TUIDraggingItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUIDraggingItem.m; sourceTree = "<group>"; };
 		484D62C716771D4000E3EFBA /* TUIDragging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUIDragging.h; sourceTree = "<group>"; };
+		484D62D016784D2C00E3EFBA /* TUIDraggingManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUIDraggingManager.h; sourceTree = "<group>"; };
+		484D62D116784D2E00E3EFBA /* TUIDraggingManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUIDraggingManager.m; sourceTree = "<group>"; };
+		484D62D8167AA33500E3EFBA /* TUIDragging+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TUIDragging+Private.h"; sourceTree = "<group>"; };
 		487068981628CBCF005D7096 /* TUITableViewCell+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TUITableViewCell+Private.h"; sourceTree = "<group>"; };
 		488A5831162FBE9B006CBF8B /* TUITableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUITableViewController.h; sourceTree = "<group>"; };
 		488A5832162FBE9B006CBF8B /* TUITableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUITableViewController.m; sourceTree = "<group>"; };
@@ -813,10 +825,13 @@
 				CBB74C4C13BE6E1900C85CB5 /* TUIControl.h */,
 				CBB74C4D13BE6E1900C85CB5 /* TUIControl.m */,
 				484D62C716771D4000E3EFBA /* TUIDragging.h */,
+				484D62D8167AA33500E3EFBA /* TUIDragging+Private.h */,
 				484D62BF167717ED00E3EFBA /* TUIDraggingItem.h */,
 				484D62C0167717EE00E3EFBA /* TUIDraggingItem.m */,
 				484D62B3167715E600E3EFBA /* TUIDraggingSession.h */,
 				484D62B4167715E600E3EFBA /* TUIDraggingSession.m */,
+				484D62D016784D2C00E3EFBA /* TUIDraggingManager.h */,
+				484D62D116784D2E00E3EFBA /* TUIDraggingManager.m */,
 				CBB74C5213BE6E1900C85CB5 /* TUIGeometry.h */,
 				CBB74C5313BE6E1900C85CB5 /* TUIGeometry.m */,
 				D0C7650415B6156A00E7AC2C /* TUIHostView.h */,
@@ -976,6 +991,8 @@
 				484D62B7167715E600E3EFBA /* TUIDraggingSession.h in Headers */,
 				484D62C3167717EE00E3EFBA /* TUIDraggingItem.h in Headers */,
 				484D62CA16771D4000E3EFBA /* TUIDragging.h in Headers */,
+				484D62D416784D3100E3EFBA /* TUIDraggingManager.h in Headers */,
+				484D62DB167AA33700E3EFBA /* TUIDragging+Private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1052,6 +1069,8 @@
 				484D62B5167715E600E3EFBA /* TUIDraggingSession.h in Headers */,
 				484D62C1167717EE00E3EFBA /* TUIDraggingItem.h in Headers */,
 				484D62C816771D4000E3EFBA /* TUIDragging.h in Headers */,
+				484D62D216784D3100E3EFBA /* TUIDraggingManager.h in Headers */,
+				484D62D9167AA33700E3EFBA /* TUIDragging+Private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1091,6 +1110,8 @@
 				484D62B6167715E600E3EFBA /* TUIDraggingSession.h in Headers */,
 				484D62C2167717EE00E3EFBA /* TUIDraggingItem.h in Headers */,
 				484D62C916771D4000E3EFBA /* TUIDragging.h in Headers */,
+				484D62D316784D3100E3EFBA /* TUIDraggingManager.h in Headers */,
+				484D62DA167AA33700E3EFBA /* TUIDragging+Private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1374,6 +1395,7 @@
 				48D07649163329400027721C /* TUINSView+PasteboardDragging.m in Sources */,
 				484D62BA167715E600E3EFBA /* TUIDraggingSession.m in Sources */,
 				484D62C6167717EE00E3EFBA /* TUIDraggingItem.m in Sources */,
+				484D62D716784D3100E3EFBA /* TUIDraggingManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1451,6 +1473,7 @@
 				48D07647163329400027721C /* TUINSView+PasteboardDragging.m in Sources */,
 				484D62B8167715E600E3EFBA /* TUIDraggingSession.m in Sources */,
 				484D62C4167717EE00E3EFBA /* TUIDraggingItem.m in Sources */,
+				484D62D516784D3100E3EFBA /* TUIDraggingManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1534,6 +1557,7 @@
 				48D07648163329400027721C /* TUINSView+PasteboardDragging.m in Sources */,
 				484D62B9167715E600E3EFBA /* TUIDraggingSession.m in Sources */,
 				484D62C5167717EE00E3EFBA /* TUIDraggingItem.m in Sources */,
+				484D62D616784D3100E3EFBA /* TUIDraggingManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

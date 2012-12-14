@@ -14,16 +14,14 @@
  limitations under the License.
  */
 
-#import "TUIDraggingSession.h"
-#import "TUIDragging+Private.h"
+@interface TUIDraggingSession ()
 
-@implementation TUIDraggingSession
+@property (nonatomic, strong) NSArray *draggingItems;
 
-- (id)init {
-	if((self = [super init])) {
-		self.draggingFormation = TUIDraggingFormationDefault;
-	}
-	return self;
-}
+@property (nonatomic, assign, readwrite) NSPasteboard *draggingPasteboard;
+@property (nonatomic, assign, readwrite) NSInteger draggingSequenceNumber;
+@property (nonatomic, assign, readwrite) NSPoint draggingLocation;
+@property (nonatomic, assign, readwrite) id <TUIDraggingSource> draggingSource;
+@property (nonatomic, assign, readwrite) NSDragOperation draggingOperation;
 
 @end

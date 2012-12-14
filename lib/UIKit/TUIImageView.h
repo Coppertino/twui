@@ -18,7 +18,7 @@
 
 typedef void (^TUIImageViewHandler)(void);
 
-@interface TUIImageView : TUIView
+@interface TUIImageView : TUIView <TUIDraggingSource, NSPasteboardItemDataProvider>
 
 // The initial value of this property is the image passed into the
 // initWithImage: method or nil if you initialized the receiver using

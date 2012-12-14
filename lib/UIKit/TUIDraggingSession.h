@@ -45,11 +45,15 @@
 // Returns the pasteboard object that holds the data being dragged.
 @property (nonatomic, assign, readonly) NSPasteboard *draggingPasteboard;
 
-// Returns a number that uniquely identifies the dragging session.
+// Returns a number that uniquely identifies the dragging session, only
+// if read from a TUIDraggingDestination, otherwise NSNotFound otherwise.
 @property (nonatomic, assign, readonly) NSInteger draggingSequenceNumber;
 
 // The current cursor location of the drag in screen coordinates.
 @property (nonatomic, assign, readonly) NSPoint draggingLocation;
+
+// Returns nil if out of app context.
+@property (nonatomic, assign, readonly) id <TUIDraggingSource> draggingSource;
 
 // Returns the dragging operation mask of the dragging source. The dragging
 // operation mask, which is declared by the dragging source through the TUIDraggingSource

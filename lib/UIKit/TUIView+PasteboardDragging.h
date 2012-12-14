@@ -42,7 +42,7 @@
 // are called in order. Once the drag is ended or cancelled, the drag is complete.
 - (TUIDraggingSession *)beginDraggingSessionWithItems:(NSArray *)items
 												event:(NSEvent *)event
-											   source:(id <NSDraggingSource>)source;
+											   source:(id <TUIDraggingSource>)source;
 
 // DEPRECATED
 - (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray

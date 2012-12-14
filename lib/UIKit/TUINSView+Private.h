@@ -19,18 +19,12 @@
 @property (nonatomic, readonly, strong) NSView *appKitHostView;
 
 // The view that has decided to initiate a promised file drag.
-@property (nonatomic, strong) TUIView *promisedFileDraggingView;
-
-// The dragging types that the promised file dragging view has decided to drag.
-@property (nonatomic, strong) NSArray *promisedFileDraggingTypes;
+@property (nonatomic, strong) TUIDraggingSession *currentSourceDraggingSession;
 
 // The view who is currently targeted to recieve NSDragDestination method calls.
 @property (nonatomic, strong) TUIView *currentDraggingView;
 
 @property (nonatomic, strong) TUIView *trackingView;
-
-// If a view decides to initiate a promised file drag, it must register itself.
-- (void)registerViewToDragPromisedFiles:(TUIView *)view;
 
 /*
  * Informs the receiver that the clipping of a TUIViewNSViewContainer it is hosting has
@@ -44,5 +38,7 @@
 
 - (TUIView *)viewForLocalPoint:(NSPoint)p;
 - (NSPoint)localPointForLocationInWindow:(NSPoint)locationInWindow;
+
+- (void)beginDraggingSession:(TUIDraggingSession *)session event:(NSEvent *)event source:(id<TUIDraggingSource>)source;
 
 @end

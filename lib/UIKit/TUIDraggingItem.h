@@ -16,6 +16,9 @@
 
 #import "TUIDragging.h"
 
+extern NSString *const TUIDraggingImageComponentIconKey;
+extern NSString *const TUIDraggingImageComponentLabelKey;
+
 @interface TUIDraggingImageComponent : NSObject
 
 // key must be unique for each component in an TUIDraggingItem. You
@@ -26,13 +29,12 @@
 @property (nonatomic, copy) NSString *key;
 
 // An object providing the image contents of the component, typically
-// you set an NSImage, but may be anything CALayer accepts.
+// you set an NSImage, but it may be anything CALayer accepts.
 @property (nonatomic, assign) id contents;
 
 // The coordinate space is the bounds of the parent TUIDraggingItem.
-// That is, {{0,0}, {draggingFrame.size.width, draggingFrame.size.height}}
 // Note: TUIDraggingItem does not clip its components.
-@property (nonatomic, assign) NSRect frame;
+@property (nonatomic, readonly) NSRect frame;
 
 + (id)draggingImageComponentWithKey:(NSString *)key;
 
@@ -73,7 +75,7 @@
 
 // The designated initializer. When creating an TUIDraggingItem the
 // pasteboardWriter must implement the NSPasteboardWriting protocol.
-- (id)initWithPasteboardWriter:(id <NSPasteboardWriting>) pasteboardWriter;
+- (id)initWithPasteboardWriter:(id<NSPasteboardWriting>) pasteboardWriter;
 
 // Alternate single image component setter. This method simplifies modifiying
 // the components of an TUIDraggingItem when there is only one component.

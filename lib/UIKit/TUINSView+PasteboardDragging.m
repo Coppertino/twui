@@ -14,14 +14,27 @@
  limitations under the License.
  */
 
-#import "TUINSView+PasteboardDragging.h"
 #import "TUINSView+Private.h"
+#import "TUINSView+PasteboardDragging.h"
+#import "TUIDragging+Private.h"
+#import "TUIDraggingManager.h"
 
 @implementation TUINSView (PasteboardDragging)
 
 @dynamic draggingTypesByViews;
 
-- (void)dragImage:(NSImage *)anImage at:(NSPoint)viewLocation
+- (void)beginDraggingSession:(TUIDraggingSession *)session event:(NSEvent *)event source:(id<TUIDraggingSource>)source {
+	session.draggingSource = source;
+	session.draggingLocation = [NSEvent mouseLocation];
+	self.currentSourceDraggingSession = session;
+	
+	[self dragImage:[[NSImage alloc] initWithSize:NSMakeSize(1, 1)]
+				  at:session.draggingLocation offset:NSZeroSize
+			   event:event pasteboard:session.draggingPasteboard
+			 source:self slideBack:NO];
+}
+
+/*- (void)dragImage:(NSImage *)anImage at:(NSPoint)viewLocation
 		   offset:(NSSize)initialOffset event:(NSEvent *)event
 	   pasteboard:(NSPasteboard *)pboard source:(id)sourceObj
 		slideBack:(BOOL)slideFlag {
@@ -41,9 +54,9 @@
 	[super dragImage:dragImage ?: anImage at:dragLocation offset:initialOffset
 			   event:event pasteboard:pboard source:sourceObj
 		   slideBack:slideFlag];
-}
+ }//*/
 
-- (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray fromRect:(NSRect)rect
+/*- (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray fromRect:(NSRect)rect
 						  source:(id)sourceObject slideBack:(BOOL)aFlag event:(NSEvent *)event {
 	
 	if(self.promisedFileDraggingView) {
@@ -53,7 +66,7 @@
 	} else {
 		return NO;
 	}
-}
+ }//*/
 
 - (void)registerForDraggedTypes:(NSArray *)draggedTypes forView:(TUIView *)view {
 	[self.draggingTypesByViews removeObjectForKey:@(view.hash)];
@@ -79,9 +92,11 @@
 	TUIView *view = [self viewForLocationInWindow:sender.draggingLocation];
 	
 	while(view) {
-		NSArray *types = [self.draggingTypesByViews objectForKey:@(view.hash)];
-		if(types && [sender.draggingPasteboard availableTypeFromArray:types])
-			return view;
+		if([view conformsToProtocol:@protocol(TUIDraggingDestination)]) {
+			NSArray *types = [self.draggingTypesByViews objectForKey:@(view.hash)];
+			if(types && [sender.draggingPasteboard availableTypeFromArray:types])
+				return view;
+		}
 		
 		view = view.superview;
 	}
@@ -142,6 +157,57 @@
 	TUIView *view = [self viewForDraggingInfo:sender];
 	if(view)
 		[view concludeDragOperation:sender];
+}
+
+- (NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	return [session.draggingSource namesOfPromisedFilesInSession:session droppedAtDestination:dropDestination];
+}
+
+- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	TUIDraggingContext context = flag ? TUIDraggingContextWithinApplication : TUIDraggingContextOutsideApplication;
+	NSDragOperation operation = [session.draggingSource draggingSession:session sourceOperationForContext:context];
+	
+	session.draggingOperation = operation;
+	return operation;
+}
+
+- (BOOL)ignoreModifierKeysWhileDragging {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	
+	BOOL ignore = NO;
+	if([session.draggingSource respondsToSelector:@selector(ignoreModifierKeysForDraggingSession:)])
+		ignore = [session.draggingSource ignoreModifierKeysForDraggingSession:session];
+	
+	return ignore;
+}
+- (void)draggedImage:(NSImage *)image beganAt:(NSPoint)screenPoint {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	TUIDraggingImageComponent *component = [session.draggingItems[0] imageComponents][0];
+	session.draggingLocation = [NSEvent mouseLocation];
+	
+	[[TUIDraggingManager sharedDraggingManager] startDragFromSourceScreenRect:self.window.frame
+															  startingAtPoint:session.draggingLocation
+																	   offset:NSZeroSize
+																  insideImage:component.contents
+																 outsideImage:component.contents
+																	slideBack:YES];
+}
+
+- (void)draggedImage:(NSImage *)draggedImage movedTo:(NSPoint)screenPoint {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	session.draggingLocation = [NSEvent mouseLocation];
+	
+	[[TUIDraggingManager sharedDraggingManager] updatePosition];
+}
+
+- (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	session.draggingLocation = [NSEvent mouseLocation];
+	
+	[[TUIDraggingManager sharedDraggingManager] endDragWithResult:operation];
+	self.currentSourceDraggingSession = nil;
 }
 
 @end

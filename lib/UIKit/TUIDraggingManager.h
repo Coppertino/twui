@@ -14,15 +14,25 @@
  limitations under the License.
  */
 
-#import "TUINSView.h"
-#import "TUIDragging.h"
+#import "TUIView+PasteboardDragging.h"
 
-@interface TUINSView (PasteboardDragging)
+@interface TUIDraggingManager : NSWindowController
 
-// The dragging types registered by each contained TUIView.
-@property (nonatomic, strong) NSMutableDictionary *draggingTypesByViews;
++ (id)sharedDraggingManager;
 
-// Register dragging types for a view.
-- (void)registerForDraggedTypes:(NSArray *)draggedTypes forView:(TUIView *)view;
+- (void)startDragFromSourceScreenRect:(NSRect)aScreenRect
+					  startingAtPoint:(NSPoint)aStartPoint
+							   offset:(NSSize)anOffset
+						  insideImage:(NSImage *)insideImage
+						 outsideImage:(NSImage *)outsideImage
+							slideBack:(BOOL)slideBackFlag;
+
+- (void)updatePosition;
+- (void)endDragWithResult:(NSDragOperation)dragOperation;
+
+- (void)_centerWindowOverPoint:(NSPoint)point
+					withOffset:(NSSize)offset
+					   animate:(BOOL)animate;
+- (void)_orderOutAndCleanUp;
 
 @end

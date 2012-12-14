@@ -17,6 +17,7 @@
 #import "TUIView+PasteboardDragging.h"
 #import "TUIView+Private.h"
 #import "TUINSView+Private.h"
+#import "TUIDragging+Private.h"
 
 @implementation TUIView (Dragging)
 
@@ -35,8 +36,22 @@
 
 - (TUIDraggingSession *)beginDraggingSessionWithItems:(NSArray *)items
 												event:(NSEvent *)event
-											   source:(id <NSDraggingSource>)source {
-	return nil;
+											   source:(id <TUIDraggingSource>)source {
+	TUIDraggingSession *session = [[TUIDraggingSession alloc] init];
+	session.draggingPasteboard = [NSPasteboard pasteboardWithName:NSDragPboard];
+	session.draggingItems = items;
+	
+	// Convert from TUIDraggingItems back into NSPasteboardItems.
+	NSMutableArray *pasteItems = @[].mutableCopy;
+	for(TUIDraggingItem *item in items)
+		[pasteItems addObject:item.item];
+	
+	// Now write all the pasteboard items to the dragging pasteboard.
+	[session.draggingPasteboard clearContents];
+	[session.draggingPasteboard writeObjects:pasteItems];
+	
+	[self.nsView beginDraggingSession:session event:event source:source];
+	return session;
 }
 
 #pragma mark - TUIDraggingDestination
@@ -75,11 +90,7 @@
 - (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray
 						fromRect:(NSRect)rect source:(id)sourceObject
 					   slideBack:(BOOL)aFlag event:(NSEvent *)event {
-	
-	[self.nsView registerViewToDragPromisedFiles:self];
-	return [self.nsView dragPromisedFilesOfTypes:typeArray
-										fromRect:rect source:sourceObject
-									   slideBack:aFlag event:event];
+	return NO;
 }
 
 - (NSImage *)dragImageForPromisedFilesOfTypes:(NSArray *)typeArray {

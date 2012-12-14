@@ -14,12 +14,14 @@
  limitations under the License.
  */
 
-extern NSString *const TUIDraggingImageComponentIconKey;
-extern NSString *const TUIDraggingImageComponentLabelKey;
+#define NSPasteboardTypeFilePromise (id)kPasteboardTypeFileURLPromise
+#define NSPasteboardTypePromiseContent (id)kPasteboardTypeFilePromiseContent
 
 typedef enum TUIDraggingContext : NSUInteger {
 	TUIDraggingContextOutsideApplication,
-	TUIDraggingContextWithinApplication
+	TUIDraggingContextWithinApplication,
+	TUIDraggingContextOutsideWindow,
+	TUIDraggingContextWithinWindow
 } TUIDraggingContext;
 
 typedef enum TUIDraggingFormation : NSUInteger {
@@ -43,7 +45,7 @@ typedef enum TUIDraggingFormation : NSUInteger {
 // In the future, more specific "within" values may be specified.
 // To account for this, for unrecongized localities, return the operation
 // mask for the most specific context that you are concerned with.
-- (NSDragOperation)draggingSession:(TUIDraggingSession *)session sourceOperationMaskForDraggingContext:(TUIDraggingContext)context;
+- (NSDragOperation)draggingSession:(TUIDraggingSession *)session sourceOperationForContext:(TUIDraggingContext)context;
 
 @optional
 
@@ -58,6 +60,10 @@ typedef enum TUIDraggingFormation : NSUInteger {
 
 // Returns whether the modifier keys will be ignored for this dragging session.
 - (BOOL)ignoreModifierKeysForDraggingSession:(TUIDraggingSession *)session;
+
+// If the dragging session contains any promised files, this method must be implemented
+// to return their names given the URL of their destination.
+- (NSArray *)namesOfPromisedFilesInSession:(TUIDraggingSession *)session droppedAtDestination:(NSURL *)destination;
 
 @end
 
