@@ -14,6 +14,9 @@
  limitations under the License.
  */
 
+#import "TUIDraggingSession.h"
+#import "TUIDraggingFilePromiseItem.h"
+
 @interface TUIDraggingSession ()
 
 @property (nonatomic, strong) NSArray *draggingItems;
@@ -23,5 +26,14 @@
 @property (nonatomic, assign, readwrite) NSPoint draggingLocation;
 @property (nonatomic, assign, readwrite) id <TUIDraggingSource> draggingSource;
 @property (nonatomic, assign, readwrite) NSDragOperation draggingOperation;
+
+@end
+
+@interface TUIDraggingFilePromiseItem ()
+
+@property (nonatomic, strong) NSMutableDictionary *dataProviders;
+
+- (NSString *)promisedFilename;
+- (NSString *)promisedFiletype;
 
 @end

@@ -18,12 +18,6 @@
 // The layer-backed view which actually holds the AppKit hierarchy.
 @property (nonatomic, readonly, strong) NSView *appKitHostView;
 
-// The view that has decided to initiate a promised file drag.
-@property (nonatomic, strong) TUIDraggingSession *currentSourceDraggingSession;
-
-// The view who is currently targeted to recieve NSDragDestination method calls.
-@property (nonatomic, strong) TUIView *currentDraggingView;
-
 @property (nonatomic, strong) TUIView *trackingView;
 
 /*
@@ -38,6 +32,10 @@
 
 - (TUIView *)viewForLocalPoint:(NSPoint)p;
 - (NSPoint)localPointForLocationInWindow:(NSPoint)locationInWindow;
+
+@property (nonatomic, strong) TUIDraggingSession *currentSourceDraggingSession;
+@property (nonatomic, strong) NSURL *currentPromisedDragDestination;
+@property (nonatomic, strong) TUIView *currentDraggingView;
 
 - (void)beginDraggingSession:(TUIDraggingSession *)session event:(NSEvent *)event source:(id<TUIDraggingSource>)source;
 

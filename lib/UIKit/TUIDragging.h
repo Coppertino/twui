@@ -14,9 +14,6 @@
  limitations under the License.
  */
 
-#define NSPasteboardTypeFilePromise (id)kPasteboardTypeFileURLPromise
-#define NSPasteboardTypePromiseContent (id)kPasteboardTypeFilePromiseContent
-
 typedef enum TUIDraggingContext : NSUInteger {
 	TUIDraggingContextOutsideApplication,
 	TUIDraggingContextWithinApplication,

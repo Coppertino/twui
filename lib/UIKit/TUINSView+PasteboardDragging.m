@@ -21,52 +21,161 @@
 
 @implementation TUINSView (PasteboardDragging)
 
-@dynamic draggingTypesByViews;
+#pragma mark -
 
 - (void)beginDraggingSession:(TUIDraggingSession *)session event:(NSEvent *)event source:(id<TUIDraggingSource>)source {
+	
+	// Qualify the current source dragging session.
 	session.draggingSource = source;
 	session.draggingLocation = [NSEvent mouseLocation];
 	self.currentSourceDraggingSession = session;
 	
+	// Fake a dragged image, letting the TUIDraggingSession manage itself.
 	[self dragImage:[[NSImage alloc] initWithSize:NSMakeSize(1, 1)]
 				  at:session.draggingLocation offset:NSZeroSize
 			   event:event pasteboard:session.draggingPasteboard
 			 source:self slideBack:NO];
 }
 
-/*- (void)dragImage:(NSImage *)anImage at:(NSPoint)viewLocation
-		   offset:(NSSize)initialOffset event:(NSEvent *)event
-	   pasteboard:(NSPasteboard *)pboard source:(id)sourceObj
-		slideBack:(BOOL)slideFlag {
-	
-	NSImage *dragImage = anImage;
-	NSPoint dragLocation = viewLocation;
-	if(self.promisedFileDraggingView) {
-		dragImage = [self.promisedFileDraggingView dragImageForPromisedFilesOfTypes:self.promisedFileDraggingTypes];
+// Using a TUIDraggingPromiseItem, proxy file promises back to the pasteboarditems.
+- (void)pasteboard:(NSPasteboard *)sender provideDataForType:(NSString *)type {
+	if([type isEqualToString:NSFilesPromisePboardType]) {
+		TUIDraggingSession *session = self.currentSourceDraggingSession;
 		
-		dragLocation.x -= dragImage.size.width / 2;
-		dragLocation.y -= dragImage.size.height / 2;
+		// Retrieve a list of all the file promises in this dragging session.
+		NSMutableArray *pasteItems = @[].mutableCopy;
+		for(TUIDraggingItem *item in session.draggingItems)
+			if([item.item isKindOfClass:TUIDraggingFilePromiseItem.class])
+				[pasteItems addObject:item.item];
 		
-		self.promisedFileDraggingView = nil;
-		self.promisedFileDraggingTypes = nil;
+		// Get all the file types from the items and return them.
+		NSMutableArray *pasteTypes = @[].mutableCopy;
+		for(TUIDraggingFilePromiseItem *item in pasteItems)
+			[pasteTypes addObject:item.promisedFiletype];
+		
+		NSLog(@"named types: %@", pasteTypes);
+		[sender setPropertyList:pasteTypes forType:type];
 	}
-	
-	[super dragImage:dragImage ?: anImage at:dragLocation offset:initialOffset
-			   event:event pasteboard:pboard source:sourceObj
-		   slideBack:slideFlag];
- }//*/
+}
 
-/*- (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray fromRect:(NSRect)rect
-						  source:(id)sourceObject slideBack:(BOOL)aFlag event:(NSEvent *)event {
+// Since we are proxying file promises, search the session for the correct file name.
+- (NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	self.currentPromisedDragDestination = dropDestination;
+	NSLog(@"destination url: %@", dropDestination);
 	
-	if(self.promisedFileDraggingView) {
-		self.promisedFileDraggingTypes = typeArray;
-		return [super dragPromisedFilesOfTypes:typeArray fromRect:rect
-										source:sourceObject slideBack:aFlag event:event];
-	} else {
-		return NO;
+	// Retrieve a list of all the file promises in this dragging session.
+	NSMutableArray *pasteItems = @[].mutableCopy;
+	for(TUIDraggingItem *item in session.draggingItems)
+		if([item.item isKindOfClass:TUIDraggingFilePromiseItem.class])
+			[pasteItems addObject:item.item];
+	
+	// Get all the file names from the items and return them.
+	NSMutableArray *pasteFiles = @[].mutableCopy;
+	for(TUIDraggingFilePromiseItem *item in pasteItems)
+		[pasteFiles addObject:item.promisedFilename];
+	
+	NSLog(@"named files: %@", pasteFiles);
+	return pasteFiles;
+}
+
+- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	TUIDraggingContext context = flag ? TUIDraggingContextWithinApplication : TUIDraggingContextOutsideApplication;
+	NSDragOperation operation = [session.draggingSource draggingSession:session sourceOperationForContext:context];
+	
+	session.draggingOperation = operation;
+	return operation;
+}
+
+- (BOOL)ignoreModifierKeysWhileDragging {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	
+	BOOL ignore = NO;
+	if([session.draggingSource respondsToSelector:@selector(ignoreModifierKeysForDraggingSession:)])
+		ignore = [session.draggingSource ignoreModifierKeysForDraggingSession:session];
+	
+	return ignore;
+}
+- (void)draggedImage:(NSImage *)image beganAt:(NSPoint)screenPoint {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	session.draggingLocation = [NSEvent mouseLocation];
+	
+	TUIDraggingImageComponent *component = [session.draggingItems[0] imageComponents][0];
+	[[TUIDraggingManager sharedDraggingManager] startDragFromSourceScreenRect:self.window.frame
+															  startingAtPoint:session.draggingLocation
+																	   offset:NSZeroSize
+																  insideImage:component.contents
+																 outsideImage:component.contents
+																	slideBack:YES];
+}
+
+- (void)draggedImage:(NSImage *)draggedImage movedTo:(NSPoint)screenPoint {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	session.draggingLocation = [NSEvent mouseLocation];
+	
+	[[TUIDraggingManager sharedDraggingManager] updatePosition];
+}
+
+- (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	session.draggingLocation = [NSEvent mouseLocation];
+	
+	[[TUIDraggingManager sharedDraggingManager] endDragWithResult:operation];
+	self.currentSourceDraggingSession = nil;
+	
+	// Clear the drag destination for future promise drags.
+	NSURL *location = self.currentPromisedDragDestination;
+	self.currentPromisedDragDestination = nil;
+	
+	// If there is no existing location for file promises, ignore them.
+	if(!location)
+		return;
+	
+	// Retrieve a list of all the file promises in this dragging session.
+	NSMutableArray *pasteItems = @[].mutableCopy;
+	for(TUIDraggingItem *item in session.draggingItems)
+		if([item.item isKindOfClass:TUIDraggingFilePromiseItem.class])
+			[pasteItems addObject:item.item];
+	
+	// Iterate all the files to save and either take care of the saving for
+	// the data providers or alert them to save the files themselves.
+	// Do this on an asynchronous dispatch queue to prevent UI blocking.
+	for(TUIDraggingFilePromiseItem *item in pasteItems) {
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+			
+			// Retrieve all the file information to paste, if it's available.
+			NSString *filename = [item stringForType:TUIPasteboardTypeFilePromiseName];
+			NSString *extension = item.promisedFiletype;
+			NSData *data = [item dataForType:TUIPasteboardTypeFilePromiseContent];
+			
+			// The !! is a NOT-NOT: It qualifies the existance of the object.
+			if(!!data && !!filename && !!extension) {
+				NSURL *path = [location URLByAppendingPathComponent:filename];
+				
+				// Determine the number of pre-existing files with the same name.
+				NSUInteger existingFileCount = 0;
+				NSString *checkPath = path.path;
+				while([[NSFileManager defaultManager] fileExistsAtPath:[checkPath stringByAppendingPathExtension:extension]]) {
+					existingFileCount++;
+					checkPath = [path.path stringByAppendingFormat:@" (%lu)", existingFileCount];
+				}
+				
+				// Write the data to the file after appending a file copy badge.
+				[data writeToFile:[checkPath stringByAppendingPathExtension:extension] atomically:YES];
+			} else {
+				
+				// Alert the pasteboard system to request the file promise: this
+				// actually tells the item's data provider to handle the file writing.
+				[item propertyListForType:TUIPasteboardTypeFilePromise];
+			}
+		});
 	}
- }//*/
+}
+
+#pragma mark - TUIDraggingDestination Registration
+
+@dynamic draggingTypesByViews;
 
 - (void)registerForDraggedTypes:(NSArray *)draggedTypes forView:(TUIView *)view {
 	[self.draggingTypesByViews removeObjectForKey:@(view.hash)];
@@ -103,6 +212,8 @@
 	
 	return nil;
 }
+
+#pragma mark - TUIDraggingDestination Handlers
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
 	return NSDragOperationNone;
@@ -159,55 +270,6 @@
 		[view concludeDragOperation:sender];
 }
 
-- (NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination {
-	TUIDraggingSession *session = self.currentSourceDraggingSession;
-	return [session.draggingSource namesOfPromisedFilesInSession:session droppedAtDestination:dropDestination];
-}
-
-- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag {
-	TUIDraggingSession *session = self.currentSourceDraggingSession;
-	TUIDraggingContext context = flag ? TUIDraggingContextWithinApplication : TUIDraggingContextOutsideApplication;
-	NSDragOperation operation = [session.draggingSource draggingSession:session sourceOperationForContext:context];
-	
-	session.draggingOperation = operation;
-	return operation;
-}
-
-- (BOOL)ignoreModifierKeysWhileDragging {
-	TUIDraggingSession *session = self.currentSourceDraggingSession;
-	
-	BOOL ignore = NO;
-	if([session.draggingSource respondsToSelector:@selector(ignoreModifierKeysForDraggingSession:)])
-		ignore = [session.draggingSource ignoreModifierKeysForDraggingSession:session];
-	
-	return ignore;
-}
-- (void)draggedImage:(NSImage *)image beganAt:(NSPoint)screenPoint {
-	TUIDraggingSession *session = self.currentSourceDraggingSession;
-	TUIDraggingImageComponent *component = [session.draggingItems[0] imageComponents][0];
-	session.draggingLocation = [NSEvent mouseLocation];
-	
-	[[TUIDraggingManager sharedDraggingManager] startDragFromSourceScreenRect:self.window.frame
-															  startingAtPoint:session.draggingLocation
-																	   offset:NSZeroSize
-																  insideImage:component.contents
-																 outsideImage:component.contents
-																	slideBack:YES];
-}
-
-- (void)draggedImage:(NSImage *)draggedImage movedTo:(NSPoint)screenPoint {
-	TUIDraggingSession *session = self.currentSourceDraggingSession;
-	session.draggingLocation = [NSEvent mouseLocation];
-	
-	[[TUIDraggingManager sharedDraggingManager] updatePosition];
-}
-
-- (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation {
-	TUIDraggingSession *session = self.currentSourceDraggingSession;
-	session.draggingLocation = [NSEvent mouseLocation];
-	
-	[[TUIDraggingManager sharedDraggingManager] endDragWithResult:operation];
-	self.currentSourceDraggingSession = nil;
-}
+#pragma mark - 
 
 @end

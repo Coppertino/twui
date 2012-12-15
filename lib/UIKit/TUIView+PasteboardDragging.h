@@ -44,11 +44,4 @@
 												event:(NSEvent *)event
 											   source:(id <TUIDraggingSource>)source;
 
-// DEPRECATED
-- (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray
-						fromRect:(NSRect)rect source:(id)sourceObject
-					   slideBack:(BOOL)aFlag event:(NSEvent *)event;
-
-- (NSImage *)dragImageForPromisedFilesOfTypes:(NSArray *)typeArray;
-
 @end

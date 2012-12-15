@@ -18,6 +18,7 @@
 #import "TUINSView.h"
 #import "NSImage+TUIExtensions.h"
 #import "TUIStretchableImage.h"
+#import "TUIDraggingFilePromiseItem.h"
 
 @implementation TUIImageView
 
@@ -188,9 +189,24 @@
 		CGContextDrawImage(ctx, imageRect, self.image.tui_CGImage);
 	}];
 	
+	// Determine the UTI file type of the image.
+	NSString *extension = (id)kUTTypePNG;
+	if(self.savedFiletype == NSTIFFFileType)
+		extension = (id)kUTTypeTIFF;
+	else if(self.savedFiletype == NSBMPFileType)
+		extension = (id)kUTTypeBMP;
+	else if(self.savedFiletype == NSGIFFileType)
+		extension = (id)kUTTypeGIF;
+	else if(self.savedFiletype == NSJPEGFileType)
+		extension = (id)kUTTypeJPEG;
+	else if(self.savedFiletype == NSJPEG2000FileType)
+		extension = (id)kUTTypeJPEG2000;
+	
 	// Create a pasteboard item to lazy-write the content image.
-	NSPasteboardItem *pasteItem = [[NSPasteboardItem alloc] init];
-	[pasteItem setDataProvider:self forTypes:@[NSPasteboardTypeFilePromise]];
+	TUIDraggingFilePromiseItem *pasteItem = [[TUIDraggingFilePromiseItem alloc] init];
+	[pasteItem setDataProvider:self forTypes:@[TUIPasteboardTypeFilePromise, TUIPasteboardTypeFilePromiseContent]];
+	[pasteItem setPropertyList:extension forType:TUIPasteboardTypeFilePromiseType];
+	[pasteItem setString:(self.savedFilename ?: @"Photo") forType:TUIPasteboardTypeFilePromiseName];
 	
 	// Create a dragging item to display an on-screen drag with the pasteboard item.
 	TUIDraggingItem *dragItem = [[TUIDraggingItem alloc] initWithPasteboardWriter:pasteItem];
@@ -204,34 +220,30 @@
 
 // Modify the context so that it's only possible to copy images outside the application.
 - (NSDragOperation)draggingSession:(TUIDraggingSession *)session sourceOperationForContext:(TUIDraggingContext)context {
-	return (context == TUIDraggingContextOutsideApplication? NSDragOperationCopy : NSDragOperationMove);
+	return NSDragOperationCopy;
 }
 
 // Return the TIFF representation of our image when the pasteboard calls for it.
 - (void)pasteboard:(NSPasteboard *)sender item:(NSPasteboardItem *)item provideDataForType:(NSString *)type {
 	NSLog(@"pasteboard %@ item %@ requested data for type %@", sender, item, type);
-    
-	if([type compare:NSPasteboardTypeTIFF] == NSOrderedSame) {
-        [sender setData:self.image.TIFFRepresentation forType:type];
-    } else if([type compare:NSPasteboardTypeFilePromise] == NSOrderedSame) {
-		NSLog(@"saving...");
-		[sender setPropertyList:@[(id)kUTTypeImage] forType:type];
-	} else if([type compare:NSPasteboardTypePromiseContent] == NSOrderedSame) {
-		NSLog(@"checking..");
-		[sender setPropertyList:@[(id)kUTTypeImage] forType:type];
+	
+	if([type isEqualToString:TUIPasteboardTypeFilePromise]) {
+		NSLog(@"setting...");
+		
+    } else if([type isEqualToString:TUIPasteboardTypeFilePromiseContent]) {
+		
+		// Convert to the specified representation type and paste it.
+		NSBitmapImageRep *imageRep = [NSBitmapImageRep imageRepWithData:self.image.TIFFRepresentation];
+		NSData *bitmapData = [imageRep representationUsingType:self.savedFiletype ?: NSPNGFileType properties:nil];
+        [item setData:bitmapData forType:type];
 	}
 }
 
 // When the pasteboard finishes writing, call the handler.
 - (void)pasteboardFinishedWithDataProvider:(NSPasteboard *)pasteboard {
+	NSLog(@"finished");
 	if(self.imageSavedHandler)
 		self.imageSavedHandler();
-}
-
-- (NSArray *)namesOfPromisedFilesInSession:(TUIDraggingSession *)session droppedAtDestination:(NSURL *)destination {
-	session.sessionContext = destination;
-	
-	return @[@"test.png"];
 }
 
 - (void)draggingSession:(TUIDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation {

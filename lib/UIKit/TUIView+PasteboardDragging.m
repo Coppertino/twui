@@ -18,6 +18,7 @@
 #import "TUIView+Private.h"
 #import "TUINSView+Private.h"
 #import "TUIDragging+Private.h"
+#import "TUIDraggingFilePromiseItem.h"
 
 @implementation TUIView (Dragging)
 
@@ -41,14 +42,25 @@
 	session.draggingPasteboard = [NSPasteboard pasteboardWithName:NSDragPboard];
 	session.draggingItems = items;
 	
-	// Convert from TUIDraggingItems back into NSPasteboardItems.
+	// Convert from TUIDraggingItems back into NSPasteboardWriters.
 	NSMutableArray *pasteItems = @[].mutableCopy;
 	for(TUIDraggingItem *item in items)
 		[pasteItems addObject:item.item];
 	
+	// Determine if there are promises to be made.
+	BOOL containsPromises = NO;
+	for(TUIDraggingFilePromiseItem *promise in pasteItems) {
+		containsPromises = YES;
+		break;
+	}
+	
 	// Now write all the pasteboard items to the dragging pasteboard.
 	[session.draggingPasteboard clearContents];
 	[session.draggingPasteboard writeObjects:pasteItems];
+	
+	// Make promises if the session requires it.
+	if(containsPromises)
+		[session.draggingPasteboard addTypes:@[NSFilesPromisePboardType] owner:self.nsView];
 	
 	[self.nsView beginDraggingSession:session event:event source:source];
 	return session;
@@ -83,18 +95,6 @@
 
 - (void)concludeDragOperation:(id <NSDraggingInfo>)sender {
 	
-}
-
-#pragma mark -
-
-- (BOOL)dragPromisedFilesOfTypes:(NSArray *)typeArray
-						fromRect:(NSRect)rect source:(id)sourceObject
-					   slideBack:(BOOL)aFlag event:(NSEvent *)event {
-	return NO;
-}
-
-- (NSImage *)dragImageForPromisedFilesOfTypes:(NSArray *)typeArray {
-	return nil;
 }
 
 @end
