@@ -222,7 +222,7 @@
 	// Begin dragging and modify the session so it slides back and doesn't group.
 	TUIDraggingSession *session = [self beginDraggingSessionWithItems:@[dragItem] event:event source:self];
 	session.reanimatesToSource = YES;
-	session.draggingFormation = NSDraggingFormationNone;
+	session.draggingFormation = TUIDraggingFormationNone;
 }
 
 // Modify the context so that it's only possible to copy images outside the application.
@@ -239,6 +239,10 @@
 		NSData *bitmapData = [imageRep representationUsingType:self.savedFiletype ?: NSPNGFileType properties:nil];
         [item setData:bitmapData forType:type];
 	}
+}
+
+- (void)draggingSession:(TUIDraggingSession *)session movedToPoint:(NSPoint)screenPoint {
+	// Update image to file icon.
 }
 
 // When the dragging session ends, call the handler.

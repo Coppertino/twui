@@ -17,16 +17,28 @@
 #import "TUIDraggingSession.h"
 #import "TUIDraggingFilePromiseItem.h"
 
-@interface TUIDraggingSession ()
+#define TUIDragWindowLevel (NSScreenSaverWindowLevel + 1)
+
+@interface TUIDraggingSession () {
+	NSPoint	_startPoint;
+	NSSize _imageSize;
+}
+
+@property (nonatomic, strong) NSWindow *compositedWindow;
+@property (nonatomic, strong) NSImageView *compositeView;
 
 @property (nonatomic, strong) NSArray *draggingItems;
 @property (nonatomic, strong) NSArray *draggingPromiseItems;
 
 @property (nonatomic, assign, readwrite) NSPasteboard *draggingPasteboard;
 @property (nonatomic, assign, readwrite) NSInteger draggingSequenceNumber;
-@property (nonatomic, assign, readwrite) NSPoint draggingLocation;
+@property (nonatomic, assign, readwrite) CGPoint draggingLocation;
 @property (nonatomic, assign, readwrite) id <TUIDraggingSource> draggingSource;
 @property (nonatomic, assign, readwrite) NSDragOperation draggingOperation;
+
+- (void)startDrag;
+- (void)updateDrag;
+- (void)endDrag;
 
 @end
 

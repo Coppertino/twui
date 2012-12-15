@@ -30,10 +30,16 @@
 	session.draggingLocation = [NSEvent mouseLocation];
 	self.currentSourceDraggingSession = session;
 	
-	// Fake a dragged image, letting the TUIDraggingSession manage itself.
+	// To allow return from this method, queue a fake drag right after.
+	[self performSelector:@selector(beginDraggingSession:) withObject:event afterDelay:0.01f];
+}
+
+// Fake a dragged image, letting the TUIDraggingSession manage itself.
+- (void)beginDraggingSession:(NSEvent *)event {
+	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	[self dragImage:[[NSImage alloc] initWithSize:NSMakeSize(1, 1)]
-				  at:session.draggingLocation offset:NSZeroSize
-			   event:event pasteboard:session.draggingPasteboard
+				 at:session.draggingLocation offset:NSZeroSize
+			  event:event pasteboard:session.draggingPasteboard
 			 source:self slideBack:NO];
 }
 
@@ -72,25 +78,28 @@
 	return pasteFiles;
 }
 
-// Forward source operation masking into contexts for the dragging source.
 - (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag {
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
+	
+	// Set up default operations and determine the context for the dragging source.
 	TUIDraggingContext context = flag ? TUIDraggingContextWithinApplication : TUIDraggingContextOutsideApplication;
-	NSDragOperation operation = [session.draggingSource draggingSession:session sourceOperationForContext:context];
+	NSDragOperation operation = NSDragOperationCopy | NSDragOperationLink | NSDragOperationGeneric | NSDragOperationPrivate;
+	
+	// Forward source operation masking into contexts for the dragging source.
+	if([session.draggingSource respondsToSelector:@selector(draggingSession:sourceOperationForContext:)])
+		operation = [session.draggingSource draggingSession:session sourceOperationForContext:context];
 	
 	session.draggingOperation = operation;
 	return operation;
 }
 
-// Forward modifier key ignores to the dragging source.
 - (BOOL)ignoreModifierKeysWhileDragging {
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	
-	BOOL ignore = NO;
+	// Forward modifier key ignores to the dragging source.
 	if([session.draggingSource respondsToSelector:@selector(ignoreModifierKeysForDraggingSession:)])
-		ignore = [session.draggingSource ignoreModifierKeysForDraggingSession:session];
-	
-	return ignore;
+		return [session.draggingSource ignoreModifierKeysForDraggingSession:session];
+	else return NO;
 }
 - (void)draggedImage:(NSImage *)image beganAt:(NSPoint)screenPoint {
 	
@@ -99,14 +108,7 @@
 	session.draggingLocation = [NSEvent mouseLocation];
 	
 	// Update the dragging source and the dragging session.
-	TUIDraggingImageComponent *component = [session.draggingItems[0] imageComponents][0];
-	[[TUIDraggingManager sharedDraggingManager] startDragFromSourceScreenRect:self.window.frame
-															  startingAtPoint:session.draggingLocation
-																	   offset:NSZeroSize
-																  insideImage:component.contents
-																 outsideImage:component.contents
-																	slideBack:YES];
-	
+	[session startDrag];
 	if([session.draggingSource respondsToSelector:@selector(draggingSession:beganAtPoint:)])
 		[session.draggingSource draggingSession:session beganAtPoint:session.draggingLocation];
 }
@@ -118,7 +120,7 @@
 	session.draggingLocation = [NSEvent mouseLocation];
 	
 	// Update the dragging source and the dragging session.
-	[[TUIDraggingManager sharedDraggingManager] updatePosition];
+	[session updateDrag];
 	if([session.draggingSource respondsToSelector:@selector(draggingSession:movedToPoint:)])
 		[session.draggingSource draggingSession:session movedToPoint:session.draggingLocation];
 }
@@ -171,7 +173,7 @@
 	}
 	
 	// End the dragging and disqualify the dragging session.
-	[[TUIDraggingManager sharedDraggingManager] endDragWithResult:operation];
+	[session endDrag];
 	self.currentSourceDraggingSession = nil;
 	
 	if([session.draggingSource respondsToSelector:@selector(draggingSession:endedAtPoint:)])

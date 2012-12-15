@@ -36,15 +36,13 @@ typedef enum TUIDraggingFormation : NSUInteger {
 // The others are sent if the source responds to first method.
 @protocol TUIDraggingSource <NSObject>
 
-@required
+@optional
 
 // Declares what types of operations the source allows to be performed.
 // In the future, more specific "within" values may be specified.
 // To account for this, for unrecongized localities, return the operation
 // mask for the most specific context that you are concerned with.
 - (NSDragOperation)draggingSession:(TUIDraggingSession *)session sourceOperationForContext:(TUIDraggingContext)context;
-
-@optional
 
 // Invoked when the drag will begin.
 - (void)draggingSession:(TUIDraggingSession *)session beganAtPoint:(NSPoint)screenPoint;
