@@ -22,6 +22,8 @@
 
 @implementation TUIImageView
 
+#pragma mark - Initialization
+
 - (id)initWithFrame:(CGRect)frame {
 	if((self = [super initWithFrame:frame])) {
 		self.userInteractionEnabled = NO;
@@ -43,10 +45,6 @@
 		self.highlightedImage = highlightedImage;
 	}
 	return self;
-}
-
-- (BOOL)acceptsFirstMouse:(NSEvent *)event {
-	return YES;
 }
 
 - (void)drawRect:(CGRect)rect {
@@ -129,6 +127,8 @@
 	} else self.draggingTypes = nil;
 }
 
+#pragma mark - Size Calculation
+
 - (void)displayIfSizeChangedFrom:(CGSize)oldSize to:(CGSize)newSize {
 	if(!CGSizeEqualToSize(newSize, oldSize) && [self.image.class isKindOfClass:TUIStretchableImage.class]) {
 		[self setNeedsDisplay];
@@ -165,6 +165,13 @@
 	CGSize fittingSize = [self sizeThatFits:CGSizeZero];
 	self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y,
 							fittingSize.width, fittingSize.height);
+}
+
+#pragma mark - Pasteboard Source
+
+// Allow the activation mouse to begin dragging.
+- (BOOL)acceptsFirstMouse:(NSEvent *)event {
+	return YES;
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -204,7 +211,7 @@
 	
 	// Create a pasteboard item to lazy-write the content image.
 	TUIDraggingFilePromiseItem *pasteItem = [[TUIDraggingFilePromiseItem alloc] init];
-	[pasteItem setDataProvider:self forTypes:@[TUIPasteboardTypeFilePromise, TUIPasteboardTypeFilePromiseContent]];
+	[pasteItem setDataProvider:self forTypes:@[TUIPasteboardTypeFilePromiseContent]];
 	[pasteItem setPropertyList:extension forType:TUIPasteboardTypeFilePromiseType];
 	[pasteItem setString:(self.savedFilename ?: @"Photo") forType:TUIPasteboardTypeFilePromiseName];
 	
@@ -225,12 +232,7 @@
 
 // Return the TIFF representation of our image when the pasteboard calls for it.
 - (void)pasteboard:(NSPasteboard *)sender item:(NSPasteboardItem *)item provideDataForType:(NSString *)type {
-	NSLog(@"pasteboard %@ item %@ requested data for type %@", sender, item, type);
-	
-	if([type isEqualToString:TUIPasteboardTypeFilePromise]) {
-		NSLog(@"setting...");
-		
-    } else if([type isEqualToString:TUIPasteboardTypeFilePromiseContent]) {
+	if([type isEqualToString:TUIPasteboardTypeFilePromiseContent]) {
 		
 		// Convert to the specified representation type and paste it.
 		NSBitmapImageRep *imageRep = [NSBitmapImageRep imageRepWithData:self.image.TIFFRepresentation];
@@ -239,44 +241,13 @@
 	}
 }
 
-// When the pasteboard finishes writing, call the handler.
-- (void)pasteboardFinishedWithDataProvider:(NSPasteboard *)pasteboard {
-	NSLog(@"finished");
+// When the dragging session ends, call the handler.
+- (void)draggingSession:(TUIDraggingSession *)session endedAtPoint:(NSPoint)screenPoint {
 	if(self.imageSavedHandler)
 		self.imageSavedHandler();
 }
 
-- (void)draggingSession:(TUIDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation {
-	NSString *path = [[session.sessionContext path] stringByAppendingPathComponent:self.savedFilename ?: @"Photo"];
-	NSString *extension = @"png";
-	if(self.savedFiletype == NSTIFFFileType)
-		extension = @"tiff";
-	else if(self.savedFiletype == NSBMPFileType)
-		extension = @"bmp";
-	else if(self.savedFiletype == NSGIFFileType)
-		extension = @"gif";
-	else if(self.savedFiletype == NSJPEGFileType ||
-			self.savedFiletype == NSJPEG2000FileType)
-		extension = @"jpg";
-	
-    NSBitmapImageRep *imageRep = [NSBitmapImageRep imageRepWithData:self.image.TIFFRepresentation];
-    NSData *bitmapData = [imageRep representationUsingType:self.savedFiletype ?: NSPNGFileType properties:nil];
-	
-	NSUInteger existingFileCount = 0;
-	NSString *newPath = path;
-	while([[NSFileManager defaultManager] fileExistsAtPath:[newPath stringByAppendingPathExtension:extension]]) {
-		existingFileCount++;
-		newPath = [path stringByAppendingFormat:@" (%lu)", existingFileCount];
-	}
-	
-	[bitmapData writeToFile:[newPath stringByAppendingPathExtension:extension] atomically:YES];
-}
-
-
-
-
-
-
+#pragma mark - Pasteboard Destination
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
 	if(![sender.draggingSource isEqual:self] && self.editable &&
@@ -318,5 +289,7 @@
 - (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag {
 	return NSDragOperationCopy;
 }
+
+#pragma mark -
 
 @end

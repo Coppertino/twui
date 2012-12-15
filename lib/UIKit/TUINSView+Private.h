@@ -1,24 +1,31 @@
-//
-//  TUINSView+Private.h
-//  TwUI
-//
-//  Created by Justin Spahr-Summers on 17.07.12.
-//
-//  Portions of this code were taken from Velvet,
-//  which is copyright (c) 2012 Bitswift, Inc.
-//  See LICENSE.txt for more information.
-//
+/*
+ Copyright 2011 Twitter, Inc.
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this work except in compliance with the License.
+ You may obtain a copy of the License in the LICENSE file, or at:
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 #import "TUINSView.h"
 
-// Private functionality of TUINSView that needs to be exposed to other parts of
-// the framework.
 @interface TUINSView ()
+
+@property (nonatomic, strong) TUIDraggingSession *currentSourceDraggingSession;
+@property (nonatomic, strong) NSURL *currentPromisedDragDestination;
+@property (nonatomic, strong) TUIView *currentDraggingView;
+
+@property (nonatomic, strong) TUIView *trackingView;
 
 // The layer-backed view which actually holds the AppKit hierarchy.
 @property (nonatomic, readonly, strong) NSView *appKitHostView;
-
-@property (nonatomic, strong) TUIView *trackingView;
 
 /*
  * Informs the receiver that the clipping of a TUIViewNSViewContainer it is hosting has
@@ -33,9 +40,9 @@
 - (TUIView *)viewForLocalPoint:(NSPoint)p;
 - (NSPoint)localPointForLocationInWindow:(NSPoint)locationInWindow;
 
-@property (nonatomic, strong) TUIDraggingSession *currentSourceDraggingSession;
-@property (nonatomic, strong) NSURL *currentPromisedDragDestination;
-@property (nonatomic, strong) TUIView *currentDraggingView;
+@end
+
+@interface TUINSView (PasteboardDragging_Private)
 
 - (void)beginDraggingSession:(TUIDraggingSession *)session event:(NSEvent *)event source:(id<TUIDraggingSource>)source;
 

@@ -20,6 +20,7 @@
 @interface TUIDraggingSession ()
 
 @property (nonatomic, strong) NSArray *draggingItems;
+@property (nonatomic, strong) NSArray *draggingPromiseItems;
 
 @property (nonatomic, assign, readwrite) NSPasteboard *draggingPasteboard;
 @property (nonatomic, assign, readwrite) NSInteger draggingSequenceNumber;
@@ -32,6 +33,8 @@
 @interface TUIDraggingFilePromiseItem ()
 
 @property (nonatomic, strong) NSMutableDictionary *dataProviders;
+
+@property (nonatomic, strong, readwrite) NSURL *promiseDestinationURL;
 
 - (NSString *)promisedFilename;
 - (NSString *)promisedFiletype;

@@ -21,11 +21,11 @@
 
 @implementation TUINSView (PasteboardDragging)
 
-#pragma mark -
+#pragma mark - TUIDraggingSource Registration
 
 - (void)beginDraggingSession:(TUIDraggingSession *)session event:(NSEvent *)event source:(id<TUIDraggingSource>)source {
 	
-	// Qualify the current source dragging session.
+	// Qualify the current dragging source and dragging session.
 	session.draggingSource = source;
 	session.draggingLocation = [NSEvent mouseLocation];
 	self.currentSourceDraggingSession = session;
@@ -37,48 +37,42 @@
 			 source:self slideBack:NO];
 }
 
+#pragma mark - TUIDraggingSource Handlers
+
 // Using a TUIDraggingPromiseItem, proxy file promises back to the pasteboarditems.
 - (void)pasteboard:(NSPasteboard *)sender provideDataForType:(NSString *)type {
 	if([type isEqualToString:NSFilesPromisePboardType]) {
 		TUIDraggingSession *session = self.currentSourceDraggingSession;
 		
-		// Retrieve a list of all the file promises in this dragging session.
-		NSMutableArray *pasteItems = @[].mutableCopy;
-		for(TUIDraggingItem *item in session.draggingItems)
-			if([item.item isKindOfClass:TUIDraggingFilePromiseItem.class])
-				[pasteItems addObject:item.item];
-		
 		// Get all the file types from the items and return them.
 		NSMutableArray *pasteTypes = @[].mutableCopy;
-		for(TUIDraggingFilePromiseItem *item in pasteItems)
+		for(TUIDraggingFilePromiseItem *item in session.draggingPromiseItems)
 			[pasteTypes addObject:item.promisedFiletype];
 		
-		NSLog(@"named types: %@", pasteTypes);
+		// Provide all the UTI-converted file extensions.
 		[sender setPropertyList:pasteTypes forType:type];
 	}
 }
 
 // Since we are proxying file promises, search the session for the correct file name.
 - (NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination {
+	
+	// Save the promised drag destination because we'll need it later.
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	self.currentPromisedDragDestination = dropDestination;
-	NSLog(@"destination url: %@", dropDestination);
 	
-	// Retrieve a list of all the file promises in this dragging session.
-	NSMutableArray *pasteItems = @[].mutableCopy;
-	for(TUIDraggingItem *item in session.draggingItems)
-		if([item.item isKindOfClass:TUIDraggingFilePromiseItem.class])
-			[pasteItems addObject:item.item];
-	
-	// Get all the file names from the items and return them.
+	// Get all the file names from the promised items and return them.
+	// Set the promise destination if the source needs to write promises themselves.
 	NSMutableArray *pasteFiles = @[].mutableCopy;
-	for(TUIDraggingFilePromiseItem *item in pasteItems)
+	for(TUIDraggingFilePromiseItem *item in session.draggingPromiseItems) {
 		[pasteFiles addObject:item.promisedFilename];
+		item.promiseDestinationURL = dropDestination;
+	}
 	
-	NSLog(@"named files: %@", pasteFiles);
 	return pasteFiles;
 }
 
+// Forward source operation masking into contexts for the dragging source.
 - (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag {
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	TUIDraggingContext context = flag ? TUIDraggingContextWithinApplication : TUIDraggingContextOutsideApplication;
@@ -88,6 +82,7 @@
 	return operation;
 }
 
+// Forward modifier key ignores to the dragging source.
 - (BOOL)ignoreModifierKeysWhileDragging {
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	
@@ -98,9 +93,12 @@
 	return ignore;
 }
 - (void)draggedImage:(NSImage *)image beganAt:(NSPoint)screenPoint {
+	
+	// Update the dragging session.
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	session.draggingLocation = [NSEvent mouseLocation];
 	
+	// Update the dragging source and the dragging session.
 	TUIDraggingImageComponent *component = [session.draggingItems[0] imageComponents][0];
 	[[TUIDraggingManager sharedDraggingManager] startDragFromSourceScreenRect:self.window.frame
 															  startingAtPoint:session.draggingLocation
@@ -108,69 +106,80 @@
 																  insideImage:component.contents
 																 outsideImage:component.contents
 																	slideBack:YES];
+	
+	if([session.draggingSource respondsToSelector:@selector(draggingSession:beganAtPoint:)])
+		[session.draggingSource draggingSession:session beganAtPoint:session.draggingLocation];
 }
 
 - (void)draggedImage:(NSImage *)draggedImage movedTo:(NSPoint)screenPoint {
+	
+	// Update the dragging session.
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	session.draggingLocation = [NSEvent mouseLocation];
 	
+	// Update the dragging source and the dragging session.
 	[[TUIDraggingManager sharedDraggingManager] updatePosition];
+	if([session.draggingSource respondsToSelector:@selector(draggingSession:movedToPoint:)])
+		[session.draggingSource draggingSession:session movedToPoint:session.draggingLocation];
 }
 
 - (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation {
+	
+	// Update the dragging session.
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	session.draggingLocation = [NSEvent mouseLocation];
-	
-	[[TUIDraggingManager sharedDraggingManager] endDragWithResult:operation];
-	self.currentSourceDraggingSession = nil;
+	session.draggingOperation = operation;
 	
 	// Clear the drag destination for future promise drags.
 	NSURL *location = self.currentPromisedDragDestination;
 	self.currentPromisedDragDestination = nil;
 	
 	// If there is no existing location for file promises, ignore them.
-	if(!location)
-		return;
-	
-	// Retrieve a list of all the file promises in this dragging session.
-	NSMutableArray *pasteItems = @[].mutableCopy;
-	for(TUIDraggingItem *item in session.draggingItems)
-		if([item.item isKindOfClass:TUIDraggingFilePromiseItem.class])
-			[pasteItems addObject:item.item];
-	
-	// Iterate all the files to save and either take care of the saving for
-	// the data providers or alert them to save the files themselves.
-	// Do this on an asynchronous dispatch queue to prevent UI blocking.
-	for(TUIDraggingFilePromiseItem *item in pasteItems) {
-		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-			
-			// Retrieve all the file information to paste, if it's available.
-			NSString *filename = [item stringForType:TUIPasteboardTypeFilePromiseName];
-			NSString *extension = item.promisedFiletype;
-			NSData *data = [item dataForType:TUIPasteboardTypeFilePromiseContent];
-			
-			// The !! is a NOT-NOT: It qualifies the existance of the object.
-			if(!!data && !!filename && !!extension) {
-				NSURL *path = [location URLByAppendingPathComponent:filename];
+	// The !! is a NOT-NOT: It qualifies the existance of the object.
+	if(!!location) {
+		
+		// Iterate all the files to save and either take care of the saving for
+		// the data providers or alert them to save the files themselves.
+		// Do this on an asynchronous dispatch queue to prevent UI blocking.
+		for(TUIDraggingFilePromiseItem *item in session.draggingPromiseItems) {
+			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
 				
-				// Determine the number of pre-existing files with the same name.
-				NSUInteger existingFileCount = 0;
-				NSString *checkPath = path.path;
-				while([[NSFileManager defaultManager] fileExistsAtPath:[checkPath stringByAppendingPathExtension:extension]]) {
-					existingFileCount++;
-					checkPath = [path.path stringByAppendingFormat:@" (%lu)", existingFileCount];
+				// Retrieve all the file information to paste, if it's available.
+				NSString *filename = [item stringForType:TUIPasteboardTypeFilePromiseName];
+				NSString *extension = item.promisedFiletype;
+				NSData *data = [item dataForType:TUIPasteboardTypeFilePromiseContent];
+				
+				// If we don't have any of the above, assume the promise is invalid,
+				// and don't process it. If the data is the only missing content,
+				// assume the dragging source wishes to write the promised file.
+				if(!!data && !!filename && !!extension) {
+					NSURL *path = [location URLByAppendingPathComponent:filename];
+					
+					// Determine the number of pre-existing files with the same name.
+					NSUInteger existingFileCount = 0;
+					NSString *checkPath = path.path;
+					while([[NSFileManager defaultManager] fileExistsAtPath:[checkPath stringByAppendingPathExtension:extension]]) {
+						existingFileCount++;
+						checkPath = [path.path stringByAppendingFormat:@" (%lu)", existingFileCount];
+					}
+					
+					// Write the data to the file after appending a file copy badge.
+					[data writeToFile:[checkPath stringByAppendingPathExtension:extension] atomically:YES];
 				}
-				
-				// Write the data to the file after appending a file copy badge.
-				[data writeToFile:[checkPath stringByAppendingPathExtension:extension] atomically:YES];
-			} else {
-				
-				// Alert the pasteboard system to request the file promise: this
-				// actually tells the item's data provider to handle the file writing.
-				[item propertyListForType:TUIPasteboardTypeFilePromise];
-			}
-		});
+			});
+		}
 	}
+	
+	// End the dragging and disqualify the dragging session.
+	[[TUIDraggingManager sharedDraggingManager] endDragWithResult:operation];
+	self.currentSourceDraggingSession = nil;
+	
+	if([session.draggingSource respondsToSelector:@selector(draggingSession:endedAtPoint:)])
+		[session.draggingSource draggingSession:session endedAtPoint:session.draggingLocation];
+	
+	// Relinquish the item promise destination URLs when done dragging.
+	for(TUIDraggingFilePromiseItem *item in session.draggingPromiseItems)
+		item.promiseDestinationURL = nil;
 }
 
 #pragma mark - TUIDraggingDestination Registration

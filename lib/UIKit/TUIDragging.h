@@ -52,15 +52,12 @@ typedef enum TUIDraggingFormation : NSUInteger {
 // Invoked when the drag moves on the screen.
 - (void)draggingSession:(TUIDraggingSession *)session movedToPoint:(NSPoint)screenPoint;
 
-// Invoked when the dragging session has completed.
-- (void)draggingSession:(TUIDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation;
+// Invoked when the dragging session has completed. The finalized dragging
+// source mask operation can be read from the passed session object.
+- (void)draggingSession:(TUIDraggingSession *)session endedAtPoint:(NSPoint)screenPoint;
 
 // Returns whether the modifier keys will be ignored for this dragging session.
 - (BOOL)ignoreModifierKeysForDraggingSession:(TUIDraggingSession *)session;
-
-// If the dragging session contains any promised files, this method must be implemented
-// to return their names given the URL of their destination.
-- (NSArray *)namesOfPromisedFilesInSession:(TUIDraggingSession *)session droppedAtDestination:(NSURL *)destination;
 
 @end
 

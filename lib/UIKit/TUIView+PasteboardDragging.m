@@ -38,6 +38,8 @@
 - (TUIDraggingSession *)beginDraggingSessionWithItems:(NSArray *)items
 												event:(NSEvent *)event
 											   source:(id <TUIDraggingSource>)source {
+	
+	// Create a preconfigured dragging session for the items.
 	TUIDraggingSession *session = [[TUIDraggingSession alloc] init];
 	session.draggingPasteboard = [NSPasteboard pasteboardWithName:NSDragPboard];
 	session.draggingItems = items;
@@ -48,10 +50,9 @@
 		[pasteItems addObject:item.item];
 	
 	// Determine if there are promises to be made.
-	BOOL containsPromises = NO;
+	NSMutableArray *promiseItems = @[].mutableCopy;
 	for(TUIDraggingFilePromiseItem *promise in pasteItems) {
-		containsPromises = YES;
-		break;
+		[promiseItems addObject:promise];
 	}
 	
 	// Now write all the pasteboard items to the dragging pasteboard.
@@ -59,9 +60,12 @@
 	[session.draggingPasteboard writeObjects:pasteItems];
 	
 	// Make promises if the session requires it.
-	if(containsPromises)
+	if(promiseItems.count > 0) {
+		session.draggingPromiseItems = promiseItems;
 		[session.draggingPasteboard addTypes:@[NSFilesPromisePboardType] owner:self.nsView];
+	}
 	
+	// Begin the configured dragging session.
 	[self.nsView beginDraggingSession:session event:event source:source];
 	return session;
 }

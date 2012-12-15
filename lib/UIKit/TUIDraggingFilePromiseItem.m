@@ -17,7 +17,7 @@
 #import "TUIDraggingFilePromiseItem.h"
 #import "TUIDragging+Private.h"
 
-NSString *const TUIPasteboardTypeFilePromise = @"pasteboard.promise";
+NSString *const TUIPasteboardTypeFilePromise = @"kTUIPasteboardTypeFilePromise";
 NSString *const TUIPasteboardTypeFilePromiseType = @"pasteboard.promise.type";
 NSString *const TUIPasteboardTypeFilePromiseName = @"pasteboard.promise.name";
 NSString *const TUIPasteboardTypeFilePromiseContent = @"pasteboard.promise.content";
