@@ -42,6 +42,19 @@
 		_textRenderer.shadowColor = [NSColor whiteColor];
 		_textRenderer.shadowOffset = CGSizeMake(0, 1);
 		
+		TUISegmentedControl *segmentedControl = [TUISegmentedControl segmentedControlWithStyle:TUISegmentedControlStyleAutomatic];
+		segmentedControl.frame = CGRectMake(5, 0, 250, 48);
+		[segmentedControl insertSegmentWithTitle:@"One" atIndex:0 animated:YES];
+		[segmentedControl insertSegmentWithTitle:@"Two" atIndex:1 animated:YES];
+		[segmentedControl insertSegmentWithTitle:@"Three" atIndex:2 animated:YES];
+		[segmentedControl insertSegmentWithTitle:@"Four" atIndex:3 animated:YES];
+		[segmentedControl insertSegmentWithTitle:@"Five" atIndex:4 animated:YES];
+		segmentedControl.selectedSegmentIndex = 1;
+		[self addSubview:segmentedControl];
+		
+		segmentedControl.layer.borderColor = [NSColor redColor].tui_CGColor;
+		segmentedControl.layer.borderWidth = 1.0f;
+		
 		// Add the text renderer to the view so events get routed to it
 		// properly. Text selection, dictionary popup, etc should just work.
 		// You can add more than one.

@@ -29,7 +29,8 @@ typedef enum TUISegmentedControlAlignment : NSUInteger {
     TUISegmentedControlAlignmentLeft,
     TUISegmentedControlAlignmentRight,
 	TUISegmentedControlAlignmentCentered,
-	TUISegmentedControlAlignmentJustified
+	TUISegmentedControlAlignmentJustified,
+	TUISegmentedControlAlignmentCustom
 } TUISegmentedControlAlignment;
 
 @interface TUISegmentedControl : TUIControl
@@ -37,18 +38,18 @@ typedef enum TUISegmentedControlAlignment : NSUInteger {
 @property (nonatomic, assign, readonly) TUISegmentedControlStyle segmentedControlStyle;
 
 @property (nonatomic, getter = isMomentary) BOOL momentary;
+@property (nonatomic, assign) TUISegmentedControlAlignment segmentAlignment;
+
 @property (nonatomic, assign, readonly) NSUInteger numberOfSegments;
 @property (nonatomic, assign) NSInteger selectedSegmentIndex;
-
-@property (nonatomic, assign) BOOL apportionsSegmentWidthsByContent;
 
 + (instancetype)segmentedControlWithStyle:(TUISegmentedControlStyle)style;
 
 - (void)insertSegmentWithTitle:(NSString *)title atIndex:(NSUInteger)segment animated:(BOOL)animated;
-- (void)insertSegmentWithImage:(NSImage *)image  atIndex:(NSUInteger)segment animated:(BOOL)animated;
+- (void)insertSegmentWithImage:(NSImage *)image atIndex:(NSUInteger)segment animated:(BOOL)animated;
 
 - (void)removeSegmentAtIndex:(NSUInteger)segment animated:(BOOL)animated;
-- (void)removeAllSegments;
+- (void)removeAllSegmentsAnimated:(BOOL)animated;
 
 - (void)setTitle:(NSString *)title forSegmentAtIndex:(NSUInteger)segment;
 - (NSString *)titleForSegmentAtIndex:(NSUInteger)segment;
@@ -56,6 +57,7 @@ typedef enum TUISegmentedControlAlignment : NSUInteger {
 - (void)setImage:(NSImage *)image forSegmentAtIndex:(NSUInteger)segment;
 - (NSImage *)imageForSegmentAtIndex:(NSUInteger)segment;
 
+// TUISegmentedControlStyleCustom only.
 - (void)setWidth:(CGFloat)width forSegmentAtIndex:(NSUInteger)segment;
 - (CGFloat)widthForSegmentAtIndex:(NSUInteger)segment;
 
@@ -65,10 +67,15 @@ typedef enum TUISegmentedControlAlignment : NSUInteger {
 - (void)setEnabled:(BOOL)enabled forSegmentAtIndex:(NSUInteger)segment;
 - (BOOL)isEnabledForSegmentAtIndex:(NSUInteger)segment;
 
-- (void)setMenu:(NSMenu *)menu forSegment:(NSInteger)segment;
-- (NSMenu *)menuForSegment:(NSInteger)segment;
+- (void)setMenu:(NSMenu *)menu forSegment:(NSUInteger)segment;
+- (NSMenu *)menuForSegment:(NSUInteger)segment;
 
-- (void)setSelected:(BOOL)selected forSegment:(NSInteger)segment;
-- (BOOL)isSelectedForSegment:(NSInteger)segment;
+- (void)setSelected:(BOOL)selected forSegment:(NSUInteger)segment;
+- (BOOL)isSelectedForSegment:(NSUInteger)segment;
+
+- (void)setHighlighted:(BOOL)selected forSegment:(NSUInteger)segment;
+- (BOOL)isHighlightedForSegment:(NSUInteger)segment;
+
+- (void)drawSegmentContents:(NSUInteger)segment inRect:(CGRect)rect;
 
 @end
