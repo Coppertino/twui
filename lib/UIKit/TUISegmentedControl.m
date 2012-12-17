@@ -18,41 +18,22 @@
 #import "TUINSView.h"
 #import "TUICGAdditions.h"
 
-#import <objc/runtime.h>
-
-#define kDMTabBarGradientColor_Start	[NSColor colorWithCalibratedRed:0.851f green:0.851f blue:0.851f alpha:1.0f]
-#define kDMTabBarGradientColor_End		[NSColor colorWithCalibratedRed:0.700f green:0.700f blue:0.700f alpha:1.0f]
-#define KDMTabBarGradient				[[NSGradient alloc] initWithStartingColor:kDMTabBarGradientColor_Start \
-																	  endingColor:kDMTabBarGradientColor_End]
-#define kDMTabBarBorderColor            [NSColor colorWithDeviceWhite:0.2 alpha:1.0f]
-#define kDMTabBarItemWidth               32.0f
-#define kDMTabBarItemGradientColor1		[NSColor colorWithCalibratedWhite:0.7f alpha:0.0f]
-#define kDMTabBarItemGradientColor2		[NSColor colorWithCalibratedWhite:0.7f alpha:1.0f]
-#define kDMTabBarItemGradient			[[NSGradient alloc] initWithColors:@[kDMTabBarItemGradientColor1, \
-																			 kDMTabBarItemGradientColor2, \
-																			 kDMTabBarItemGradientColor1] \
-															   atLocations:(CGFloat []){ 0.0f, 0.5f, 1.0f } \
-																colorSpace:[NSColorSpace genericGrayColorSpace]]
-
 @interface TUISegmentedTrackedCell : NSSegmentedCell
 
 @property (nonatomic, strong) NSMutableDictionary *trackedRects;
+@property (nonatomic, readonly) NSDictionary *positionedRects;
 
 @end
 
 @interface TUISegmentedControl () {
 	struct {
 		unsigned int segmentedControlStyle:3;
+		unsigned int itemsListModified:1;
 	} _segmentedControlFlags;
+	CGPoint loc;
 }
 
 @property (nonatomic, strong) NSMutableArray *items;
-
-@end
-
-@interface TUISegmentedItem : TUIControl
-
-@property (nonatomic, strong) TUISegmentedControl *segmentedControl;
 
 @end
 
@@ -75,169 +56,164 @@
 - (id)initWithFrame:(CGRect)frame {
 	if((self = [super initWithFrame:frame])) {
 		_segmentedControlFlags.segmentedControlStyle = TUISegmentedControlStyleCustom;
-		self.segmentAlignment = TUISegmentedControlAlignmentJustified;
-		
 		self.backgroundColor = [NSColor clearColor];
 		self.items = @[].mutableCopy;
 	}
 	return self;
 }
 
-- (void)insertSegmentWithTitle:(NSString *)title atIndex:(NSUInteger)segment animated:(BOOL)animated {
-	TUISegmentedItem *item = [[TUISegmentedItem alloc] initWithFrame:CGRectZero];
-	item.backgroundColor = [NSColor clearColor];
-	
-	item.layer.borderColor = [NSColor redColor].CGColor;
-	item.layer.borderWidth = 1.0f;
-	
-	item.segmentedControl = self;
-	[self addSubview:item];
-	self.items[segment] = item;
-	
-	if(animated) {
-		[TUIView animateWithDuration:0.25f animations:^{
-			[self layoutSubviews];
-		}];
-	} else {
-		[self setNeedsLayout];
+- (void)addSegment:(TUISegmentedItem *)item {
+	if([item isKindOfClass:TUISegmentedItem.class]) {
+		[self.items addObject:item];
+		_segmentedControlFlags.itemsListModified = YES;
 	}
 }
 
-- (void)insertSegmentWithImage:(NSImage *)image atIndex:(NSUInteger)segment animated:(BOOL)animated {
-	TUISegmentedItem *item = [[TUISegmentedItem alloc] initWithFrame:CGRectZero];
-	item.backgroundColor = [NSColor clearColor];
-	
-	item.layer.borderColor = [NSColor redColor].CGColor;
-	item.layer.borderWidth = 1.0f;
-	
-	item.segmentedControl = self;
-	[self addSubview:item];
-	self.items[segment] = item;
-	
-	if(animated) {
-		[TUIView animateWithDuration:0.25f animations:^{
-			[self layoutSubviews];
-		}];
-	} else {
-		[self setNeedsLayout];
+- (void)removeSegmentAtIndex:(NSUInteger)index {
+	if([[self.items objectAtIndex:index] isKindOfClass:TUISegmentedItem.class]) {
+		[self.items removeObjectAtIndex:index];
+		_segmentedControlFlags.itemsListModified = YES;
 	}
 }
 
-- (void)removeSegmentAtIndex:(NSUInteger)segment animated:(BOOL)animated {
-	[self.items[segment] removeFromSuperview];
-	[self.items removeObjectAtIndex:segment];
-	
-	if(animated) {
-		[TUIView animateWithDuration:0.25f animations:^{
-			[self layoutSubviews];
-		}];
-	} else {
-		[self setNeedsLayout];
-	}
+- (void)replaceSegmentAtIndex:(NSUInteger)index withSegment:(TUISegmentedItem *)item {
+	if([item isKindOfClass:TUISegmentedItem.class])
+		[self.items replaceObjectAtIndex:index withObject:item];
 }
 
-- (void)removeAllSegmentsAnimated:(BOOL)animated {
-	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
-        [self removeSegmentAtIndex:idx animated:animated];
-    }];
-	
-    self.items = nil;
-}
-
-- (void)setEnabled:(BOOL)enabled forSegmentAtIndex:(NSUInteger)segment {
-	[self.items[segment] setEnabled:enabled];
-	
-	if(self.animateStateChange) {
-		[TUIView animateWithDuration:0.25f animations:^{
-			[self redraw];
-		}];
-	} else {
-		[self setNeedsDisplay];
-	}
-}
-
-- (BOOL)isEnabledForSegmentAtIndex:(NSUInteger)segment {
-	return [self.items[segment] isEnabled];
-}
-
-- (void)setSelected:(BOOL)selected forSegment:(NSUInteger)segment {
-	[self.items[segment] setSelected:selected];
-	
-	if(self.animateStateChange) {
-		[TUIView animateWithDuration:0.25f animations:^{
-			[self redraw];
-		}];
-	} else {
-		[self setNeedsDisplay];
-	}
-}
-
-- (BOOL)isSelectedForSegment:(NSUInteger)segment {
-	return [self.items[segment] state] & TUIControlStateSelected;
-}
-
-- (void)setHighlighted:(BOOL)selected forSegment:(NSUInteger)segment {
-	[self.items[segment] setHighlighted:selected];
-	
-	if(self.animateStateChange) {
-		[TUIView animateWithDuration:0.25f animations:^{
-			[self redraw];
-		}];
-	} else {
-		[self setNeedsDisplay];
-	}
-}
-
-- (BOOL)isHighlightedForSegment:(NSUInteger)segment {
-	return [self.items[segment] state] & TUIControlStateHighlighted;
+- (TUISegmentedItem *)segmentAtIndex:(NSUInteger)index {
+	return [self.items objectAtIndex:index];
 }
 
 - (void)drawRect:(CGRect)rect {
 	NSSegmentedCell *renderer = [TUISegmentedControl sharedGraphicsRenderer];
 	
-	[renderer setSegmentStyle:NSSegmentStyleRounded];
-	[renderer setSegmentCount:self.items.count];
+	// Set the defaults.
+	if(_segmentedControlFlags.itemsListModified) {
+		[renderer setSegmentCount:self.items.count];
+		//[renderer setTrackingMode:NSSegmentSwitchTrackingSelectOne];
+		[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
+			[renderer setLabel:[@"" stringByPaddingToLength:50 withString:@"M" startingAtIndex:0] forSegment:idx];
+		}];
+		_segmentedControlFlags.itemsListModified = NO;
+	}
 	
-	[renderer calcDrawInfo:rect];
-	[renderer drawWithFrame:self.bounds inView:self.nsView];
+	// Set the enabled values.
+	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
+		[renderer setEnabled:YES forSegment:idx];
+	}];
+	
+	// Set the selected values.
+	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
+		[renderer setSelected:item.selected forSegment:idx];
+		if(item.selected)
+			*stop = YES;
+	}];
+	
+	// Set the highlighted values.
+	NSDictionary *rectCache = [[TUISegmentedControl sharedGraphicsRenderer] trackedRects];
+	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
+		//[renderer highlight:item.highlighted withFrame:[rectCache[@(idx)] rectValue] inView:self.nsView];
+		if(item.highlighted)
+			*stop = YES;
+	}];
+	
+	// Draw the background and each cell.
+	[self drawBackground:rect];
+	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
+		[self drawSegmentContents:idx inRect:[rectCache[@(idx)] rectValue]];
+	}];
+}
+
+- (void)drawBackground:(CGRect)rect {
+	NSSegmentedCell *renderer = [TUISegmentedControl sharedGraphicsRenderer];
+	[renderer setSegmentStyle:NSSegmentStyleRounded];
+	[renderer drawWithFrame:CGRectInset(self.bounds, 2.0f, 2.0f) inView:self.nsView];
 }
 
 - (void)drawSegmentContents:(NSUInteger)segment inRect:(CGRect)rect {
+	[[NSColor colorWithCalibratedRed:1.0 green:0.0 blue:0.0 alpha:0.1] set];
+	[[NSBezierPath bezierPathWithRect:rect] fill];
+	[[NSColor colorWithCalibratedWhite:0.0 alpha:0.1] set];
+	[[NSBezierPath bezierPathWithRect:rect] stroke];
 	
+	// No image or text drawing yet.
 }
 
-- (void)layoutSubviews {
-	if(self.segmentAlignment == TUISegmentedControlAlignmentCustom) {
-		__block CGFloat totalWidth = 0.0f;
-		[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
-			totalWidth += [self widthForSegmentAtIndex:idx];
-		}];
-		
-		__block CGFloat currentOffset = roundf((self.bounds.size.width - totalWidth) / 2);
-		[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
-			CGRect itemRect = CGRectMake(currentOffset, 0, [self widthForSegmentAtIndex:idx], self.bounds.size.height);
-			item.frame = itemRect;
-		}];
-	} else if(self.segmentAlignment == TUISegmentedControlAlignmentJustified) {
-		[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
-			CGFloat width = roundf(self.bounds.size.width / self.items.count);
-			CGRect itemRect = CGRectMake(idx * width, 0, width, self.bounds.size.height);
-			item.frame = itemRect;
-		}];
+- (NSUInteger)segmentForHitTestAtPoint:(CGPoint)point {
+	NSDictionary *rectCache = [[TUISegmentedControl sharedGraphicsRenderer] trackedRects];
+	__block NSUInteger segment = NSNotFound;
+	
+	[rectCache enumerateKeysAndObjectsUsingBlock:^(NSNumber *index, NSValue *rect, BOOL *stop) {
+		if(CGRectContainsPoint(rect.rectValue, point))
+			segment = index.unsignedIntegerValue;
+	}];
+	
+	return segment;
+}
+
+- (BOOL)beginTrackingWithEvent:(NSEvent *)event {
+	CGPoint location = [self convertPoint:event.locationInWindow fromView:nil];
+	NSUInteger segment = [self segmentForHitTestAtPoint:location];
+	
+	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
+		item.selected = (idx == segment);
+	}];
+	return YES;
+}
+
+- (BOOL)continueTrackingWithEvent:(NSEvent *)event {
+	CGPoint location = [self convertPoint:event.locationInWindow fromView:nil];
+	NSUInteger segment = [self segmentForHitTestAtPoint:location];
+	
+	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
+		item.selected = (idx == segment);
+	}];
+	return YES;
+}
+
+- (void)endTrackingWithEvent:(NSEvent *)event {
+	CGPoint location = [self convertPoint:event.locationInWindow fromView:nil];
+	NSUInteger segment = [self segmentForHitTestAtPoint:location];
+	
+	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
+		item.selected = (idx == segment);
+	}];
+}
+
+@end
+
+@implementation TUISegmentedControl (TUISegmentedItem_Subscript)
+
+- (void)setObject:(id)obj atIndexedSubscript:(NSUInteger)idx {
+	if(obj != nil) {
+		if(idx >= self.items.count) {
+			NSInteger add = idx - self.items.count;
+			for(int i = 0; i < add; i++)
+				[self addSegment:[TUISegmentedItem new]];
+			
+			[self addSegment:obj];
+		} else {
+			[self replaceSegmentAtIndex:idx withSegment:obj];
+		}
 	} else {
-		
+		[self removeSegmentAtIndex:idx];
 	}
+}
+
+- (id)objectAtIndexedSubscript:(NSUInteger)idx {
+	return [self segmentAtIndex:idx];
 }
 
 @end
 
 @implementation TUISegmentedItem
 
-- (void)drawRect:(CGRect)rect {
-	NSUInteger segmentIndex = [self.segmentedControl.items indexOfObject:self];
-	CGRect segmentRect = [[TUISegmentedControl sharedGraphicsRenderer].trackedRects[@(segmentIndex)] rectValue];
-	
-	[self.segmentedControl drawSegmentContents:segmentIndex inRect:segmentRect];
++ (instancetype)segmentWithTitle:(NSString *)title andImage:(NSImage *)image {
+	TUISegmentedItem *item = [self.class new];
+	item.title = title;
+	item.image = image;
+	return item;
 }
 
 @end
@@ -247,9 +223,56 @@
 - (void)drawSegment:(NSInteger)segment inFrame:(NSRect)frame withView:(NSView *)controlView {
 	if(!_trackedRects)
 		_trackedRects = @{}.mutableCopy;
-	
 	_trackedRects[@(segment)] = [NSValue valueWithRect:frame];
-	[super drawSegment:segment inFrame:frame withView:controlView];
+	[self repositionRects];
+	
+	// Don't call super because we'll be drawing the content ourselves.
+	//[super drawSegment:segment inFrame:frame withView:controlView];
+}
+
+- (NSDictionary *)positionedRects {
+	if(!_trackedRects)
+		return @{};
+	
+	NSMutableDictionary *returnDict = @{}.mutableCopy;
+	for(NSUInteger idx = 0; idx < _trackedRects.count; idx++) {
+		CGRect rect = [_trackedRects[@(idx)] rectValue];
+		if(idx != 0) {
+			CGRect previousRect = [_trackedRects[@(idx - 1)] rectValue];
+			CGFloat endPosition = CGRectGetMaxX(previousRect);
+			
+			NSLog(@"%f to %f", endPosition, CGRectGetMinX(rect));
+		} else {
+			rect.origin.x = 0.0f;
+		}
+	}
+	
+	return returnDict;
+}
+
+- (void)repositionRects {
+	for(NSUInteger idx = 0; idx < _trackedRects.count; idx++) {
+		CGRect rect = [_trackedRects[@(idx)] rectValue];
+		
+		if(idx > 0) {
+			CGRect previousRect = [_trackedRects[@(idx - 1)] rectValue];
+			CGFloat difference = (CGRectGetMinX(rect) - CGRectGetMaxX(previousRect)) / 2.0f;
+			rect.origin.x -= difference;
+			
+			if(idx < _trackedRects.count - 1) {
+				CGRect nextRect = [_trackedRects[@(idx + 1)] rectValue];
+				rect.size.width += (CGRectGetMinX(nextRect) - CGRectGetMaxX(rect)) / 2.0f;
+			} else {
+				rect.size.width += difference * 4;
+			}
+		} else {
+			CGRect nextRect = [_trackedRects[@(idx + 1)] rectValue];
+			rect.origin.x = 0.0f;
+			rect.size.width += (CGRectGetMinX(nextRect) - CGRectGetMaxX(rect)) / 2.0f;
+		}
+		
+		_trackedRects[@(idx)] = [NSValue valueWithRect:CGRectIntegral(rect)];
+	}
 }
 
 @end
