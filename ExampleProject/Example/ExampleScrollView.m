@@ -27,7 +27,7 @@
 		imageView.editable = YES;
 		imageView.editingSizesToFit = YES;
 		imageView.savable = YES;
-		imageView.savedFilename = @"TUIImageView Example";
+		imageView.image.name = @"TUIImageView Example";
 		
 		imageView.imageEditedHandler = ^{
 			self.scrollView.contentSize = imageView.frame.size;

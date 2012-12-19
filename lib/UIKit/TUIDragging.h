@@ -77,13 +77,13 @@ typedef enum TUIDraggingFormation : NSUInteger {
 // value that indicates which dragging operation the destination will perform
 // when the image is released. In deciding which dragging operation to return,
 // the method should evaluate the overlap between both the dragging operations
-// allowed by the source (obtained from sender with the draggingSourceOperationMask
+// allowed by the source (obtained from session with the draggingSourceOperationMask
 // method) and the dragging operations and pasteboard data types the destination
 // itself supports. If none of the operations is appropriate, this method should
 // return NSDragOperationNone (this is the default response if the method is not
 // implemented by the destination). A destination will still receive draggingUpdated:
 // and draggingExited: even if NSDragOperationNone is returned by this method.
-- (NSDragOperation)draggingEntered:(TUIDraggingSession *)sender;
+- (NSDragOperation)draggingEntered:(TUIDraggingSession *)session;
 
 // Invoked periodically as the image is held within the destination area, allowing
 // modification of the dragging operation or mouse-pointer position. Returns one
@@ -106,47 +106,47 @@ typedef enum TUIDraggingFormation : NSUInteger {
 // messages. If the mouse pointer is within the bounds of two overlapping views
 // that are both valid destinations, the uppermost view receives these messages
 // until the image is either released or dragged out.
-- (NSDragOperation)draggingUpdated:(TUIDraggingSession *)sender;
+- (NSDragOperation)draggingUpdated:(TUIDraggingSession *)session;
 
 // Invoked when the dragged image exits the view's bounds rectangle.
-- (void)draggingExited:(TUIDraggingSession *)sender;
+- (void)draggingExited:(TUIDraggingSession *)session;
 
 // Implement this method to be notified when a drag operation ends in some other
 // destination. This method might be used by a destination doing auto-expansion
 // in order to collapse any auto-expands.
-- (void)draggingEnded:(TUIDraggingSession *)sender;
+- (void)draggingEnded:(TUIDraggingSession *)session;
 
 // Invoked when the image is released, allowing the receiver to agree to or
 // refuse drag operation. Returns YES if the receiver agrees to perform the drag
 // operation and NO if not. This method is invoked only if the most recent
 // draggingEntered: or draggingUpdated: message returned an acceptable drag-operation
 // value. If you want the drag items to animate from their current location on
-// screen to their final location in your view, set the sender object’s
+// screen to their final location in your view, set the session object’s
 // animatesToDestination property to YES in your implementation of this method.
-- (BOOL)prepareForDragOperation:(TUIDraggingSession *)sender;
+- (BOOL)prepareForDragOperation:(TUIDraggingSession *)session;
 
 // Invoked after the released image has been removed from the screen, signaling the
 // receiver to import the pasteboard data. If the destination accepts the data,
 // it returns YES; otherwise it returns NO. The default is to return NO. For
 // this method to be invoked, the previous prepareForDragOperation: message must
 // have returned YES. The destination should implement this method to do the real
-// work of importing the pasteboard data represented by the image. If the sender
+// work of importing the pasteboard data represented by the image. If the session
 // object’s animatesToDestination was set to YES in prepareForDragOperation:,
 // then setup any animation to arrange space for the drag items to animate to.
-- (BOOL)performDragOperation:(TUIDraggingSession *)sender;
+- (BOOL)performDragOperation:(TUIDraggingSession *)session;
 
 // Invoked when the dragging operation is complete, signaling the view to perform
 // any necessary clean-up. For this method to be invoked, the previous
 // performDragOperation: must have returned YES. The destination implements this method
 // to perform any tidying up that it needs to do, such as updating its visual
 // representation now that it has incorporated the dragged data. This message is the
-// last message sent from sender to the destination during a dragging session. If the
-// sender object’s animatesToDestination property was set to YES in
+// last message sent from session to the destination during a dragging session. If the
+// session object’s animatesToDestination property was set to YES in
 // prepareForDragOperation:, then the drag image is still visible. At this point you
 // should draw the final visual representation in the view. When this method returns,
 // the drag image is removed form the screen. If your final visual representation
 // matches the visual representation in the drag, this is a seamless transition.
-- (void)concludeDragOperation:(TUIDraggingSession *)sender;
+- (void)concludeDragOperation:(TUIDraggingSession *)session;
 
 // The destination should return NO if it does not require periodic
 // -draggingUpdated messages (eg. not autoscrolling or otherwise
@@ -160,6 +160,6 @@ typedef enum TUIDraggingFormation : NSUInteger {
 // Otherwise, the dragging images will change too often during the drag
 // which would be distracting to the user. The destination may update the
 // dragging images by calling one of the -enumerateDraggingItems methods.
-- (void)updateDraggingItemsForDrag:(TUIDraggingSession *)sender;
+- (void)updateDraggingItemsForDrag:(TUIDraggingSession *)session;
 
 @end

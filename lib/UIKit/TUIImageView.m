@@ -55,33 +55,6 @@
 	[self.image drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 }
 
-- (void)startAnimating {
-	NSArray *images = _highlighted ? _highlightedAnimationImages : _animationImages;
-	
-	NSMutableArray *CGImages = [NSMutableArray array];
-	for(NSImage *image in images) {
-		[CGImages addObject:(__bridge id)image.tui_CGImage];
-	}
-	
-	CAKeyframeAnimation *animation = [CAKeyframeAnimation animationWithKeyPath:@"contents"];
-	animation.calculationMode = kCAAnimationDiscrete;
-	animation.fillMode = kCAFillModeBoth;
-	animation.removedOnCompletion = NO;
-	animation.duration = self.animationDuration ?: ([images count] * (1/30.0));
-	animation.repeatCount = self.animationRepeatCount ?: HUGE_VALF;
-	animation.values = CGImages;
-	
-	[self.layer addAnimation:animation forKey:@"contents"];
-}
-
-- (void)stopAnimating {
-	[self.layer removeAnimationForKey:@"contents"];
-}
-
-- (BOOL)isAnimating {
-	return [self.layer animationForKey:@"contents"] != nil;
-}
-
 - (void)setImage:(NSImage *)image {
 	if([_image isEqual:image])
 		return;
@@ -108,9 +81,6 @@
 	if([TUIView isInAnimationContext])
 		[self redraw];
 	else [self setNeedsDisplay];
-	
-	if([self isAnimating])
-		[self startAnimating];
 }
 
 - (void)setEditable:(BOOL)editable {
@@ -213,7 +183,7 @@
 	TUIDraggingFilePromiseItem *pasteItem = [[TUIDraggingFilePromiseItem alloc] init];
 	[pasteItem setDataProvider:self forTypes:@[TUIPasteboardTypeFilePromiseContent]];
 	[pasteItem setPropertyList:extension forType:TUIPasteboardTypeFilePromiseType];
-	[pasteItem setString:(self.savedFilename ?: @"Photo") forType:TUIPasteboardTypeFilePromiseName];
+	[pasteItem setString:(self.image.name ?: @"Photo") forType:TUIPasteboardTypeFilePromiseName];
 	
 	// Create a dragging item to display an on-screen drag with the pasteboard item.
 	TUIDraggingItem *dragItem = [[TUIDraggingItem alloc] initWithPasteboardWriter:pasteItem];
@@ -242,7 +212,7 @@
 }
 
 - (void)draggingSession:(TUIDraggingSession *)session movedToPoint:(NSPoint)screenPoint {
-	NSLog(@"%@", session);
+	//NSLog(@"%@", session);
 	// Update image to file icon.
 }
 
@@ -254,9 +224,9 @@
 
 #pragma mark - Pasteboard Destination
 
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
-	if(![sender.draggingSource isEqual:self] && self.editable &&
-	   [NSImage canInitWithPasteboard:sender.draggingPasteboard]) {
+- (NSDragOperation)draggingEntered:(TUIDraggingSession *)session {
+	if(![session.draggingSource isEqual:self] && self.editable &&
+	   [NSImage canInitWithPasteboard:session.draggingPasteboard]) {
 		
 		self.highlighted = YES;
 		return NSDragOperationCopy;
@@ -265,35 +235,33 @@
 	}
 }
 
-- (void)draggingExited:(id <NSDraggingInfo>)sender {
+- (void)draggingExited:(TUIDraggingSession *)session {
 	self.highlighted = NO;
 }
 
-- (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender {
-	return (![sender.draggingSource isEqual:self] && self.editable);
+- (BOOL)prepareForDragOperation:(TUIDraggingSession *)session {
+	return (![session.draggingSource isEqual:self] && self.editable);
 }
 
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-	NSImage *image = [[NSImage alloc] initWithPasteboard:sender.draggingPasteboard];
-	
-	if(image) {
-		self.image = image;
+- (BOOL)performDragOperation:(TUIDraggingSession *)session {
+	if([NSImage canInitWithPasteboard:session.draggingPasteboard]) {
+		self.image = [[NSImage alloc] initWithPasteboard:session.draggingPasteboard];
 		if(self.editingSizesToFit)
 			[self sizeToFit];
 		if(self.imageEditedHandler)
 			self.imageEditedHandler();
-	}
-	
-	return image == nil;
+		
+		return YES;
+	} else return NO;
 }
 
-- (void)concludeDragOperation:(id <NSDraggingInfo>)sender {
+- (void)concludeDragOperation:(TUIDraggingSession *)session {
 	self.highlighted = NO;
 }
 
-- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)flag {
-	return NSDragOperationCopy;
-}
+- (NSDragOperation)draggingUpdated:(TUIDraggingSession *)session {return NSDragOperationCopy;}
+- (void)draggingEnded:(TUIDraggingSession *)session {}
+- (void)updateDraggingItemsForDrag:(TUIDraggingSession *)session {}
 
 #pragma mark -
 

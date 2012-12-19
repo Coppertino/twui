@@ -22,7 +22,7 @@
 
 @implementation TUIView (Dragging)
 
-#pragma mark - Dragging Control
+#pragma mark - Dragging Registration
 
 @dynamic draggingTypes;
 
@@ -34,6 +34,8 @@
 	self.draggingTypes = draggingTypes;
 	[self updateRegisteredDraggingTypes];
 }
+
+#pragma mark - Dragging Source
 
 - (TUIDraggingSession *)beginDraggingSessionWithItems:(NSArray *)items
 												event:(NSEvent *)event
@@ -69,35 +71,6 @@
 	return session;
 }
 
-#pragma mark - TUIDraggingDestination
-
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
-	return NSDragOperationNone;
-}
-
-// FIXME: Needs to use cached value instead of method call.
-- (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender {
-	return [self draggingEntered:sender];
-}
-
-- (void)draggingExited:(id <NSDraggingInfo>)sender {
-	
-}
-
-- (void)draggingEnded:(id <NSDraggingInfo>)sender {
-	
-}
-
-- (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender {
-	return NO;
-}
-
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-	return NO;
-}
-
-- (void)concludeDragOperation:(id <NSDraggingInfo>)sender {
-	
-}
+#pragma mark -
 
 @end
