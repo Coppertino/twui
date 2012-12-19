@@ -32,10 +32,15 @@
 		[self.compositedWindow setReleasedWhenClosed:NO];
 		[self.compositedWindow setMovableByWindowBackground:NO];
 		[self.compositedWindow setBackgroundColor:[NSColor clearColor]];
-		[self.compositedWindow setLevel:TUIDragWindowLevel];
+		[self.compositedWindow setLevel:CGShieldingWindowLevel()];
 		[self.compositedWindow setOpaque:NO];
-		[self.compositedWindow setHasShadow:NO];
 		[self.compositedWindow.contentView setWantsLayer:YES];
+		
+		[self.compositedWindow setCollectionBehavior:NSWindowCollectionBehaviorIgnoresCycle |
+		 NSWindowCollectionBehaviorFullScreenAuxiliary |
+		 NSWindowCollectionBehaviorCanJoinAllSpaces |
+		 NSWindowCollectionBehaviorTransient |
+		 NSWindowCollectionBehaviorStationary];
 		
 		self.compositeView = [[NSImageView alloc] initWithFrame:[self.compositedWindow.contentView bounds]];
 		[self.compositeView setImageScaling:NSScaleToFit];
@@ -112,6 +117,16 @@
 							searchOptions:(NSDictionary *)searchOptions
 							   usingBlock:(void (^)(TUIDraggingItem *draggingItem, NSInteger idx, BOOL *stop))block {
 	NSLog(@"Class %@ method %@ is unimplemented.", NSStringFromClass(self.class), NSStringFromSelector(_cmd));
+}
+
+- (NSString *)description {
+	return [NSString stringWithFormat:@"<%@: %p> {\n\tDragging Formation: %lu\n\tSession Context: %@\n\tAnimates to Destination: %@\n\tReanimates to Source: %@\n\tNumber of Valid Items for Drop: %@\n\tDragging Leader Index: %lu\n\tDragging Pasteboard: %@\n\tDragging Sequence Number: %@\n\tDragging Location: %@\n\tDragging Source: %@\n\tDragging Operation: %lu\n}",
+			NSStringFromClass(self.class), self, self.draggingFormation, self.sessionContext,
+			self.animatesToDestination ? @"YES" : @"NO", self.reanimatesToSource ? @"YES" : @"NO",
+			(self.numberOfValidItemsForDrop != NSNotFound ? @(self.numberOfValidItemsForDrop): @"Unavailable"),
+			self.draggingLeaderIndex, self.draggingPasteboard,
+			(self.draggingSequenceNumber != NSNotFound ? @(self.draggingSequenceNumber): @"Unavailable"),
+			NSStringFromPoint(self.draggingLocation), self.draggingSource, self.draggingOperation];
 }
 
 @end

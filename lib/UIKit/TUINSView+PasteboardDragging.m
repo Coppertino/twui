@@ -17,7 +17,6 @@
 #import "TUINSView+Private.h"
 #import "TUINSView+PasteboardDragging.h"
 #import "TUIDragging+Private.h"
-#import "TUIDraggingManager.h"
 
 @implementation TUINSView (PasteboardDragging)
 
@@ -106,6 +105,8 @@
 	// Update the dragging session.
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	session.draggingLocation = [NSEvent mouseLocation];
+	session.draggingSequenceNumber = NSNotFound;
+	session.numberOfValidItemsForDrop = NSNotFound;
 	
 	// Update the dragging source and the dragging session.
 	[session startDrag];
@@ -118,6 +119,8 @@
 	// Update the dragging session.
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	session.draggingLocation = [NSEvent mouseLocation];
+	session.draggingSequenceNumber = NSNotFound;
+	session.numberOfValidItemsForDrop = NSNotFound;
 	
 	// Update the dragging source and the dragging session.
 	[session updateDrag];
@@ -131,6 +134,8 @@
 	TUIDraggingSession *session = self.currentSourceDraggingSession;
 	session.draggingLocation = [NSEvent mouseLocation];
 	session.draggingOperation = operation;
+	session.draggingSequenceNumber = NSNotFound;
+	session.numberOfValidItemsForDrop = NSNotFound;
 	
 	// Clear the drag destination for future promise drags.
 	NSURL *location = self.currentPromisedDragDestination;

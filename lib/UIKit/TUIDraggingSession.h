@@ -38,7 +38,6 @@
 // prepareForDragOperation: and performDragOperation:. You should
 // enumerate through the dragging items during performDragOperation:
 // to set the item’s draggingFrame to the correct destinations.
-// This property is of no use to a dragging source.
 @property (nonatomic, assign) BOOL animatesToDestination;
 
 // Controls whether the dragging image animates back to its starting
@@ -58,7 +57,7 @@
 // then you should not updateItems:, simply return NSDragOperationNone
 // from your implementation of draggingEntered: and, or draggingUpdated:
 // and do not modify any drag item properties.
-// This property is of no use to a dragging source.
+// This property returns NSNotFound if the sender is the dragging source.
 @property (nonatomic, assign) NSInteger numberOfValidItemsForDrop;
 
 // The index of the draggingItem under the cursor. The default is the
@@ -70,7 +69,7 @@
 @property (nonatomic, assign, readonly) NSPasteboard *draggingPasteboard;
 
 // Returns a number that uniquely identifies the dragging session.
-// This property is of no use to a dragging source.
+// This property returns NSNotFound if the sender is the dragging source.
 @property (nonatomic, assign, readonly) NSInteger draggingSequenceNumber;
 
 // The current cursor location of the drag in screen coordinates.

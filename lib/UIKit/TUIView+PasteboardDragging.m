@@ -51,9 +51,8 @@
 	
 	// Determine if there are promises to be made.
 	NSMutableArray *promiseItems = @[].mutableCopy;
-	for(TUIDraggingFilePromiseItem *promise in pasteItems) {
+	for(TUIDraggingFilePromiseItem *promise in pasteItems)
 		[promiseItems addObject:promise];
-	}
 	
 	// Now write all the pasteboard items to the dragging pasteboard.
 	[session.draggingPasteboard clearContents];

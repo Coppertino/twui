@@ -242,6 +242,7 @@
 }
 
 - (void)draggingSession:(TUIDraggingSession *)session movedToPoint:(NSPoint)screenPoint {
+	NSLog(@"%@", session);
 	// Update image to file icon.
 }
 
