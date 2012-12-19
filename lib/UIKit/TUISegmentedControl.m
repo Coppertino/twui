@@ -39,10 +39,10 @@
 
 @implementation TUISegmentedControl
 
-+ (TUISegmentedTrackedCell *)sharedGraphicsRenderer {
-	static TUISegmentedTrackedCell *_backingCell = nil;
++ (NSSegmentedControl *)sharedGraphicsRenderer {
+	static NSSegmentedControl *_backingCell = nil;
 	if(!_backingCell) {
-		_backingCell = [TUISegmentedTrackedCell new];
+		_backingCell = [[NSSegmentedControl alloc] initWithFrame:CGRectZero];
 	}
 	return _backingCell;
 }
@@ -86,7 +86,8 @@
 }
 
 - (void)drawRect:(CGRect)rect {
-	NSSegmentedCell *renderer = [TUISegmentedControl sharedGraphicsRenderer];
+	NSSegmentedControl *renderer = [TUISegmentedControl sharedGraphicsRenderer];
+	renderer.frame = rect;
 	
 	// Set the defaults.
 	if(_segmentedControlFlags.itemsListModified) {
@@ -110,8 +111,9 @@
 			*stop = YES;
 	}];
 	
+	[self drawBackground:rect];
 	// Set the highlighted values.
-	NSDictionary *rectCache = [[TUISegmentedControl sharedGraphicsRenderer] trackedRects];
+	/*NSDictionary *rectCache = [[TUISegmentedControl sharedGraphicsRenderer] trackedRects];
 	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
 		//[renderer highlight:item.highlighted withFrame:[rectCache[@(idx)] rectValue] inView:self.nsView];
 		if(item.highlighted)
@@ -123,12 +125,13 @@
 	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
 		[self drawSegmentContents:idx inRect:[rectCache[@(idx)] rectValue]];
 	}];
+	//*/
 }
 
 - (void)drawBackground:(CGRect)rect {
-	NSSegmentedCell *renderer = [TUISegmentedControl sharedGraphicsRenderer];
+	NSSegmentedControl *renderer = [TUISegmentedControl sharedGraphicsRenderer];
 	[renderer setSegmentStyle:NSSegmentStyleRounded];
-	[renderer drawWithFrame:CGRectInset(self.bounds, 2.0f, 2.0f) inView:self.nsView];
+	[renderer drawRect:rect];
 }
 
 - (void)drawSegmentContents:(NSUInteger)segment inRect:(CGRect)rect {
@@ -141,7 +144,7 @@
 }
 
 - (NSUInteger)segmentForHitTestAtPoint:(CGPoint)point {
-	NSDictionary *rectCache = [[TUISegmentedControl sharedGraphicsRenderer] trackedRects];
+	/*NSDictionary *rectCache = [[TUISegmentedControl sharedGraphicsRenderer] trackedRects];
 	__block NSUInteger segment = NSNotFound;
 	
 	[rectCache enumerateKeysAndObjectsUsingBlock:^(NSNumber *index, NSValue *rect, BOOL *stop) {
@@ -149,7 +152,8 @@
 			segment = index.unsignedIntegerValue;
 	}];
 	
-	return segment;
+	return segment;//*/
+	return 0;
 }
 
 - (BOOL)beginTrackingWithEvent:(NSEvent *)event {
