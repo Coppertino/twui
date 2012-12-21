@@ -42,6 +42,9 @@
 		_textRenderer.shadowColor = [NSColor whiteColor];
 		_textRenderer.shadowOffset = CGSizeMake(0, 1);
 		
+		TUIStepper *stepper = [[TUIStepper alloc] initWithFrame:CGRectMake(5, 5, 250, 32-5)];
+		[self addSubview:stepper];
+		
 		// Add the text renderer to the view so events get routed to it
 		// properly. Text selection, dictionary popup, etc should just work.
 		// You can add more than one.
