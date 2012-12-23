@@ -104,18 +104,27 @@ static CGFloat TUIViewAnimationSlowMotionMultiplier (void) {
 
 @implementation TUIView (TUIViewAnimation)
 
++ (void)animate:(void (^)(void))animations {
+	[self animateWithDuration:0.25f animations:animations completion:NULL];
+}
+
 + (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations {
 	[self animateWithDuration:duration animations:animations completion:NULL];
 }
 
 + (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^)(BOOL finished))completion {
-	[self beginAnimations:nil context:NULL];
-	self.animationDuration = duration;
+	[self animateWithDuration:duration delay:0.0f animations:animations completion:completion];
+}
 
-	TUIViewCurrentAnimation.animationCompletionBlock = completion;
-	animations();
-
-	[self commitAnimations];
++ (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay animations:(void (^)(void))animations completion:(void (^)(BOOL finished))completion {
+    
+	[TUIView beginAnimations:nil context:NULL];
+	[TUIView setAnimationDuration:duration];
+	[TUIView setAnimationDelay:delay];
+	[TUIView setAnimationCompletionBlock:completion];
+	
+    animations();
+    [TUIView commitAnimations];
 }
 
 + (void)beginAnimations:(NSString *)animationID context:(void *)context {
@@ -126,9 +135,8 @@ static CGFloat TUIViewAnimationSlowMotionMultiplier (void) {
 	TUIViewCurrentAnimation.animationID = animationID;
 	[TUIViewAnimationStack addObject:TUIViewCurrentAnimation];
 	
-	// setup defaults
-	self.animationDuration = 0.25;
-	self.animationCurve = TUIViewAnimationCurveEaseInOut;
+	[TUIView setAnimationDuration:0.25f];
+	[TUIView setAnimationCurve:TUIViewAnimationCurveEaseInOut];
 }
 
 + (void)commitAnimations {
@@ -154,6 +162,10 @@ static CGFloat TUIViewAnimationSlowMotionMultiplier (void) {
 	TUIViewCurrentAnimation.animationDidStopSelector = selector;
 }
 
++ (void)setAnimationCompletionBlock:(void (^)(BOOL))completion {
+	TUIViewCurrentAnimation.animationCompletionBlock = completion;
+}
+
 + (void)setAnimationDuration:(NSTimeInterval)duration {
 	duration *= TUIViewAnimationSlowMotionMultiplier();
 	TUIViewCurrentAnimation.basicAnimation.duration = duration;
@@ -161,7 +173,8 @@ static CGFloat TUIViewAnimationSlowMotionMultiplier (void) {
 }
 
 + (void)setAnimationDelay:(NSTimeInterval)delay {
-	TUIViewCurrentAnimation.basicAnimation.beginTime = CACurrentMediaTime() + delay * TUIViewAnimationSlowMotionMultiplier();
+	delay *= TUIViewAnimationSlowMotionMultiplier();
+	TUIViewCurrentAnimation.basicAnimation.beginTime = CACurrentMediaTime() + delay;
 	TUIViewCurrentAnimation.basicAnimation.fillMode = kCAFillModeBoth;
 }
 
@@ -184,7 +197,7 @@ static CGFloat TUIViewAnimationSlowMotionMultiplier (void) {
 		default:
 			NSAssert(NO, @"Unrecognized animation curve: %i", (int)curve);
 	}
-
+	
 	TUIViewCurrentAnimation.basicAnimation.timingFunction = [CAMediaTimingFunction functionWithName:functionName];
 }
 
@@ -196,16 +209,14 @@ static CGFloat TUIViewAnimationSlowMotionMultiplier (void) {
 	TUIViewCurrentAnimation.basicAnimation.autoreverses = repeatAutoreverses;
 }
 
-+ (void)setAnimationIsAdditive:(BOOL)additive {
++ (void)setAnimationBeginsFromCurrentState:(BOOL)additive {
 	TUIViewCurrentAnimation.basicAnimation.additive = additive;
 }
 
 + (void)setAnimationsEnabled:(BOOL)enabled block:(void(^)(void))block {
 	BOOL save = TUIViewAnimationsEnabled;
 	TUIViewAnimationsEnabled = enabled;
-
 	block();
-
 	TUIViewAnimationsEnabled = save;
 }
 

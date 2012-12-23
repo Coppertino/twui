@@ -161,7 +161,8 @@ static pthread_key_t TUICurrentContextScaleFactorTLSKey;
 		_layer = [[[[self class] layerClass] alloc] init];
 		_layer.delegate = self;
 		_layer.opaque = YES;
-		_layer.needsDisplayOnBoundsChange = YES;
+		
+		self.contentMode = TUIViewContentModeRedraw;
 	}
 	return _layer;
 }
@@ -454,63 +455,76 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 	return toolTipDelay;
 }
 
-- (TUIViewContentMode)contentMode
-{
-	if(_layer.contentsGravity == kCAGravityCenter) {
+- (TUIViewContentMode)contentMode {
+	if(_layer.contentsGravity == kCAGravityCenter)
 		return TUIViewContentModeCenter;
-	} else if(_layer.contentsGravity == kCAGravityTop) {
+	else if(_layer.contentsGravity == kCAGravityTop)
 		return TUIViewContentModeTop;
-	} else if(_layer.contentsGravity == kCAGravityBottom) {
+	else if(_layer.contentsGravity == kCAGravityBottom)
 		return TUIViewContentModeBottom;
-	} else if(_layer.contentsGravity == kCAGravityLeft) {
+	else if(_layer.contentsGravity == kCAGravityLeft)
 		return TUIViewContentModeLeft;
-	} else if(_layer.contentsGravity == kCAGravityRight) {
+	else if(_layer.contentsGravity == kCAGravityRight)
 		return TUIViewContentModeRight;
-	} else if(_layer.contentsGravity == kCAGravityTopLeft) {
+	else if(_layer.contentsGravity == kCAGravityTopLeft)
 		return TUIViewContentModeTopLeft;
-	} else if(_layer.contentsGravity == kCAGravityTopRight) {
+	else if(_layer.contentsGravity == kCAGravityTopRight)
 		return TUIViewContentModeTopRight;
-	} else if(_layer.contentsGravity == kCAGravityBottomLeft) {
+	else if(_layer.contentsGravity == kCAGravityBottomLeft)
 		return TUIViewContentModeBottomLeft;
-	} else if(_layer.contentsGravity == kCAGravityBottomRight) {
+	else if(_layer.contentsGravity == kCAGravityBottomRight)
 		return TUIViewContentModeBottomRight;
-	} else if(_layer.contentsGravity == kCAGravityResize) {
+	else if(_layer.contentsGravity == kCAGravityResize)
 		return TUIViewContentModeScaleToFill;
-	} else if(_layer.contentsGravity == kCAGravityResizeAspect) {
+	else if(_layer.contentsGravity == kCAGravityResizeAspect)
 		return TUIViewContentModeScaleAspectFit;
-	} else if(_layer.contentsGravity == kCAGravityResizeAspectFill) {
+	else if(_layer.contentsGravity == kCAGravityResizeAspectFill)
 		return TUIViewContentModeScaleAspectFill;
-	} else {
+	else if(_layer.needsDisplayOnBoundsChange)
+		return TUIViewContentModeRedraw;
+	else
 		return TUIViewContentModeScaleToFill;
-	}
 }
 
-- (void)setContentMode:(TUIViewContentMode)contentMode
-{
+- (void)setContentMode:(TUIViewContentMode)contentMode {
 	if(contentMode == TUIViewContentModeCenter) {
 		_layer.contentsGravity = kCAGravityCenter;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeTop) {
 		_layer.contentsGravity = kCAGravityTop;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeBottom) {
 		_layer.contentsGravity = kCAGravityBottom;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeLeft) {
 		_layer.contentsGravity = kCAGravityLeft;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeRight) {
 		_layer.contentsGravity = kCAGravityRight;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeTopLeft) {
 		_layer.contentsGravity = kCAGravityTopLeft;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeTopRight) {
 		_layer.contentsGravity = kCAGravityTopRight;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeBottomLeft) {
 		_layer.contentsGravity = kCAGravityBottomLeft;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeBottomRight) {
 		_layer.contentsGravity = kCAGravityBottomRight;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeScaleToFill) {
 		_layer.contentsGravity = kCAGravityResize;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeScaleAspectFit) {
 		_layer.contentsGravity = kCAGravityResizeAspect;
+		_layer.needsDisplayOnBoundsChange = NO;
 	} else if(contentMode == TUIViewContentModeScaleAspectFill) {
 		_layer.contentsGravity = kCAGravityResizeAspectFill;
+		_layer.needsDisplayOnBoundsChange = NO;
+	} else if(contentMode == TUIViewContentModeRedraw) {
+		_layer.needsDisplayOnBoundsChange = YES;
 	} else {
 		NSAssert1(NO, @"%lu is not a valid contentMode.", (unsigned long)contentMode);
 	}
@@ -728,6 +742,10 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 - (TUIView *)superview
 {
 	return [self.layer.superlayer closestAssociatedView];
+}
+
+- (NSWindow *)window {
+	return self.nsWindow;
 }
 
 - (NSInteger)deepNumberOfSubviews

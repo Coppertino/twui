@@ -17,7 +17,13 @@
 #import "TUIResponder.h"
 #import "TUIAccessibility.h"
 
-extern NSString * const TUIViewWillMoveToWindowNotification; // both notification's userInfo will contain the new window under the key TUIViewWindow
+@class TUINSView;
+@class TUINSWindow;
+@class TUIView;
+@protocol TUIViewDelegate;
+
+// both notification's userInfo will contain the new window under the key TUIViewWindow
+extern NSString * const TUIViewWillMoveToWindowNotification;
 extern NSString * const TUIViewDidMoveToWindowNotification;
 extern NSString * const TUIViewWindow;
 extern NSString * const TUIViewFrameDidChangeNotification;
@@ -42,9 +48,26 @@ typedef enum TUIViewAnimationCurve : NSUInteger {
 
 typedef enum TUIViewAnimationTransition : NSUInteger {
 	TUIViewAnimationTransitionNone,
+    TUIViewAnimationTransitionFlip,
+    TUIViewAnimationTransitionSlide,
+    TUIViewAnimationTransitionFade,
+    TUIViewAnimationTransitionPop,
+    TUIViewAnimationTransitionFall,
+    TUIViewAnimationTransitionFly,
 } TUIViewAnimationTransition;
 
+typedef enum TUIViewAnimationDirection : NSUInteger {
+	TUIViewAnimationDirectionNone,
+	TUIViewAnimationDirectionLeft,
+	TUIViewAnimationDirectionRight,
+	TUIViewAnimationDirectionUp,
+	TUIViewAnimationDirectionDown,
+	TUIViewAnimationDirectionIn,
+	TUIViewAnimationDirectionOut,
+} TUIViewAnimationDirection;
+
 typedef enum TUIViewContentMode : NSUInteger {
+    TUIViewContentModeRedraw,
     TUIViewContentModeCenter,
     TUIViewContentModeTop,
     TUIViewContentModeBottom,
@@ -59,23 +82,12 @@ typedef enum TUIViewContentMode : NSUInteger {
     TUIViewContentModeScaleAspectFill,
 } TUIViewContentMode;
 
-@class TUINSView;
-@class TUINSWindow;
-@class TUIView;
-
 typedef void(^TUIViewDrawRect)(TUIView *, CGRect);
 typedef CGRect(^TUIViewLayout)(TUIView *);
 
 extern CGRect(^TUIViewCenteredLayout)(TUIView*);
 
-@protocol TUIViewDelegate;
-
-/**
- Root view class
- */
-
-@interface TUIView : TUIResponder
-{
+@interface TUIView : TUIResponder {
 	CALayer		*_layer;
 	NSInteger	 _tag;
 	NSArray		*_textRenderers;
@@ -278,6 +290,7 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
 
 @property (nonatomic, readonly) TUIView *superview;
 @property (nonatomic, readonly, strong) NSArray *subviews;
+@property (nonatomic, readonly) NSWindow *window;
 
 /**
  Recursive search, handy for debugging.
@@ -423,6 +436,9 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
  */
 + (void)setAnimationDidStopSelector:(SEL)selector;
 
+// Adds a block to be executed after animation completion.
++ (void)setAnimationCompletionBlock:(void(^)(BOOL))completion;
+
 /**
  default = 0.2
  */
@@ -436,7 +452,7 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
 + (void)setAnimationCurve:(TUIViewAnimationCurve)curve;              // default = UIViewAnimationCurveEaseInOut
 + (void)setAnimationRepeatCount:(float)repeatCount;                 // default = 0.0.  May be fractional
 + (void)setAnimationRepeatAutoreverses:(BOOL)repeatAutoreverses;    // default = NO. used if repeat count is non-zero
-+ (void)setAnimationIsAdditive:(BOOL)additive;
++ (void)setAnimationBeginsFromCurrentState:(BOOL)additive;
 
 + (void)setAnimationsEnabled:(BOOL)enabled block:(void(^)(void))block;
 + (void)setAnimationsEnabled:(BOOL)enabled;                         // ignore any attribute changes while set.
@@ -453,8 +469,10 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
 + (void)setAnimateContents:(BOOL)enabled;
 + (BOOL)willAnimateContents;
 
++ (void)animate:(void (^)(void))animations;
 + (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations;
 + (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^)(BOOL finished))completion;
++ (void)animateWithDuration:(NSTimeInterval)duration delay:(NSTimeInterval)delay animations:(void (^)(void))animations completion:(void (^)(BOOL finished))completion;
 
 /**
  from receiver and all subviews
