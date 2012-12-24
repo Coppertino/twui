@@ -8,6 +8,7 @@
 
 #import "TUINavigationController.h"
 #import "TUIView.h"
+#import <objc/runtime.h>
 
 @interface TUINavigationController ()
 
@@ -251,6 +252,19 @@ static inline CGRect TUINavigationOffscreenRightFrame(CGRect bounds) {
 	CGRect offscreenRight = bounds;
 	offscreenRight.origin.x += bounds.size.width;
 	return offscreenRight;
+}
+
+@end
+
+@implementation TUIViewController (TUINavigationController)
+
+const char *navigationControllerKey = "TUINavigationControllerAssignmentKey";
+- (void)setNavigationController:(TUINavigationController *)navigationController {
+	objc_setAssociatedObject(self, navigationControllerKey, navigationController, OBJC_ASSOCIATION_ASSIGN);
+}
+
+- (TUINavigationController *)navigationController {
+	return objc_getAssociatedObject(self, navigationControllerKey);
 }
 
 @end

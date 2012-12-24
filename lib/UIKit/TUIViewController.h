@@ -16,32 +16,210 @@
 
 #import "TUIResponder.h"
 
-@class TUINavigationItem;
-@class TUINavigationController;
 @class TUIView;
+@class TUINavigationController;
+
+// Raised if the view controller hierarchy is inconsistent with the
+// view hierarchy.
+//
+// When a view controller’s view is added to the view hierarchy, the
+// system walks up the view hierarchy to find the first parent view
+// that has a view controller. That view controller must be the parent
+// of the view controller whose view is being added. Otherwise, this
+// exception is raised. This consistency check is also performed when
+// a view controller is added as a child by calling addChildViewController:
+// 
+// It is also allowed for a view controller that has no parent to add
+// its view to the view hierarchy. This is generally not recommended,
+// but is useful in some special cases.
+extern NSString *const TUIViewControllerHierarchyInconsistencyException;
+
+typedef enum TUIModalPresentationStyle : NSUInteger {
+    TUIModalPresentationFullScreen,
+    TUIModalPresentationWindow,
+    TUIModalPresentationPanel,
+    TUIModalPresentationSheet,
+    TUIModalPresentationView,
+    TUIModalPresentationHUD,
+    TUIModalPresentationContext
+} TUIModalPresentationStyle;
 
 @interface TUIViewController : TUIResponder <NSCopying>
-{
-	TUIView           *_view;
-}
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil;
+// Localized title for use by a parent controller. It should be set to
+// a human-readable string that represents the view to the user.
+@property (nonatomic, copy) NSString *title;
 
-@property(nonatomic,strong) TUIView *view;
+// The view stored in this property represents the root view for the view
+// controller’s view hierarchy. The default value of this property is nil.
+// If you access this property and its value is currently nil, the view
+// controller automatically calls the -loadView method and returns the resulting
+// view. Each view controller object is the sole owner of its view. You must
+// not associate the same view object with multiple view controller objects.
+// The only exception to this rule is that a container view controller
+// implementation may add this view as a subview in its own view hierarchy.
+// Before adding the subview, the container must first call its addChildViewController:
+// method to create a parent-child relationship between the two view controller
+// objects. Because accessing this property can cause the view to be loaded
+// automatically, you can use the isViewLoaded method to determine if the view
+// is currently in memory. Unlike this property, the isViewLoaded property
+// does not force the loading of the view if it is not currently in memory.
+@property (nonatomic, strong) TUIView *view;
 
-- (void)loadView;
-- (void)viewDidLoad;
-- (void)viewDidUnload;
+// If this view controller is a child of a containing view controller,
+// this is the containing view controller.
+@property (nonatomic, unsafe_unretained, readonly) TUIViewController *parentViewController;
+
+// An array of children view controllers. This array does not include any presented view controllers.
+@property (nonatomic, strong, readonly) NSArray *childViewControllers;
+
+// The view controller that was presented by this view controller or its nearest ancestor.
+@property (nonatomic, unsafe_unretained, readonly) TUIViewController *presentedViewController;
+
+// The view controller that presented this view controller or its farthest ancestor.
+@property (nonatomic, unsafe_unretained, readonly) TUIViewController *presentingViewController;
+
+// These four methods can be used in a view controller's appearance callbacks
+// to determine if it is being presented, dismissed, or added or removed as
+// a child view controller. For example, a view controller can check if it is
+// disappearing because it was dismissed or popped by asking itself in its
+// viewWillDisappear: method by checking the expression:
+// ([self isDismissing] || [self isMovingFromParentViewController])
+@property (nonatomic, readonly, getter = isBeingPresented) BOOL beingPresented;
+@property (nonatomic, readonly, getter = isBeingDismissed) BOOL beingDismissed;
+@property (nonatomic, readonly, getter = isMovingToParentViewController) BOOL movingToParentViewController;
+@property (nonatomic, readonly, getter = isMovingFromParentViewController) BOOL movingFromParentViewController;
+
+// Determines which parent view controller's view should be presented over
+// for presentations of type TUIModalPresentationCurrentContext.  If no
+// ancestor view controller has this flag set, then the presenter will be the root view controller.
+@property (nonatomic, assign) BOOL definesPresentationContext;
+
+@property (nonatomic, assign) TUIModalPresentationStyle modalPresentationStyle;
+
 - (BOOL)isViewLoaded;
 
+// This is where subclasses should create their custom view hierarchy.
+// This method should never be called directly. Default implementation does nothing.
+- (void)loadView;
+
+// Called after the view has been loaded.
+// This method is called after -loadView. Default implementation does nothing.
+- (void)viewDidLoad;
+
+// Called after the view controller's view is released and set to nil.
+// Not invoked as a result of -dealloc. Default implementation does nothing.
+- (void)viewDidUnload;
+
+// Called when the view is about to made visible.
+// Default implementation does nothing.
 - (void)viewWillAppear:(BOOL)animated;
+
+// Called when the view has been fully transitioned onto the screen.
+// Default implementation does nothing.
 - (void)viewDidAppear:(BOOL)animated;
+
+// Called when the view is dismissed, covered or otherwise hidden.
+// Default implementation does nothing.
 - (void)viewWillDisappear:(BOOL)animated;
+
+// Called after the view was dismissed, covered or otherwise hidden.
+// Default implementation does nothing.
 - (void)viewDidDisappear:(BOOL)animated;
 
-- (void)didReceiveMemoryWarning;
+// Called just before the view controller's view's layoutSubviews method is invoked.
+// Subclasses can implement as necessary. Default implementation does nothing.
+- (void)viewWillLayoutSubviews;
 
-@property (nonatomic, unsafe_unretained) TUIViewController *parentViewController; // If this view controller is inside a navigation controller or tab bar controller, or has been presented modally by another view controller, return it.
-@property (nonatomic, unsafe_unretained) TUINavigationController *navigationController;
+// Called just after the view controller's view's layoutSubviews method is invoked.
+// Subclasses can implement as necessary. Default implementation does nothing.
+- (void)viewDidLayoutSubviews;
+
+- (void)presentViewController:(TUIViewController *)viewControllerToPresent
+					 animated:(BOOL)flag;
+- (void)presentViewController:(TUIViewController *)viewControllerToPresent
+					 animated:(BOOL)flag
+				   completion:(void (^)(void))completion;
+
+- (void)dismissViewControllerAnimated:(BOOL)flag;
+- (void)dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion;
+
+// If the child controller has a different parent controller, it will first be
+// removed from its current parent by calling removeFromParentViewController.
+// If this method is overridden then the super implementation must be called.
+- (void)addChildViewController:(TUIViewController *)childController;
+
+// Removes the the receiver from its parent's children controllers array.
+// If this method is overridden then the super implementation must be called.
+- (void)removeFromParentViewController;
+
+// These methods can be used to transition between sibling child view controllers.
+// The receiver of these methods is their common parent view controller.
+// (Use [TUIViewController addChildViewController:] to create the parent/child
+// relationship.) These methods will add the toViewController's view to the
+// superview of the fromViewController's view and the fromViewController's view
+// will be removed from its superview after the transition completes. It is
+// important to allow these methods to add and remove the views. The arguments to
+// these methods are the same as those defined by TUIView's block animation API.
+// These methods will fail with an NSInvalidArgumentException if the parent view
+// controllers are not the same as the receiver. Finally, the receiver should
+// not be a subclass of an container view controller. Note also that it is possible
+// to use the TUIView APIs directly. If they are used, it is important to ensure
+// that the toViewController's view is added to the visible view hierarchy
+// while the fromViewController's view is removed.
+
+- (void)transitionFromViewController:(TUIViewController *)fromViewController
+					toViewController:(TUIViewController *)toViewController
+						  animations:(void (^)(void))animations;
+
+- (void)transitionFromViewController:(TUIViewController *)fromViewController
+					toViewController:(TUIViewController *)toViewController
+							duration:(NSTimeInterval)duration
+						  animations:(void (^)(void))animations;
+
+- (void)transitionFromViewController:(TUIViewController *)fromViewController
+					toViewController:(TUIViewController *)toViewController
+							duration:(NSTimeInterval)duration
+						  animations:(void (^)(void))animations
+						  completion:(void (^)(BOOL finished))completion;
+
+- (void)transitionFromViewController:(TUIViewController *)fromViewController
+					toViewController:(TUIViewController *)toViewController
+							duration:(NSTimeInterval)duration
+							   delay:(NSTimeInterval)delay
+						  animations:(void (^)(void))animations
+						  completion:(void (^)(BOOL finished))completion;
+
+// If a custom container controller manually forwards its appearance
+// callbacks, then rather than calling viewWillAppear:, viewDidAppear:
+// viewWillDisappear:, or viewDidDisappear: on the children these methods
+// should be used instead. This will ensure that descendent child
+// controllers appearance methods will be invoked. It also enables more
+// complex custom transitions to be implemented since the appearance
+// callbacks are now tied to the final matching invocation of endAppearanceTransition.
+- (void)beginAppearanceTransition:(BOOL)isAppearing animated:(BOOL)animated;
+- (void)endAppearanceTransition;
+
+// These two methods are public for container subclasses to call
+// when transitioning between child controllers. If they are overridden,
+// the overrides should ensure to call the super. The parent argument
+// in both of these methods is nil when a child is being removed from
+// its parent; otherwise it is equal to the new parent view controller.
+// addChildViewController: will call [child willMoveToParentViewController:self]
+// before adding the child. However, it will not call didMoveToParentViewController:
+// It is expected that a container view controller subclass will make
+// this call after a transition to the new child has completed or, in
+// the case of no transition, immediately after the call to addChildViewController:
+// Similarly removeFromParentViewController: does not call
+// [self willMoveToParentViewController:nil] before removing the child.
+// This is also the responsibilty of the container subclass. Container
+// subclasses will typically define a method that transitions to a new
+// child by first calling addChildViewController:, then executing a
+// transition which will add the new child's view into the view hierarchy
+// of its parent, and finally will call didMoveToParentViewController:
+// Similarly, subclasses will typically define a method that removes
+// a child in the reverse manner by first calling willMoveToParentViewController:
+- (void)willMoveToParentViewController:(TUIViewController *)parent;
+- (void)didMoveToParentViewController:(TUIViewController *)parent;
 
 @end

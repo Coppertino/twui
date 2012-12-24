@@ -42,5 +42,12 @@
 - (NSArray *)popToViewController:(TUIViewController *)viewController animated:(BOOL)animated;
 - (NSArray *)popToViewController:(TUIViewController *)viewController animated:(BOOL)animated completion:(void (^)(BOOL finished))completion;
 
+@end
+
+@interface TUIViewController (TUINavigationController)
+
+// Analogous to .presentingViewController, if the view controller
+// was presented through a TUINavigationController.
+@property (nonatomic, unsafe_unretained) TUINavigationController *navigationController;
 
 @end

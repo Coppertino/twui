@@ -100,7 +100,7 @@
 - (void)tableView:(TUITableView *)tableView didClickRowAtIndexPath:(NSIndexPath *)indexPath withEvent:(NSEvent *)event {
 	if([event clickCount] == 1) {
 		// do something cool
-		ExampleTableViewController *pushed = [[ExampleTableViewController alloc] initWithNibName:nil bundle:nil];
+		ExampleTableViewController *pushed = [[ExampleTableViewController alloc] init];
 		[self.navigationController pushViewController:pushed animated:YES];
 	}
 	

@@ -161,8 +161,7 @@ static pthread_key_t TUICurrentContextScaleFactorTLSKey;
 		_layer = [[[[self class] layerClass] alloc] init];
 		_layer.delegate = self;
 		_layer.opaque = YES;
-		
-		self.contentMode = TUIViewContentModeRedraw;
+		_layer.needsDisplayOnBoundsChange = YES; //.contentMode = TUIViewContentModeRedraw
 	}
 	return _layer;
 }
@@ -170,6 +169,12 @@ static pthread_key_t TUICurrentContextScaleFactorTLSKey;
 - (void)setLayer:(CALayer *)l
 {
 	_layer = l;
+}
+
+- (TUIViewController *)viewController {
+	if([self.nextResponder isKindOfClass:TUIViewController.class])
+		return (TUIViewController *)self.nextResponder;
+	else return nil;
 }
 
 - (BOOL)makeFirstResponder
@@ -251,19 +256,6 @@ static pthread_key_t TUICurrentContextScaleFactorTLSKey;
 		[self setNeedsDisplay];
 	
 	[self.subviews makeObjectsPerformSelector:@selector(windowDidResignKey)];
-}
-
-- (id<TUIViewDelegate>)viewDelegate
-{
-	return _viewDelegate;
-}
-
-- (void)setViewDelegate:(id <TUIViewDelegate>)d
-{
-	_viewDelegate = d;
-	_viewFlags.delegateMouseEntered = [_viewDelegate respondsToSelector:@selector(view:mouseEntered:)];
-	_viewFlags.delegateMouseExited = [_viewDelegate respondsToSelector:@selector(view:mouseExited:)];
-	_viewFlags.delegateWillDisplayLayer = [_viewDelegate respondsToSelector:@selector(viewWillDisplayLayer:)];
 }
 
 /*
@@ -350,10 +342,6 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 	}
 
 	void (^drawBlock)(void) = ^{
-		if (_viewFlags.delegateWillDisplayLayer) {
-			[_viewDelegate viewWillDisplayLayer:self];
-		}
-
 		CGRect rectToDraw = self.bounds;
 		if (!CGRectEqualToRect(_context.dirtyRect, CGRectZero)) {
 			rectToDraw = _context.dirtyRect;
@@ -435,9 +423,13 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 
 - (void)layoutSublayersOfLayer:(CALayer *)layer
 {
+	[self.viewController viewWillLayoutSubviews];
+	
 	[self layoutSubviews];
 	[self _blockLayout];
 	[self.subviews makeObjectsPerformSelector:@selector(ancestorDidLayout)];
+	
+	[self.viewController viewDidLayoutSubviews];
 }
 
 - (BOOL)drawInBackground
@@ -456,7 +448,9 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 }
 
 - (TUIViewContentMode)contentMode {
-	if(_layer.contentsGravity == kCAGravityCenter)
+	if(_layer.needsDisplayOnBoundsChange)
+		return TUIViewContentModeRedraw;
+	else if(_layer.contentsGravity == kCAGravityCenter)
 		return TUIViewContentModeCenter;
 	else if(_layer.contentsGravity == kCAGravityTop)
 		return TUIViewContentModeTop;
@@ -480,8 +474,6 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 		return TUIViewContentModeScaleAspectFit;
 	else if(_layer.contentsGravity == kCAGravityResizeAspectFill)
 		return TUIViewContentModeScaleAspectFill;
-	else if(_layer.needsDisplayOnBoundsChange)
-		return TUIViewContentModeRedraw;
 	else
 		return TUIViewContentModeScaleToFill;
 }
@@ -805,10 +797,11 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 	if([self performKeyAction:event])
 		return;
 	
-	if([[self nextResponder] isKindOfClass:[TUIViewController class]])
-		if([[self nextResponder] respondsToSelector:@selector(performKeyAction:)])
-			if([(TUIResponder *)[self nextResponder] performKeyAction:event])
-				return;
+	TUIViewController *vc = self.viewController;
+	if(vc && [vc respondsToSelector:@selector(performKeyAction:)]) {
+		if([vc performKeyAction:event])
+			return;
+	}
 	
 	// if all else fails, try performKeyActions on the next responder
 	[[self nextResponder] keyDown:event];
@@ -819,9 +812,9 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 	if(![self _canRespondToEvents])
 		return NO;
 	
-	if([[self nextResponder] isKindOfClass:[TUIViewController class]]) {
-		// give associated view controller a chance to do something
-		if([[self nextResponder] performKeyEquivalent:event])
+	// give associated view controller a chance to do something
+	if(self.viewController) {
+		if([self.viewController performKeyEquivalent:event])
 			return YES;
 	}
 	

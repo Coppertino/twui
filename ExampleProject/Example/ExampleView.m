@@ -30,7 +30,7 @@
 		b.origin.y += TAB_HEIGHT;
 		b.size.height -= TAB_HEIGHT;
 		
-		ExampleTableViewController *tableViewController = [[ExampleTableViewController alloc] initWithNibName:nil bundle:nil];
+		ExampleTableViewController *tableViewController = [[ExampleTableViewController alloc] init];
 		_navigationController = [[TUINavigationController alloc] initWithRootViewController:tableViewController];
 		[self addSubview:_navigationController.view];
 		

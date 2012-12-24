@@ -20,6 +20,7 @@
 @class TUINSView;
 @class TUINSWindow;
 @class TUIView;
+@class TUIViewController;
 @protocol TUIViewDelegate;
 
 // both notification's userInfo will contain the new window under the key TUIViewWindow
@@ -149,8 +150,6 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
  */
 + (Class)layerClass;
 
-@property (nonatomic, unsafe_unretained) id<TUIViewDelegate> viewDelegate;
-
 /**
  Designated initializer
  */
@@ -160,6 +159,9 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
  Default is YES. if set to NO, user events (clicks, keys) are ignored and removed from the event queue.
  */
 @property (nonatomic,getter=isUserInteractionEnabled) BOOL userInteractionEnabled;
+
+// The view controller attached to the view. If none, returns nil.
+@property (nonatomic,readonly) TUIViewController *viewController;
 
 /**
  Default is 0
@@ -500,16 +502,6 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
  @returns whether mouse event occured within the bounds of reciever
  */
 - (BOOL)eventInside:(NSEvent *)event;
-
-@end
-
-@protocol TUIViewDelegate <NSObject>
-
-@optional
-
-- (void)view:(TUIView *)v mouseEntered:(NSEvent *)event;
-- (void)view:(TUIView *)v mouseExited:(NSEvent *)event;
-- (void)viewWillDisplayLayer:(TUIView *)v;
 
 @end
 

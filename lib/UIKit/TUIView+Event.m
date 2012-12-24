@@ -191,18 +191,12 @@
 	if(self.superview != nil){
 		[self.superview mouseEntered:event onSubview:self];
 	}
-	if(_viewFlags.delegateMouseEntered){
-		[_viewDelegate view:self mouseEntered:event];
-	}
 }
 
 - (void)mouseExited:(NSEvent *)event
 {
 	if(self.superview != nil){
 		[self.superview mouseExited:event fromSubview:self];
-	}
-	if(_viewFlags.delegateMouseExited){
-		[_viewDelegate view:self mouseExited:event];
 	}
 }
 
