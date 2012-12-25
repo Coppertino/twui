@@ -23,9 +23,6 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 	NSMutableArray *_childViewControllers;
 	
 	struct {
-		unsigned int definesPresentationContext:1;
-		unsigned int isBeingPresented:1;
-		unsigned int isBeingDismissed:1;
 		unsigned int isMovingToParentViewController:1;
 		unsigned int isMovingFromParentViewController:1;
 	} _viewControllerFlags;
@@ -42,7 +39,6 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 #pragma mark - Initialization
 
 @synthesize view = _view;
-@synthesize modalPresentationStyle = _modalPresentationStyle;
 @synthesize childViewControllers = _childViewControllers;
 
 - (id)init {
@@ -86,28 +82,12 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 	return [_childViewControllers copy];
 }
 
-- (BOOL)isBeingPresented {
-	return _viewControllerFlags.isBeingPresented;
-}
-
-- (BOOL)isBeingDismissed {
-	return _viewControllerFlags.isBeingDismissed;
-}
-
 - (BOOL)isMovingFromParentViewController {
 	return _viewControllerFlags.isMovingFromParentViewController;
 }
 
 - (BOOL)isMovingToParentViewController {
 	return _viewControllerFlags.isMovingToParentViewController;
-}
-
-- (BOOL)definesPresentationContext {
-	return _viewControllerFlags.definesPresentationContext;
-}
-
-- (void)setDefinesPresentationContext:(BOOL)flag {
-	_viewControllerFlags.definesPresentationContext = flag;
 }
 
 #pragma mark - View Management
@@ -186,65 +166,6 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 	_viewControllerFlags.isMovingToParentViewController = NO;
 }
 
-#pragma mark - View Controller Presentation
-
-- (void)presentViewController:(TUIViewController *)viewControllerToPresent animated:(BOOL)flag {
-	[self presentViewController:viewControllerToPresent animated:flag completion:nil];
-}
-
-- (void)dismissViewControllerAnimated:(BOOL)flag {
-	[self dismissViewControllerAnimated:flag completion:nil];
-}
-
-- (void)presentViewController:(TUIViewController *)viewControllerToPresent
-					 animated:(BOOL)flag
-				   completion:(void (^)(void))completion {
-	
-	// Link view controller presentation.
-	self.presentedViewController = viewControllerToPresent;
-	viewControllerToPresent.presentingViewController = self;
-	
-	// Tell ourselves that we'll appear because of presentation.
-	viewControllerToPresent->_viewControllerFlags.isBeingPresented = YES;
-	[self viewWillAppear:flag];
-	
-	// TODO: Animate presentation
-	// TODO: Take into account the context of the controller.
-	// TODO: Actually present the controller.
-	
-	// Tell ourselves that we've appeared because of presentation.
-	viewControllerToPresent->_viewControllerFlags.isBeingPresented = NO;
-	[self viewDidAppear:flag];
-	
-	// Fire completion block.
-	_viewControllerFlags.isBeingPresented = NO;
-	if(completion)
-		completion();
-}
-
-- (void)dismissViewControllerAnimated:(BOOL)flag
-						   completion:(void (^)(void))completion {
-	
-	// Unlink view controller presentation.
-	self.presentedViewController.presentingViewController = nil;
-	self.presentingViewController = nil;
-	
-	// Tell ourselves that we'll disappear because of dismissal.
-	_viewControllerFlags.isBeingDismissed = YES;
-	[self viewWillDisappear:flag];
-	
-	// TODO: Animate dismissal
-	// TODO: Actually dismiss the controller.
-	
-	// Tell ourselves we've disappeared because of dismissal.
-	_viewControllerFlags.isBeingDismissed = NO;
-	[self viewDidDisappear:flag];
-	
-	// Fire completion block.
-	if(completion)
-		completion();
-}
-
 #pragma mark - View Controller Transitions
 
 // Forwarded to the complex version of the method.
@@ -312,27 +233,6 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 		if(completion)
 			completion(finished);
 	}];
-}
-
-#pragma mark - Modal Presentation
-
-- (TUIModalPresentationStyle)modalPresentationStyle {
-	TUIModalPresentationStyle currentStyle = _modalPresentationStyle;
-	
-	if(currentStyle == TUIModalPresentationContext) {
-		if(self.view.window.isSheet)
-			currentStyle = TUIModalPresentationLocalSheet;
-		else if([self.view.window isKindOfClass:NSPanel.class])
-			currentStyle = TUIModalPresentationPanel;
-		else
-			currentStyle = TUIModalPresentationView;
-	}
-	
-	return currentStyle;
-}
-
-- (void)setModalPresentationStyle:(TUIModalPresentationStyle)style {
-	_modalPresentationStyle = style;
 }
 
 #pragma mark - View Appearance

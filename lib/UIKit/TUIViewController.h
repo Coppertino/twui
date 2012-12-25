@@ -34,15 +34,6 @@
 // but is useful in some special cases.
 extern NSString *const TUIViewControllerHierarchyInconsistencyException;
 
-typedef enum TUIModalPresentationStyle : NSUInteger {
-    TUIModalPresentationWindow,
-    TUIModalPresentationPanel,
-    TUIModalPresentationView,
-    TUIModalPresentationWindowSheet,
-    TUIModalPresentationLocalSheet,
-    TUIModalPresentationContext
-} TUIModalPresentationStyle;
-
 @interface TUIViewController : TUIResponder <NSCopying>
 
 // Localized title for use by a parent controller. It should be set to
@@ -74,29 +65,13 @@ typedef enum TUIModalPresentationStyle : NSUInteger {
 // An array of children view controllers. This array does not include any presented view controllers.
 @property (nonatomic, readonly) NSArray *childViewControllers;
 
-// The view controller that was presented by this view controller or its nearest ancestor.
-@property (nonatomic, unsafe_unretained, readonly) TUIViewController *presentedViewController;
-
-// The view controller that presented this view controller or its farthest ancestor.
-@property (nonatomic, unsafe_unretained, readonly) TUIViewController *presentingViewController;
-
 // These four methods can be used in a view controller's appearance callbacks
 // to determine if it is being presented, dismissed, or added or removed as
 // a child view controller. For example, a view controller can check if it is
 // disappearing because it was dismissed or popped by asking itself in its
-// viewWillDisappear: method by checking the expression:
-// ([self isDismissing] || [self isMovingFromParentViewController])
-@property (nonatomic, readonly, getter = isBeingPresented) BOOL beingPresented;
-@property (nonatomic, readonly, getter = isBeingDismissed) BOOL beingDismissed;
+// viewWillDisappear: method by checking the expression: [self isMovingFromParentViewController]
 @property (nonatomic, readonly, getter = isMovingToParentViewController) BOOL movingToParentViewController;
 @property (nonatomic, readonly, getter = isMovingFromParentViewController) BOOL movingFromParentViewController;
-
-// Determines which parent view controller's view should be presented over
-// for presentations of type TUIModalPresentationCurrentContext.  If no
-// ancestor view controller has this flag set, then the presenter will be the root view controller.
-@property (nonatomic, assign) BOOL definesPresentationContext;
-
-@property (nonatomic, assign) TUIModalPresentationStyle modalPresentationStyle;
 
 // This is where subclasses should create their custom view hierarchy.
 // This method should never be called directly. Default implementation does nothing.
@@ -134,15 +109,6 @@ typedef enum TUIModalPresentationStyle : NSUInteger {
 // Subclasses can implement as necessary. Default implementation does nothing.
 - (void)viewDidLayoutSubviews;
 
-- (void)presentViewController:(TUIViewController *)viewControllerToPresent
-					 animated:(BOOL)flag;
-- (void)presentViewController:(TUIViewController *)viewControllerToPresent
-					 animated:(BOOL)flag
-				   completion:(void (^)(void))completion;
-
-- (void)dismissViewControllerAnimated:(BOOL)flag;
-- (void)dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion;
-
 // If the child controller has a different parent controller, it will first be
 // removed from its current parent by calling removeFromParentViewController.
 // If this method is overridden then the super implementation must be called.
@@ -151,6 +117,28 @@ typedef enum TUIModalPresentationStyle : NSUInteger {
 // Removes the the receiver from its parent's children controllers array.
 // If this method is overridden then the super implementation must be called.
 - (void)removeFromParentViewController;
+
+// These two methods are public for container subclasses to call
+// when transitioning between child controllers. If they are overridden,
+// the overrides should ensure to call the super. The parent argument
+// in both of these methods is nil when a child is being removed from
+// its parent; otherwise it is equal to the new parent view controller.
+// addChildViewController: will call [child willMoveToParentViewController:self]
+// before adding the child. However, it will not call didMoveToParentViewController:
+// It is expected that a container view controller subclass will make
+// this call after a transition to the new child has completed or, in
+// the case of no transition, immediately after the call to addChildViewController:
+// Similarly removeFromParentViewController: does not call
+// [self willMoveToParentViewController:nil] before removing the child.
+// This is also the responsibilty of the container subclass. Container
+// subclasses will typically define a method that transitions to a new
+// child by first calling addChildViewController:, then executing a
+// transition which will add the new child's view into the view hierarchy
+// of its parent, and finally will call didMoveToParentViewController:
+// Similarly, subclasses will typically define a method that removes
+// a child in the reverse manner by first calling willMoveToParentViewController:
+- (void)willMoveToParentViewController:(TUIViewController *)parent;
+- (void)didMoveToParentViewController:(TUIViewController *)parent;
 
 // These methods can be used to transition between sibling child view controllers.
 // The receiver of these methods is their common parent view controller.
@@ -200,27 +188,5 @@ typedef enum TUIModalPresentationStyle : NSUInteger {
 - (void)endAppearanceTransition;
 
 - (BOOL)shouldAutomaticallyForwardAppearanceMethods;
-
-// These two methods are public for container subclasses to call
-// when transitioning between child controllers. If they are overridden,
-// the overrides should ensure to call the super. The parent argument
-// in both of these methods is nil when a child is being removed from
-// its parent; otherwise it is equal to the new parent view controller.
-// addChildViewController: will call [child willMoveToParentViewController:self]
-// before adding the child. However, it will not call didMoveToParentViewController:
-// It is expected that a container view controller subclass will make
-// this call after a transition to the new child has completed or, in
-// the case of no transition, immediately after the call to addChildViewController:
-// Similarly removeFromParentViewController: does not call
-// [self willMoveToParentViewController:nil] before removing the child.
-// This is also the responsibilty of the container subclass. Container
-// subclasses will typically define a method that transitions to a new
-// child by first calling addChildViewController:, then executing a
-// transition which will add the new child's view into the view hierarchy
-// of its parent, and finally will call didMoveToParentViewController:
-// Similarly, subclasses will typically define a method that removes
-// a child in the reverse manner by first calling willMoveToParentViewController:
-- (void)willMoveToParentViewController:(TUIViewController *)parent;
-- (void)didMoveToParentViewController:(TUIViewController *)parent;
 
 @end
