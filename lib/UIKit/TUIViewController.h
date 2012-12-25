@@ -35,12 +35,11 @@
 extern NSString *const TUIViewControllerHierarchyInconsistencyException;
 
 typedef enum TUIModalPresentationStyle : NSUInteger {
-    TUIModalPresentationFullScreen,
     TUIModalPresentationWindow,
     TUIModalPresentationPanel,
-    TUIModalPresentationSheet,
     TUIModalPresentationView,
-    TUIModalPresentationHUD,
+    TUIModalPresentationWindowSheet,
+    TUIModalPresentationLocalSheet,
     TUIModalPresentationContext
 } TUIModalPresentationStyle;
 
@@ -66,12 +65,14 @@ typedef enum TUIModalPresentationStyle : NSUInteger {
 // does not force the loading of the view if it is not currently in memory.
 @property (nonatomic, strong) TUIView *view;
 
+@property (nonatomic, readonly, getter = isViewLoaded) BOOL viewLoaded;
+
 // If this view controller is a child of a containing view controller,
 // this is the containing view controller.
 @property (nonatomic, unsafe_unretained, readonly) TUIViewController *parentViewController;
 
 // An array of children view controllers. This array does not include any presented view controllers.
-@property (nonatomic, strong, readonly) NSArray *childViewControllers;
+@property (nonatomic, readonly) NSArray *childViewControllers;
 
 // The view controller that was presented by this view controller or its nearest ancestor.
 @property (nonatomic, unsafe_unretained, readonly) TUIViewController *presentedViewController;
@@ -96,8 +97,6 @@ typedef enum TUIModalPresentationStyle : NSUInteger {
 @property (nonatomic, assign) BOOL definesPresentationContext;
 
 @property (nonatomic, assign) TUIModalPresentationStyle modalPresentationStyle;
-
-- (BOOL)isViewLoaded;
 
 // This is where subclasses should create their custom view hierarchy.
 // This method should never be called directly. Default implementation does nothing.
@@ -199,6 +198,8 @@ typedef enum TUIModalPresentationStyle : NSUInteger {
 // callbacks are now tied to the final matching invocation of endAppearanceTransition.
 - (void)beginAppearanceTransition:(BOOL)isAppearing animated:(BOOL)animated;
 - (void)endAppearanceTransition;
+
+- (BOOL)shouldAutomaticallyForwardAppearanceMethods;
 
 // These two methods are public for container subclasses to call
 // when transitioning between child controllers. If they are overridden,

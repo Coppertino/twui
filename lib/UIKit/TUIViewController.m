@@ -20,6 +20,8 @@
 NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewControllerHierarchyInconsistencyException";
 
 @interface TUIViewController () {
+	NSMutableArray *_childViewControllers;
+	
 	struct {
 		unsigned int definesPresentationContext:1;
 		unsigned int isBeingPresented:1;
@@ -29,7 +31,6 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 	} _viewControllerFlags;
 }
 
-@property (nonatomic, strong) NSMutableArray *subViewControllers;
 @property (nonatomic, unsafe_unretained, readwrite) TUIViewController *parentViewController;
 @property (nonatomic, unsafe_unretained, readwrite) TUIViewController *presentedViewController;
 @property (nonatomic, unsafe_unretained, readwrite) TUIViewController *presentingViewController;
@@ -42,6 +43,14 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 
 @synthesize view = _view;
 @synthesize modalPresentationStyle = _modalPresentationStyle;
+@synthesize childViewControllers = _childViewControllers;
+
+- (id)init {
+	if((self = [super init])) {
+		_childViewControllers = @[].mutableCopy;
+	}
+	return self;
+}
 
 - (id)copyWithZone:(NSZone *)zone {
 	return self.class.new;
@@ -74,7 +83,7 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 }
 
 - (NSArray *)childViewControllers {
-	return [self.subViewControllers copy];
+	return [_childViewControllers copy];
 }
 
 - (BOOL)isBeingPresented {
@@ -117,18 +126,22 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    [self beginAppearanceTransition:YES animated:animated];
 	// Implemented by subclasses.
 }
 
 - (void)viewDidAppear:(BOOL)animated {
+    [self endAppearanceTransition];
 	// Implemented by subclasses.
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
+    [self beginAppearanceTransition:NO animated:animated];
 	// Implemented by subclasses.
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
+    [self endAppearanceTransition];
 	// Implemented by subclasses.
 }
 
@@ -144,13 +157,22 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 
 - (void)addChildViewController:(TUIViewController *)childController {
 	[childController willMoveToParentViewController:self];
-	[self.subViewControllers addObject:childController];
+	
+	if(childController.parentViewController) {
+		[childController.parentViewController->_childViewControllers removeObject:self];
+		childController.parentViewController = nil;
+	}
+	
+	[_childViewControllers addObject:childController];
 	childController.parentViewController = self;
 }
 
 - (void)removeFromParentViewController {
-	[self.parentViewController.subViewControllers removeObject:self];
-	self.parentViewController = nil;
+	if(self.parentViewController) {
+		[self.parentViewController->_childViewControllers removeObject:self];
+		self.parentViewController = nil;
+	}
+	
 	[self didMoveToParentViewController:nil];
 }
 
@@ -279,14 +301,17 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 		return;
 	}
 	
-	// Remove the fromViewController if its view is attached to our view.
-	// Then attach the toViewController to our view.
-	if([fromViewController isViewLoaded] && [fromViewController.view.superview isEqual:self.view])
-		[fromViewController.view removeFromSuperview];
+	// Keep the toViewController attached while we animate.
+	// Then call the animation block to animate them into place.
+	// Finally, remove the fromViewController if its view is attached to our view.
 	[self.view addSubview:toViewController.view];
-	
-	// Finally, call the animation block to animate them into place.
-	[TUIView animateWithDuration:duration delay:delay animations:animations completion:completion];
+	[TUIView animateWithDuration:duration delay:delay animations:animations completion:^(BOOL finished) {
+		if([fromViewController.view.superview isEqual:self.view])
+			[fromViewController.view removeFromSuperview];
+		
+		if(completion)
+			completion(finished);
+	}];
 }
 
 #pragma mark - Modal Presentation
@@ -296,11 +321,9 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 	
 	if(currentStyle == TUIModalPresentationContext) {
 		if(self.view.window.isSheet)
-			currentStyle = TUIModalPresentationSheet;
+			currentStyle = TUIModalPresentationLocalSheet;
 		else if([self.view.window isKindOfClass:NSPanel.class])
 			currentStyle = TUIModalPresentationPanel;
-		else if(self.view.window.styleMask & NSFullScreenWindowMask)
-			currentStyle = TUIModalPresentationFullScreen;
 		else
 			currentStyle = TUIModalPresentationView;
 	}
@@ -310,6 +333,20 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 
 - (void)setModalPresentationStyle:(TUIModalPresentationStyle)style {
 	_modalPresentationStyle = style;
+}
+
+#pragma mark - View Appearance
+
+- (BOOL)shouldAutomaticallyForwardAppearanceMethods {
+	return YES;
+}
+
+- (void)beginAppearanceTransition:(BOOL)isAppearing animated:(BOOL)animated {
+	
+}
+
+- (void)endAppearanceTransition {
+	
 }
 
 #pragma mark - Responder Chain
