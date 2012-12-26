@@ -19,23 +19,33 @@
 @class TUIView;
 @class TUINavigationController;
 
-// Raised if the view controller hierarchy is inconsistent with the
-// view hierarchy.
+// The TUIViewController class provides the fundamental view-management model.
+// You rarely instantiate TUIViewController directly. Instead, you
+// instantiate subclasses of the TUIViewController class based on the
+// specific task each subclass performs. A view controller manages a
+// set of views that make up a portion of the user interface. As part
+// of the controller layer of your app, a view controller coordinates
+// its efforts with model objects and other controller objects—including
+// other view controllers—so your app presents a single coherent user interface.
 //
-// When a view controller’s view is added to the view hierarchy, the
-// system walks up the view hierarchy to find the first parent view
-// that has a view controller. That view controller must be the parent
-// of the view controller whose view is being added. Otherwise, this
-// exception is raised. This consistency check is also performed when
-// a view controller is added as a child by calling addChildViewController:
-// 
-// It is also allowed for a view controller that has no parent to add
-// its view to the view hierarchy. This is generally not recommended,
-// but is useful in some special cases.
-// 
-// Currently unimplemented.
-extern NSString *const TUIViewControllerHierarchyInconsistencyException;
-
+// Where necessary, a view controller: resizes and lays out its views,
+// adjusts the contents of the views, acts on behalf of the views when
+// the user interacts with them.
+//
+// View controllers are tightly bound to the views they manage and take
+// part in the responder chain used to handle events. View controllers
+// are descendants of the TUIResponder class and are inserted into the
+// responder chain between the managed root view and its superview,
+// which typically belongs to a different view controller. If the view
+// controller’s view does not handle an event, the view controller has
+// the option of handling the event or it can pass the event to the superview.
+//
+// View controllers are rarely used in isolation. Instead, you use multiple
+// view controllers, each of which owns a portion of the user interface.
+// For example, one view controller might manage a table of items while a
+// different view controller manages the display of a selected item from
+// that table. Each view controller displays its own views to show the
+// content it is responsible for.
 @interface TUIViewController : TUIResponder <NSCopying>
 
 // Localized title for use by a parent controller. It should be set to
@@ -178,17 +188,5 @@ extern NSString *const TUIViewControllerHierarchyInconsistencyException;
 							   delay:(NSTimeInterval)delay
 						  animations:(void (^)(void))animations
 						  completion:(void (^)(BOOL finished))completion;
-
-// If a custom container controller manually forwards its appearance
-// callbacks, then rather than calling viewWillAppear:, viewDidAppear:
-// viewWillDisappear:, or viewDidDisappear: on the children these methods
-// should be used instead. This will ensure that descendent child
-// controllers appearance methods will be invoked. It also enables more
-// complex custom transitions to be implemented since the appearance
-// callbacks are now tied to the final matching invocation of endAppearanceTransition.
-- (void)beginAppearanceTransition:(BOOL)isAppearing animated:(BOOL)animated;
-- (void)endAppearanceTransition;
-
-- (BOOL)shouldAutomaticallyForwardAppearanceMethods;
 
 @end

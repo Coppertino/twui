@@ -36,6 +36,7 @@ static inline CGRect TUINavigationOffscreenRightFrame(CGRect bounds) {
 - (id)initWithRootViewController:(TUIViewController *)viewController {
 	if ((self = [super init])) {
 		[self addChildViewController:viewController];
+		[viewController didMoveToParentViewController:self];
 		self.view.clipsToBounds = YES;
 	}
 	return self;
@@ -86,11 +87,19 @@ static inline CGRect TUINavigationOffscreenRightFrame(CGRect bounds) {
 	CGFloat duration = (animated ? TUINavigationControllerAnimationDuration : 0);
 	BOOL containedAlready = ([self.childViewControllers containsObject:viewController]);
 	
-	for (TUIViewController *controller in self.childViewControllers)
-		[controller removeFromParentViewController];
+	for (TUIViewController *controller in self.childViewControllers) {
+		if(![last isEqual:controller]) {
+			[controller willMoveToParentViewController:nil];
+			[controller removeFromParentViewController];
+		}
+	}
 	
-	for (TUIViewController *controller in viewControllers)
+	for (TUIViewController *controller in viewControllers) {
 		[self addChildViewController:controller];
+		
+		if(![controller isEqual:viewController])
+			[controller didMoveToParentViewController:self];
+	}
 	
 	[self.view addSubview:viewController.view];
 	[CATransaction begin];
@@ -119,6 +128,10 @@ static inline CGRect TUINavigationOffscreenRightFrame(CGRect bounds) {
 			[self.delegate navigationController:self didShowViewController:viewController animated:animated];
 		
 		[last viewDidDisappear:animated];
+		
+		[last willMoveToParentViewController:nil];
+		[last removeFromParentViewController];
+		[viewController didMoveToParentViewController:self];
 		
 		if(completion)
 			completion(finished);
@@ -157,6 +170,7 @@ static inline CGRect TUINavigationOffscreenRightFrame(CGRect bounds) {
 			[self.delegate navigationController:self didShowViewController:viewController animated:animated];
 		
 		[last viewDidDisappear:animated];
+		[viewController didMoveToParentViewController:self];
 		
 		if (completion)
 			completion(finished);
@@ -235,6 +249,8 @@ static inline CGRect TUINavigationOffscreenRightFrame(CGRect bounds) {
 	NSMutableArray *popped = [@[] mutableCopy];
 	while ([viewController isEqual:[self.childViewControllers lastObject]] == NO) {
 		[popped addObject:[self.childViewControllers lastObject]];
+		
+		[[self.childViewControllers lastObject] willMoveToParentViewController:nil];
 		[[self.childViewControllers lastObject] removeFromParentViewController];
 	}
 	
@@ -246,7 +262,9 @@ static inline CGRect TUINavigationOffscreenRightFrame(CGRect bounds) {
 @implementation TUIViewController (TUINavigationController)
 
 - (TUINavigationController *)navigationController {
-	return (TUINavigationController *)self.parentViewController;
+	if([self.parentViewController isKindOfClass:TUINavigationController.class])
+		return (TUINavigationController *)self.parentViewController;
+	else return nil;
 }
 
 @end

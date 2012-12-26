@@ -106,22 +106,18 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [self beginAppearanceTransition:YES animated:animated];
 	// Implemented by subclasses.
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    [self endAppearanceTransition];
 	// Implemented by subclasses.
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-    [self beginAppearanceTransition:NO animated:animated];
 	// Implemented by subclasses.
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
-    [self endAppearanceTransition];
 	// Implemented by subclasses.
 }
 
@@ -235,20 +231,6 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 	}];
 }
 
-#pragma mark - View Appearance
-
-- (BOOL)shouldAutomaticallyForwardAppearanceMethods {
-	return YES;
-}
-
-- (void)beginAppearanceTransition:(BOOL)isAppearing animated:(BOOL)animated {
-	
-}
-
-- (void)endAppearanceTransition {
-	
-}
-
 #pragma mark - Responder Chain
 
 - (BOOL)performKeyEquivalent:(NSEvent *)event {
@@ -259,8 +241,4 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 	return _view.initialFirstResponder;
 }
 
-@end
-
-@implementation TUIViewController (Storyboard)
-@dynamic storyboard;
 @end
