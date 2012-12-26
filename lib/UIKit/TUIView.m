@@ -576,21 +576,6 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 		_subviews = [[NSMutableArray alloc] init];
 	}
 	
-	if(0){//view.viewController) {
-		TUIView *parentView = self;
-		while(parentView && ![parentView.viewController isEqual:view.viewController.parentViewController]) {
-			if(![parentView isEqual:parentView.superview])
-				parentView = parentView.superview;
-			else
-				parentView = nil;
-		}
-		
-		if(parentView == nil) {
-			[NSException raise:TUIViewControllerHierarchyInconsistencyException
-						format:@"A view with a view controller must have it's parent view controller's view in the view heirarchy!"];
-		}
-	}
-
 	TUINSView *originalNSView = view.ancestorTUINSView;
 
 	/* will call willAdd:nil and didAdd (nil) */

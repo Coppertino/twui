@@ -32,6 +32,8 @@
 // It is also allowed for a view controller that has no parent to add
 // its view to the view hierarchy. This is generally not recommended,
 // but is useful in some special cases.
+// 
+// Currently unimplemented.
 extern NSString *const TUIViewControllerHierarchyInconsistencyException;
 
 @interface TUIViewController : TUIResponder <NSCopying>
@@ -190,3 +192,39 @@ extern NSString *const TUIViewControllerHierarchyInconsistencyException;
 - (BOOL)shouldAutomaticallyForwardAppearanceMethods;
 
 @end
+
+// Storyboards are not implemented yet.
+#define UNIMPLEMENTED UNAVAILABLE_ATTRIBUTE
+#define TUIStoryboard NSObject
+#define TUIStoryboardSegue NSObject
+
+@interface TUIViewController (Storyboard)
+
+@property(nonatomic, strong, readonly) TUIStoryboard *storyboard;
+
+- (void)performSegueWithIdentifier:(NSString *)identifier sender:(id)sender UNIMPLEMENTED;
+
+- (void)prepareForSegue:(TUIStoryboardSegue *)segue sender:(id)sender UNIMPLEMENTED;
+
+// Invoked immediately prior to initiating a segue. Return NO to prevent
+// the segue from firing. The default implementation returns YES. This
+// method is not invoked when -performSegueWithIdentifier:sender: is used.
+- (BOOL)shouldPerformSegueWithIdentifier:(NSString *)identifier sender:(id)sender UNIMPLEMENTED;
+
+// View controllers will receive this message during segue unwinding.
+// The default implementation returns the result of -respondsToSelector:
+// - controllers can override this to perform any ancillary checks, if necessary.
+- (BOOL)canPerformUnwindSegueAction:(SEL)action fromViewController:(TUIViewController *)fromViewController withSender:(id)sender UNIMPLEMENTED;
+
+// Custom containers should override this method and search their
+// children for an action handler (using -canPerformUnwindSegueAction:fromViewController:sender:).
+// If a handler is found, the controller should return it. Otherwise,
+// the result of invoking super's implementation should be returned.
+- (TUIViewController *)viewControllerForUnwindSegueAction:(SEL)action fromViewController:(TUIViewController *)fromViewController withSender:(id)sender UNIMPLEMENTED;
+
+// Custom container view controllers should override this method and
+// return segue instances that will perform the navigation portion of segue unwinding.
+- (TUIStoryboardSegue *)segueForUnwindingToViewController:(TUIViewController *)toViewController fromViewController:(TUIViewController *)fromViewController identifier:(NSString *)identifier UNIMPLEMENTED;
+
+@end
+

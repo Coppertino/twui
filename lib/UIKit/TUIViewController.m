@@ -260,3 +260,7 @@ NSString *const TUIViewControllerHierarchyInconsistencyException = @"TUIViewCont
 }
 
 @end
+
+@implementation TUIViewController (Storyboard)
+@dynamic storyboard;
+@end
