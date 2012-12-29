@@ -18,13 +18,6 @@
 #import "TUINSView.h"
 #import "TUICGAdditions.h"
 
-@interface TUISegmentedTrackedCell : NSSegmentedCell
-
-@property (nonatomic, strong) NSMutableDictionary *trackedRects;
-@property (nonatomic, readonly) NSDictionary *positionedRects;
-
-@end
-
 @interface TUISegmentedControl () {
 	struct {
 		unsigned int segmentedControlStyle:3;
@@ -39,10 +32,10 @@
 
 @implementation TUISegmentedControl
 
-+ (NSSegmentedControl *)sharedGraphicsRenderer {
-	static NSSegmentedControl *_backingCell = nil;
++ (NSSegmentedCell *)sharedGraphicsRenderer {
+	static NSSegmentedCell *_backingCell = nil;
 	if(!_backingCell) {
-		_backingCell = [[NSSegmentedControl alloc] initWithFrame:CGRectZero];
+		_backingCell = [NSSegmentedCell new];
 	}
 	return _backingCell;
 }
@@ -86,8 +79,7 @@
 }
 
 - (void)drawRect:(CGRect)rect {
-	NSSegmentedControl *renderer = [TUISegmentedControl sharedGraphicsRenderer];
-	renderer.frame = rect;
+	NSSegmentedCell *renderer = [TUISegmentedControl sharedGraphicsRenderer];
 	
 	// Set the defaults.
 	if(_segmentedControlFlags.itemsListModified) {
@@ -129,36 +121,28 @@
 }
 
 - (void)drawBackground:(CGRect)rect {
-	NSSegmentedControl *renderer = [TUISegmentedControl sharedGraphicsRenderer];
+	NSSegmentedCell *renderer = [TUISegmentedControl sharedGraphicsRenderer];
 	[renderer setSegmentStyle:NSSegmentStyleRounded];
-	[renderer drawRect:rect];
+	[renderer drawWithFrame:rect inView:self.nsView];
 }
 
 - (void)drawSegmentContents:(NSUInteger)segment inRect:(CGRect)rect {
-	[[NSColor colorWithCalibratedRed:1.0 green:0.0 blue:0.0 alpha:0.1] set];
-	[[NSBezierPath bezierPathWithRect:rect] fill];
-	[[NSColor colorWithCalibratedWhite:0.0 alpha:0.1] set];
-	[[NSBezierPath bezierPathWithRect:rect] stroke];
-	
 	// No image or text drawing yet.
 }
 
 - (NSUInteger)segmentForHitTestAtPoint:(CGPoint)point {
-	/*NSDictionary *rectCache = [[TUISegmentedControl sharedGraphicsRenderer] trackedRects];
-	__block NSUInteger segment = NSNotFound;
+	point = [self.nsView convertPoint:point fromView:nil];
+	NSSegmentedCell *renderer = [TUISegmentedControl sharedGraphicsRenderer];
+	NSLog(@"%ld", renderer.segmentCount);
 	
-	[rectCache enumerateKeysAndObjectsUsingBlock:^(NSNumber *index, NSValue *rect, BOOL *stop) {
-		if(CGRectContainsPoint(rect.rectValue, point))
-			segment = index.unsignedIntegerValue;
-	}];
+	[renderer startTrackingAt:point inView:self.nsView];
+	[renderer stopTracking:point at:point inView:self.nsView mouseIsUp:YES];
 	
-	return segment;//*/
-	return 0;
+	return renderer.selectedSegment;
 }
 
 - (BOOL)beginTrackingWithEvent:(NSEvent *)event {
-	CGPoint location = [self convertPoint:event.locationInWindow fromView:nil];
-	NSUInteger segment = [self segmentForHitTestAtPoint:location];
+	NSUInteger segment = [self segmentForHitTestAtPoint:event.locationInWindow];
 	
 	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
 		item.selected = (idx == segment);
@@ -167,8 +151,7 @@
 }
 
 - (BOOL)continueTrackingWithEvent:(NSEvent *)event {
-	CGPoint location = [self convertPoint:event.locationInWindow fromView:nil];
-	NSUInteger segment = [self segmentForHitTestAtPoint:location];
+	NSUInteger segment = [self segmentForHitTestAtPoint:event.locationInWindow];
 	
 	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
 		item.selected = (idx == segment);
@@ -177,8 +160,7 @@
 }
 
 - (void)endTrackingWithEvent:(NSEvent *)event {
-	CGPoint location = [self convertPoint:event.locationInWindow fromView:nil];
-	NSUInteger segment = [self segmentForHitTestAtPoint:location];
+	NSUInteger segment = [self segmentForHitTestAtPoint:event.locationInWindow];
 	
 	[self.items enumerateObjectsUsingBlock:^(TUISegmentedItem *item, NSUInteger idx, BOOL *stop) {
 		item.selected = (idx == segment);
@@ -218,65 +200,6 @@
 	item.title = title;
 	item.image = image;
 	return item;
-}
-
-@end
-
-@implementation TUISegmentedTrackedCell
-
-- (void)drawSegment:(NSInteger)segment inFrame:(NSRect)frame withView:(NSView *)controlView {
-	if(!_trackedRects)
-		_trackedRects = @{}.mutableCopy;
-	_trackedRects[@(segment)] = [NSValue valueWithRect:frame];
-	[self repositionRects];
-	
-	// Don't call super because we'll be drawing the content ourselves.
-	//[super drawSegment:segment inFrame:frame withView:controlView];
-}
-
-- (NSDictionary *)positionedRects {
-	if(!_trackedRects)
-		return @{};
-	
-	NSMutableDictionary *returnDict = @{}.mutableCopy;
-	for(NSUInteger idx = 0; idx < _trackedRects.count; idx++) {
-		CGRect rect = [_trackedRects[@(idx)] rectValue];
-		if(idx != 0) {
-			CGRect previousRect = [_trackedRects[@(idx - 1)] rectValue];
-			CGFloat endPosition = CGRectGetMaxX(previousRect);
-			
-			NSLog(@"%f to %f", endPosition, CGRectGetMinX(rect));
-		} else {
-			rect.origin.x = 0.0f;
-		}
-	}
-	
-	return returnDict;
-}
-
-- (void)repositionRects {
-	for(NSUInteger idx = 0; idx < _trackedRects.count; idx++) {
-		CGRect rect = [_trackedRects[@(idx)] rectValue];
-		
-		if(idx > 0) {
-			CGRect previousRect = [_trackedRects[@(idx - 1)] rectValue];
-			CGFloat difference = (CGRectGetMinX(rect) - CGRectGetMaxX(previousRect)) / 2.0f;
-			rect.origin.x -= difference;
-			
-			if(idx < _trackedRects.count - 1) {
-				CGRect nextRect = [_trackedRects[@(idx + 1)] rectValue];
-				rect.size.width += (CGRectGetMinX(nextRect) - CGRectGetMaxX(rect)) / 2.0f;
-			} else {
-				rect.size.width += difference * 4;
-			}
-		} else {
-			CGRect nextRect = [_trackedRects[@(idx + 1)] rectValue];
-			rect.origin.x = 0.0f;
-			rect.size.width += (CGRectGetMinX(nextRect) - CGRectGetMaxX(rect)) / 2.0f;
-		}
-		
-		_trackedRects[@(idx)] = [NSValue valueWithRect:CGRectIntegral(rect)];
-	}
 }
 
 @end
