@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
 };
 
 @class TUITableViewCell;
-@protocol TUITableViewDataSource;
+@protocol TUITableViewDataSource, TUITableViewDraggingSourceDelegate;
 
 @class TUITableView;
 
@@ -103,7 +103,15 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
   TUITableViewInsertionMethod   _currentDragToReorderInsertionMethod;
   NSIndexPath            * _previousDragToReorderIndexPath;
   TUITableViewInsertionMethod   _previousDragToReorderInsertionMethod;
+
+    // New drag properties
+    NSMutableArray      *_draggedViews;
+    TUIView             *_draggingSeparatorView;
+    NSIndexPath         *_indexPathToInsert;
   
+    // External Drag
+    NSDraggingSession   *_draggingSession;
+    
 	struct {
 		unsigned int animateSelectionChanges:1;
 		unsigned int forceSaveScrollPosition:1;
@@ -121,6 +129,7 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
 
 @property (nonatomic,unsafe_unretained) id <TUITableViewDataSource>  dataSource;
 @property (nonatomic,unsafe_unretained) id <TUITableViewDelegate>    delegate;
+@property (nonatomic,unsafe_unretained) id <TUITableViewDraggingSourceDelegate> draggingSourceDelegate;
 
 @property (readwrite, assign) BOOL animateSelectionChanges;
 @property (readwrite, assign) BOOL allowsMultipleSelection;
@@ -171,10 +180,16 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
 - (NSIndexPath *)indexPathForLastRow;
 
 - (void)selectAll:(id)sender;
+- (void)clearIndexPaths;
 
 - (void)justSelectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(TUITableViewScrollPosition)scrollPosition;
 - (void)selectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(TUITableViewScrollPosition)scrollPosition;
 - (void)deselectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated;
+
+/**
+ Override this method for dragging pointer customization
+ */
+- (void)drawDraggingPointerInView:(TUIView *)view;
 
 /**
  Above the top cell, only visible if you pull down (if you have scroll bouncing enabled)
@@ -216,6 +231,23 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
  Default is 1 if not implemented
  */
 - (NSInteger)numberOfSectionsInTableView:(TUITableView *)tableView;
+
+@end
+
+@protocol TUITableViewDraggingSourceDelegate <NSObject, NSDraggingSource>
+
+@required
+
+- (BOOL)tableView:(TUITableView *)tableView canMoveOutOfTableIndexPaths:(NSArray *)indexes;
+- (void)tableView:(TUITableView *)tableView writeContentsIntoPasteBoard:(NSPasteboard *)pboard forDraggedCells:(NSArray *)cells;
+
+@optional
+
+- (void)tableView:(TUITableView *)tableView
+configureDraggingItem:(NSDraggingItem *)item
+       inLocation:(NSPoint)location
+ withCellImageRep:(NSImage *)cellImageRep
+          andCell:(TUITableViewCell *)cell;
 
 @end
 
