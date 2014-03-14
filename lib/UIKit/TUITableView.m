@@ -159,7 +159,6 @@ typedef struct {
 - (void)addSelectedIndexPath:(NSIndexPath*)indexPathToAdd;
 - (void)removeSelectedIndexPath:(NSIndexPath*)indexPathToRemove;
 - (BOOL)indexPathExists:(NSIndexPath*)indexPathToCheck;
-- (void)clearIndexPaths;
 - (void)checkEventModifiers:(NSEvent *)event;
 - (NSIndexPath *)topIndexPath;
 - (NSIndexPath *)bottomIndexPath;
@@ -1225,7 +1224,7 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
         }
         
     }
-    else if (!_allowsMultipleSelection)
+    else
     {
         
         // do as usual

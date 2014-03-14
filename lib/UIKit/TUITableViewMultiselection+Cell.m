@@ -15,9 +15,13 @@
  */
 
 #import "TUITableViewMultiselection+Cell.h"
+#import "TUICGAdditions.h"
+#import "TUINSView.h"
 
 // Dragged cells should be just above pinned headers
 #define kTUITableViewDraggedCellZPosition 1001
+#define kTUITableViewDraggedCellCascadeOffset 3
+#define kTUITableViewSeparatorHeight 2
 
 @interface TUITableView (CellPrivate)
 
@@ -35,30 +39,30 @@
  * @brief Mouse down in a cell
  */
 -(void)__mouseDownInMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
-    [self __beginDraggingMultipleCells:cell offset:offset location:[[cell superview] localPointForEvent:event]];
+    [self __beginDraggingMultipleCells:cell offset:offset location:[self localPointForEvent:event]];
 }
 
 /**
  * @brief Mouse up in a cell
  */
 -(void)__mouseUpInMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
-    [self __endDraggingMultipleCells:cell offset:offset location:[[cell superview] localPointForEvent:event]];
+    [self __endDraggingMultipleCells:cell offset:offset location:[self localPointForEvent:event]];
 }
 
 /**
  * @brief A cell was dragged
- * 
+ *
  * If reordering is permitted by the table, this will begin a move operation.
  */
 -(void)__mouseDraggedMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
-    [self __updateDraggingMultipleCells:cell offset:offset location:[[cell superview] localPointForEvent:event]];
+    [self __updateDraggingMultipleCells:cell offset:offset location:[self localPointForEvent:event]];
 }
 
 /**
  * @brief Determine if we're dragging a cell or not
  */
 -(BOOL)__isDraggingMultipleCells {
-    return _dragToReorderCell != nil && _currentDragToReorderIndexPath != nil;
+    return _indexPathToInsert != nil;
 }
 
 /**
@@ -69,237 +73,159 @@
     if (self.allowsMultipleSelection && ![cell isSelected] && !_multipleSelectionKeyIsPressed && !_extendMultipleSelectionKeyIsPressed) {
         [self selectRowAtIndexPath:cell.indexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
     }
-
-    _currentDragToReorderLocation = location;
-    _currentDragToReorderMouseOffset = offset;
     
-    _dragToReorderCell = cell;
+    _draggedViews = [[NSMutableArray alloc] initWithCapacity:_arrayOfSelectedIndexes.count];
     
-    _currentDragToReorderIndexPath = nil;
-    _previousDragToReorderIndexPath = nil;
+    float extendX = 0;
+    float extendY = 0;
     
+    for (NSIndexPath *aDisplacedIndexPath in _arrayOfSelectedIndexes)
+    {
+        TUITableViewCell *displacedCell = [self cellForRowAtIndexPath:aDisplacedIndexPath];
+        
+        NSImage *image = TUIGraphicsGetImageForView(displacedCell);
+        
+        CGRect visible = cell.frame;
+        // dragged cell destination frame
+        CGRect dest = CGRectMake(extendX,
+                                 [self convertPoint:location fromView:self.superview].y - 5 + extendY,
+                                 self.bounds.size.width,
+                                 cell.frame.size.height);
+        // bring to front
+        //        [[displacedCell superview] bringSubviewToFront:displacedCell];
+        // move the cell
+        //displacedCell.frame = dest;
+        
+        TUIView *view = [[TUIView alloc] initWithFrame:dest];
+        [view.layer setContents:image];
+        [view.layer setOpacity:0.5];
+        [_draggedViews addObject:view];
+        
+        extendX += kTUITableViewDraggedCellCascadeOffset;
+        extendY += kTUITableViewDraggedCellCascadeOffset;
+        
+        if (extendX > kTUITableViewDraggedCellCascadeOffset * 5) {
+            extendX=0;
+            extendY=0;
+        }
+    }
+    
+    _indexPathToInsert = cell.indexPath;
 }
 
 /**
  * @brief Update cell dragging
  */
 -(void)__updateDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
-   
     BOOL animate = TRUE;
-    
-    // note the location in any event
-    _currentDragToReorderLocation = location;
-    _currentDragToReorderMouseOffset = offset;
     
     // return if there wasn't a proper drag
     if(![cell didDrag]) return;
     
-    // make sure reordering is supported by our data source (this should probably be done only once somewhere)
-    if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
-        return; // reordering is not supported by the data source
-    }
-    
     // determine if reordering this cell is permitted or not via our data source (this should probably be done only once somewhere)
-    if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:canMoveRowAtIndexPath:)] || ![self.dataSource tableView:self canMoveRowAtIndexPath:cell.indexPath]){
-        return; // reordering is not permitted
+    if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:canMoveRowAtIndexPath:)]){
+        return;
     }
     
-    // initialize defaults on the first drag
-    if(_currentDragToReorderIndexPath == nil || _previousDragToReorderIndexPath == nil){
-        // make sure the dragged cell is on top
-        _dragToReorderCell.layer.zPosition = kTUITableViewDraggedCellZPosition;
-        // setup index paths
-        _currentDragToReorderIndexPath = cell.indexPath;
-        _previousDragToReorderIndexPath = cell.indexPath;
-        return; // just initialize on the first event
+    BOOL allowInnerDrag = [self.dataSource tableView:self
+                               canMoveRowAtIndexPath:_indexPathToInsert];
+    BOOL allowExternalDrag = NO;
+    if (self.draggingSourceDelegate && [self.draggingSourceDelegate respondsToSelector:@selector(tableView:canMoveOutOfTableIndexPaths:)]) {
+        allowExternalDrag = [self.draggingSourceDelegate tableView:self
+                                       canMoveOutOfTableIndexPaths:_arrayOfSelectedIndexes];
     }
-
-    float extendX = 3;
-    float extendY = 3;
     
-    for (NSIndexPath *aDisplacedIndexPath in _arrayOfSelectedIndexes)
-    {
-        TUITableViewCell *displacedCell = [self cellForRowAtIndexPath:aDisplacedIndexPath];
-        if (displacedCell.indexPath != cell.indexPath && displacedCell != nil)
-        {
-            CGRect visible = cell.frame;
-            // dragged cell destination frame
-            CGRect dest = CGRectMake(extendX, roundf(MAX(visible.origin.y, MIN(visible.origin.y + visible.size.height - cell.frame.size.height, location.y + visible.origin.y + offset.y))) + extendY, self.bounds.size.width, cell.frame.size.height);
-            // bring to front
-    //        [[displacedCell superview] bringSubviewToFront:displacedCell];
-            // move the cell
-            displacedCell.frame = dest;
-            
-            extendX += 3;
-            extendY += 3;
-
-     //       [displacedCell setHidden:YES];
+    
+    if (!NSPointInRect(location, self.frame) && allowExternalDrag) {
+        
+        NSMutableArray *cells = [NSMutableArray array];
+        for (NSIndexPath *idx in _arrayOfSelectedIndexes) {
+            TUITableViewCell *cell = [self cellForRowAtIndexPath:idx];
+            [cells addObject:cell];
         }
+        
+        NSMutableArray *dragItems = [NSMutableArray array];
+        for (TUIView *view in _draggedViews) {
+            NSPasteboardItem *item = [[NSPasteboardItem alloc] init];
+            NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter:item];
+            if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_configureViewForDraggingItem:inLocation:withCellImageRep:)]) {
+                [self.draggingSourceDelegate tableView:self
+                                 configureDraggingItem:dragItem
+                                            inLocation:location
+                                      withCellImageRep:view.layer.contents
+                                               andCell:[cells objectAtIndex:[_draggedViews indexOfObject:view]]];
+            } else {
+                [dragItem setDraggingFrame:NSMakeRect(location.x, location.y, view.frame.size.width/2, view.frame.size.height/2)
+                                  contents:view.layer.contents];
+            }
+            [dragItems addObject:dragItem];
+        }
+        
+        _draggingSession = [self.nsView beginDraggingSessionWithItems:[dragItems copy]
+                                                                event:[NSApp currentEvent]
+                                                               source:self.draggingSourceDelegate];
+        NSPasteboard *pboard = _draggingSession.draggingPasteboard;
+        
+        [self.draggingSourceDelegate tableView:self
+                   writeContentsIntoPasteBoard:pboard
+                               forDraggedCells:cells];
+        
+        [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        [_draggedViews removeAllObjects];
+        
+        _indexPathToInsert = nil;
+        [self _removeDraggingPointer];
+        return;
     }
-
+    
+    
     
     CGRect visible = [self visibleRect];
-    // dragged cell destination frame
-    CGRect dest = CGRectMake(0, roundf(MAX(visible.origin.y, MIN(visible.origin.y + visible.size.height - cell.frame.size.height, location.y + visible.origin.y - offset.y))), self.bounds.size.width, cell.frame.size.height);
-      // bring to front
     
-  //  [[cell superview] bringSubviewToFront:cell];
-    // move the cell
-    cell.frame = dest;
+    [TUIView animateWithDuration:0.05
+                      animations:^{
+                          float extendX = 0;
+                          float extendY = 0;
+                          
+                          for (TUIView *view in _draggedViews) {
+                              // dragged cell destination frame
+                              CGRect dest = CGRectMake(extendX,
+                                                       [self convertPoint:location fromView:self.superview].y - 5 + extendY,
+                                                       self.bounds.size.width,
+                                                       cell.frame.size.height);
+                              [view setFrame:dest];
+                              extendX += kTUITableViewDraggedCellCascadeOffset;
+                              extendY += kTUITableViewDraggedCellCascadeOffset;
+                              if (extendX > kTUITableViewDraggedCellCascadeOffset * 5) {
+                                  extendX=0;
+                                  extendY=0;
+                              }
+                          }
+                    }];
     
+    [_draggedViews enumerateObjectsWithOptions:NSEnumerationReverse
+                                    usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                                        [self addSubview:obj];
+                                    }];
+
+    if (!allowInnerDrag) {
+        return;
+    }
+    
+    CGPoint pointInView = [self convertPoint:location fromView:self.superview];
+    NSIndexPath *indexPathUnderMousePointer = [self indexPathForRowAtPoint:pointInView];
+    TUITableViewCell *cellUnderThePointer = [self cellForRowAtIndexPath:indexPathUnderMousePointer];
+    CGFloat yInCell = [cellUnderThePointer convertPoint:pointInView fromView:self].y;
+    CGFloat cellHeight = cellUnderThePointer.frame.size.height;
+    if (yInCell < cellHeight/2) {
+        [self _moveDraggingPointerAfterIndexPath:indexPathUnderMousePointer];
+    } else {
+        [self _moveDraggingPointerBeforeIndexPath:indexPathUnderMousePointer];
+    }
     // constraint the location to the viewport
     location = CGPointMake(location.x, MAX(0, MIN(visible.size.height, location.y)));
     // scroll content if necessary (scroll view figures out whether it's necessary or not)
     [self beginContinuousScrollForDragAtPoint:location animated:TRUE];
-    
-    TUITableViewInsertionMethod insertMethod = TUITableViewInsertionMethodAtIndex;
-    NSIndexPath *currentPath = nil;
-    NSInteger sectionIndex = -1;
-    
-    // determine the current index path the cell is occupying
-    if((currentPath = [self indexPathForRowAtVerticalOffset:location.y + visible.origin.y]) == nil){
-        if((sectionIndex = [self indexOfSectionWithHeaderAtVerticalOffset:location.y + visible.origin.y]) > 0){
-            if(sectionIndex <= cell.indexPath.section){
-                // if we're on a section header (but not the first one, which can't move) which is above the origin
-                // index path we insert after the last index in the section above
-                NSInteger targetSectionIndex = sectionIndex - 1;
-                currentPath = [NSIndexPath indexPathForRow:[self numberOfRowsInSection:targetSectionIndex] - 1 inSection:targetSectionIndex];
-                insertMethod = TUITableViewInsertionMethodAfterIndex;
-            }else{
-                // if we're on a section header below the origin index we insert before the first index in the
-                // section below
-                NSInteger targetSectionIndex = sectionIndex;
-                currentPath = [NSIndexPath indexPathForRow:0 inSection:targetSectionIndex];
-                insertMethod = TUITableViewInsertionMethodBeforeIndex;
-            }
-        }
-    }
-    
-    // make sure we have a valid current path before proceeding
-    if(currentPath == nil) return;
-    
-    // allow the delegate to revise the proposed index path if it wants to
-    if(self.delegate != nil && [self.delegate respondsToSelector:@selector(tableView:targetIndexPathForMoveFromRowAtIndexPath:toProposedIndexPath:)]){
-        NSIndexPath *proposedPath = currentPath;
-        currentPath = [self.delegate tableView:self targetIndexPathForMoveFromRowAtIndexPath:cell.indexPath toProposedIndexPath:currentPath];
-        // revised index paths always use the "at" insertion method
-        switch([currentPath compare:proposedPath]){
-            case NSOrderedAscending:
-            case NSOrderedDescending:
-                insertMethod = TUITableViewInsertionMethodAtIndex;
-                break;
-            case NSOrderedSame:
-            default:
-                // do nothing
-                break;
-        }
-    }
-    
-    // note the previous path
-    _previousDragToReorderIndexPath = _currentDragToReorderIndexPath;
-    _previousDragToReorderInsertionMethod = _currentDragToReorderInsertionMethod;
-    
-    // note the current path
-    _currentDragToReorderIndexPath = currentPath;
-    _currentDragToReorderInsertionMethod = insertMethod;
-    
-    // determine the current drag direction
-    NSComparisonResult currentDragDirection = (_previousDragToReorderIndexPath != nil) ? [currentPath compare:_previousDragToReorderIndexPath] : NSOrderedSame;
-    
-    // ordered index paths for enumeration
-    NSIndexPath *fromIndexPath = nil;
-    NSIndexPath *toIndexPath = nil;
-    
-    if(currentDragDirection == NSOrderedAscending){
-        fromIndexPath = currentPath;
-        toIndexPath = _previousDragToReorderIndexPath;
-    }else if(currentDragDirection == NSOrderedDescending){
-        fromIndexPath = _previousDragToReorderIndexPath;
-        toIndexPath = currentPath;
-    }else if(insertMethod != _previousDragToReorderInsertionMethod){
-        fromIndexPath = currentPath;
-        toIndexPath = currentPath;
-    }
-    
-    // we now have the final destination index path.  if it's not nil, update surrounding
-    // cells to make room for the dragged cell
-    if(currentPath != nil && fromIndexPath != nil && toIndexPath != nil){
-        
-        // begin animations
-        if(animate){
-            [TUIView beginAnimations:NSStringFromSelector(_cmd) context:NULL];
-        }
-        
-        // update section headers
-        for(NSInteger i = fromIndexPath.section; i <= toIndexPath.section; i++){
-            TUIView *headerView;
-            if(currentPath.section < i && i <= cell.indexPath.section){
-                // the current index path is above this section and this section is at or
-                // below the origin index path; shift our header down to make room
-                if((headerView = [self headerViewForSection:i]) != nil){
-                    CGRect frame = [self rectForHeaderOfSection:i];
-                    headerView.frame = CGRectMake(frame.origin.x, frame.origin.y - cell.frame.size.height, frame.size.width, frame.size.height);
-                }
-            }else if(currentPath.section >= i && i > cell.indexPath.section){
-                // the current index path is at or below this section and this section is
-                // below the origin index path; shift our header up to make room
-                if((headerView = [self headerViewForSection:i]) != nil){
-                    CGRect frame = [self rectForHeaderOfSection:i];
-                    headerView.frame = CGRectMake(frame.origin.x, frame.origin.y + cell.frame.size.height, frame.size.width, frame.size.height);
-                }
-            }else{
-                // restore the header to it's normal position
-                if((headerView = [self headerViewForSection:i]) != nil){
-                    headerView.frame = [self rectForHeaderOfSection:i];
-                }
-            }
-        }
-        
-        // update rows
-        [self enumerateIndexPathsFromIndexPath:fromIndexPath toIndexPath:toIndexPath withOptions:0 usingBlock:^(NSIndexPath *indexPath, BOOL *stop) {
-            TUITableViewCell *displacedCell;
-            if((displacedCell = [self cellForRowAtIndexPath:indexPath]) != nil && ![displacedCell isEqual:cell]){
-                CGRect frame = [self rectForRowAtIndexPath:indexPath];
-                CGRect target;
-                
-                if([indexPath isEqual:currentPath] && insertMethod == TUITableViewInsertionMethodAfterIndex){
-                    // the visited index path is the current index path and the insertion method is "after";
-                    // leave the cell where it is, the section header should shift out of the way instead
-                    target = frame;
-                }else if([indexPath isEqual:currentPath] && insertMethod == TUITableViewInsertionMethodBeforeIndex){
-                    // the visited index path is the current index path and the insertion method is "before";
-                    // leave the cell where it is, the section header should shift out of the way instead
-                    target = frame;
-                }else if([indexPath compare:currentPath] != NSOrderedAscending && [indexPath compare:cell.indexPath] == NSOrderedAscending){
-                    // the visited index path is above the origin and below the current index path;
-                    // shift the cell down by the height of the dragged cell
-                    target = CGRectMake(frame.origin.x, frame.origin.y - cell.frame.size.height, frame.size.width, frame.size.height);
-                }else if([indexPath compare:currentPath] != NSOrderedDescending && [indexPath compare:cell.indexPath] == NSOrderedDescending){
-                    // the visited index path is below the origin and above the current index path;
-                    // shift the cell up by the height of the dragged cell
-                    target = CGRectMake(frame.origin.x, frame.origin.y + cell.frame.size.height, frame.size.width, frame.size.height);
-                }else{
-                    // the visited cell is outside the affected range and should be returned to its
-                    // normal frame
-                    target = frame;
-                }
-                
-                // only animate if we actually need to
-                if(!CGRectEqualToRect(target, displacedCell.frame)){
-                    displacedCell.frame = target;
-                }
-                
-            }
-        }];
-        
-        // commit animations
-        if(animate){
-            [TUIView commitAnimations];
-        }
-        
-    }
-    
-    
 }
 
 /**
@@ -310,101 +236,74 @@
     
     // cancel our continuous scroll
     [self endContinuousScrollAnimated:TRUE];
-
     
-    // finalize drag to reorder if we have a drag index
-    if(_currentDragToReorderIndexPath != nil){
-        NSIndexPath *targetIndexPath;
-        
-        switch(_currentDragToReorderInsertionMethod){
-            case TUITableViewInsertionMethodBeforeIndex:
-                // insert "before" is equivalent to insert "at" as subsequent indexes are shifted down to
-                // accommodate the insert.  the distinction is only useful for presentation.
-                targetIndexPath = _currentDragToReorderIndexPath;
-                break;
-            case TUITableViewInsertionMethodAfterIndex:
-                targetIndexPath = [NSIndexPath indexPathForRow:_currentDragToReorderIndexPath.row + 1 inSection:_currentDragToReorderIndexPath.section];
-                break;
-            case TUITableViewInsertionMethodAtIndex:
-            default:
-                targetIndexPath = _currentDragToReorderIndexPath;
-                break;
-        }
-        
-        // only update the data source if the drag ended on a different index path
-        // than it started; otherwise just clean up the view
-        if(![targetIndexPath isEqual:cell.indexPath]){
-
-            // Restore selection with new pathes
-            /* Not works, becuase something is wrong
-            for (int i = 0; i < [_arrayOfSelectedIndexes count]; i++) {
-                NSIndexPath *path  =[NSIndexPath indexPathForRow:targetIndexPath.row + i inSection:targetIndexPath.section];
-                if (i == 0) {
-                    [self selectRowAtIndexPath:path animated:NO scrollPosition:TUITableViewScrollPositionNone];
-                } else {
-                    [[self cellForRowAtIndexPath:path] setSelected:YES animated:NO];
-                    [self addSelectedIndexPath:path];
-                }
-            }
-             */
-
-            // notify our data source that the row will be reordered
-            if(self.dataSource != nil && [self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
-                [self.dataSource tableView:self moveRows:_arrayOfSelectedIndexes toIndexPath:targetIndexPath];
-            }
-        }
-        
-        // compute the final cell destination frame
-        CGRect frame = [self rectForRowAtIndexPath:_currentDragToReorderIndexPath];
-        // adjust if necessary based on the insertion method
-        switch(_currentDragToReorderInsertionMethod){
-            case TUITableViewInsertionMethodBeforeIndex:
-                frame = CGRectMake(frame.origin.x, frame.origin.y + cell.frame.size.height, frame.size.width, frame.size.height);
-                break;
-            case TUITableViewInsertionMethodAfterIndex:
-                frame = CGRectMake(frame.origin.x, frame.origin.y - cell.frame.size.height, frame.size.width, frame.size.height);
-                break;
-            case TUITableViewInsertionMethodAtIndex:
-            default:
-                // do nothing. this case is just here to avoid complier complaints...
-                break;
-        }
-        
-        // move the cell to its final frame and layout to make sure all the internal caching/geometry
-        // stuff is consistent.
-        if(animate && !CGRectEqualToRect(cell.frame, frame)){
-            // disable user interaction until the animation has completed and the table has reloaded
-            [self setUserInteractionEnabled:FALSE];
-            [TUIView animateWithDuration:0.2
-                              animations:^ { cell.frame = frame; }
-                              completion:^(BOOL finished) {
-                                  // reload the table when we're done (implicitly restores z-position)
-                                  if(finished) [self reloadData];
-                                  // restore user interactivity
-                                  [self setUserInteractionEnabled:TRUE];
-                              }
-             ];
-        }else{
-            cell.frame = frame;
-            cell.layer.zPosition = 0;
-            [self reloadData];
-        }
-        
-        // clear state
-        _currentDragToReorderIndexPath = nil;
-        
-    }else{
-        cell.layer.zPosition = 0;
+    [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [_draggedViews removeAllObjects];
+    
+    // make sure reordering is supported by our data source (this should probably be done only once somewhere)
+    if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
+        _indexPathToInsert = nil;
+        return; // reordering is not supported by the data source
     }
     
-    _previousDragToReorderIndexPath = nil;
+    if (_indexPathToInsert &&
+        ![_indexPathToInsert isEqual:[cell indexPath]] &&
+        ![_arrayOfSelectedIndexes containsObject:_indexPathToInsert]) {
+        if(self.dataSource != nil && [self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
+            [self.dataSource tableView:self moveRows:_arrayOfSelectedIndexes toIndexPath:_indexPathToInsert];
+            [self reloadData];
+        }
+    }
     
-    // and clean up
-    _dragToReorderCell = nil;
-    
-    _currentDragToReorderLocation = CGPointZero;
-    _currentDragToReorderMouseOffset = CGPointZero;
-    
+    _indexPathToInsert = nil;
+    [self _removeDraggingPointer];
+}
+
+- (void)_moveDraggingPointerAfterIndexPath:(NSIndexPath *)indexPath {
+    CGFloat edgeCellError = 0;
+    if ([indexPath isEqual:[self indexPathForLastRow]]) {
+        edgeCellError = kTUITableViewSeparatorHeight/2;
+        _indexPathToInsert = indexPath;
+    } else {
+        _indexPathToInsert = [NSIndexPath indexPathForRow:indexPath.row+1
+                                                   inSection:indexPath.section];
+    }
+    TUITableViewCell *cell = [self cellForRowAtIndexPath:indexPath];
+    [self _drawSeparatorWithFrame:NSMakeRect(cell.frame.origin.x,
+                                             cell.frame.origin.y - 1 + edgeCellError,
+                                             cell.frame.size.width,
+                                             kTUITableViewSeparatorHeight)];
+}
+
+- (void)_moveDraggingPointerBeforeIndexPath:(NSIndexPath *)indexPath {
+    _indexPathToInsert = indexPath;
+    CGFloat edgeCellError = 0;
+    if ([indexPath isEqual:[self indexPathForFirstRow]]) {
+        edgeCellError = -kTUITableViewSeparatorHeight/2;
+    }
+    TUITableViewCell *cell = [self cellForRowAtIndexPath:indexPath];
+    [self _drawSeparatorWithFrame:NSMakeRect(cell.frame.origin.x,
+                                             cell.frame.origin.y + cell.frame.size.height - 1 + edgeCellError,
+                                             cell.frame.size.width,
+                                             kTUITableViewSeparatorHeight)];
+}
+
+- (void)_removeDraggingPointer {
+    [_draggingSeparatorView removeFromSuperview];
+    _draggingSeparatorView = nil;
+}
+
+
+- (void)_drawSeparatorWithFrame:(CGRect)frame {
+    [self _removeDraggingPointer];
+    _draggingSeparatorView = [[TUIView alloc] init];
+    [_draggingSeparatorView.layer setZPosition:kTUITableViewDraggedCellZPosition+1];
+    [_draggingSeparatorView setFrame:frame];
+    [self drawDraggingPointerInView:_draggingSeparatorView];
+    [self addSubview:_draggingSeparatorView];
+}
+- (void)drawDraggingPointerInView:(TUIView *)view {
+    [view setBackgroundColor:[NSColor whiteColor]];
 }
 
 @end
