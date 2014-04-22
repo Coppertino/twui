@@ -53,7 +53,6 @@ NSTimeInterval const TUIPopoverDefaultFadeoutDuration = 0.3;
 
 @property (nonatomic, strong) TUINSWindow *popoverWindow;
 @property (nonatomic, unsafe_unretained) id transientEventMonitor;
-@property (nonatomic, unsafe_unretained) BOOL animating;
 @property (nonatomic, assign) CGSize originalViewSize;
 
 - (void)removeEventMonitor;
@@ -67,7 +66,6 @@ NSTimeInterval const TUIPopoverDefaultFadeoutDuration = 0.3;
 @synthesize contentViewController = _contentViewController;
 @synthesize backgroundViewClass = _backgroundViewClass;
 @synthesize contentSize = _contentSize;
-@synthesize animates = _animates;
 @synthesize behaviour = _behaviour;
 @synthesize positioningRect = _positioningRect;
 @synthesize willCloseBlock = _willCloseBlock;
