@@ -56,6 +56,8 @@ typedef void (^TUIPopoverDelegateBlock)(TUIPopover *popover);
 
 @interface TUIPopoverBackgroundView : TUIView
 
+@property (nonatomic, unsafe_unretained) CGRect screenOriginRect;
+
 + (CGSize)sizeForBackgroundViewWithContentSize:(CGSize)contentSize popoverEdge:(CGRectEdge)popoverEdge;
 + (CGRect)contentViewFrameForBackgroundFrame:(CGRect)frame popoverEdge:(CGRectEdge)popoverEdge;
 + (TUIPopoverBackgroundView *)backgroundViewForContentSize:(CGSize)contentSize popoverEdge:(CGRectEdge)popoverEdge originScreenRect:(CGRect)originScreenRect;
