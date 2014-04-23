@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.author         = { "Twitter, Inc." => "opensource@twitter.com",
                        "GitHub, Inc." => "support@github.com" }
   s.license        = { :type => 'Apache License, Version 2.0' }
-  s.source         = { :git => "https://github.com/Coppertino/twui.git", :tag => "0.7" }
+  s.source         = { :git => "https://github.com/Coppertino/twui.git", :branch => "master" }
 
   s.platform       = :osx, '10.6'
   s.requires_arc   = true
