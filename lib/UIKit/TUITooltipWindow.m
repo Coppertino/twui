@@ -26,8 +26,10 @@
 static TUIAttributedString *CurrentTooltipString = nil;
 static NSTimer *FadeOutTimer = nil;
 static TUIToolTipViewDrawing CurrentDrawingBlock = NULL;
+static TUIToolTipRectCalculation RectCalculationBlock = NULL;
 static NSDictionary *CurrentStringInfo = nil;
 static NSInteger    TUItooltipHeight = 18;
+static NSRect ViewRect;
 
 @interface TUITooltipWindowView : NSView
 @end
@@ -74,6 +76,17 @@ static NSInteger    TUItooltipHeight = 18;
         CurrentDrawingBlock = [drawingBlock copy];
 }
 
++ (void)setRectCalculationBlock:(TUIToolTipRectCalculation)rectCalculationBlock;
+{
+    if (RectCalculationBlock) {
+        RectCalculationBlock = NULL;
+    }
+    
+    if (rectCalculationBlock) {
+        RectCalculationBlock = [rectCalculationBlock copy];
+    }
+}
+
 + (TUITooltipWindow *)sharedTooltipWindow
 {
 	static TUITooltipWindow *w = nil;
@@ -111,6 +124,10 @@ static BOOL ShowingTooltip = NO;
 
 + (CGRect)_tooltipRect
 {
+    if (RectCalculationBlock) {
+        return RectCalculationBlock(ViewRect,[NSEvent mouseLocation],CurrentTooltipString);
+    }
+    
 	CGFloat width = [CurrentTooltipString ab_size].width + 5;
 	NSPoint p = [NSEvent mouseLocation];
 	NSRect r = NSMakeRect(p.x - width*0.5 + 15, p.y - 37, width, TUItooltipHeight);
@@ -155,10 +172,12 @@ static BOOL ShowingTooltip = NO;
 	}
 }
 
-+ (void)updateTooltip:(NSString *)s delay:(NSTimeInterval)delay
++ (void)updateTooltip:(NSString *)s delay:(NSTimeInterval)delay viewRect:(NSRect)viewRect
 {
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(_beginTooltip) object:nil];
 
+    ViewRect = viewRect;
+    
 	if(s) {
 		if(FadeOutTimer || ShowingTooltip) {
 			// quick switch

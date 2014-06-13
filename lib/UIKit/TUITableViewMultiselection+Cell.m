@@ -69,11 +69,6 @@
  * @brief Begin dragging a cell
  */
 -(void)__beginDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
-    [self checkEventModifiers:[NSApp currentEvent]];
-    if (self.allowsMultipleSelection && ![cell isSelected] && !_multipleSelectionKeyIsPressed && !_extendMultipleSelectionKeyIsPressed) {
-        [self selectRowAtIndexPath:cell.indexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
-    }
-    
     _draggedViews = [[NSMutableArray alloc] initWithCapacity:_arrayOfSelectedIndexes.count];
     
     float extendX = 0;

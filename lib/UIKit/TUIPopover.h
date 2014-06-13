@@ -32,7 +32,7 @@ typedef void (^TUIPopoverDelegateBlock)(TUIPopover *popover);
 @property (nonatomic, strong) TUIViewController *contentViewController;
 @property (nonatomic, unsafe_unretained) Class backgroundViewClass; //Must be a subclass of TUIPopoverBackgroundView
 @property (nonatomic, unsafe_unretained) CGSize contentSize; //CGSizeZero uses the size of the view on contentViewController
-@property (nonatomic, unsafe_unretained) BOOL animates;
+@property (nonatomic, unsafe_unretained) BOOL animating;
 @property (nonatomic, unsafe_unretained) TUIPopoverViewControllerBehaviour behaviour;
 @property (nonatomic, readonly) BOOL shown;
 @property (nonatomic, readonly) CGRect positioningRect;
@@ -55,6 +55,8 @@ typedef void (^TUIPopoverDelegateBlock)(TUIPopover *popover);
 @end
 
 @interface TUIPopoverBackgroundView : TUIView
+
+@property (nonatomic, unsafe_unretained) CGRect screenOriginRect;
 
 + (CGSize)sizeForBackgroundViewWithContentSize:(CGSize)contentSize popoverEdge:(CGRectEdge)popoverEdge;
 + (CGRect)contentViewFrameForBackgroundFrame:(CGRect)frame popoverEdge:(CGRectEdge)popoverEdge;

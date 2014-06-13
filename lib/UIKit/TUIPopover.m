@@ -26,7 +26,6 @@
 
 @interface TUIPopoverBackgroundView ()
 
-@property (nonatomic, unsafe_unretained) CGRect screenOriginRect;
 @property (nonatomic, unsafe_unretained) CGRectEdge popoverEdge;
 
 - (CGRectEdge)arrowEdgeForPopoverEdge:(CGRectEdge)popoverEdge;
@@ -53,7 +52,6 @@ NSTimeInterval const TUIPopoverDefaultFadeoutDuration = 0.3;
 
 @property (nonatomic, strong) TUINSWindow *popoverWindow;
 @property (nonatomic, unsafe_unretained) id transientEventMonitor;
-@property (nonatomic, unsafe_unretained) BOOL animating;
 @property (nonatomic, assign) CGSize originalViewSize;
 
 - (void)removeEventMonitor;
@@ -67,7 +65,6 @@ NSTimeInterval const TUIPopoverDefaultFadeoutDuration = 0.3;
 @synthesize contentViewController = _contentViewController;
 @synthesize backgroundViewClass = _backgroundViewClass;
 @synthesize contentSize = _contentSize;
-@synthesize animates = _animates;
 @synthesize behaviour = _behaviour;
 @synthesize positioningRect = _positioningRect;
 @synthesize willCloseBlock = _willCloseBlock;
@@ -240,7 +237,7 @@ NSTimeInterval const TUIPopoverDefaultFadeoutDuration = 0.3;
 	[positioningView.nsWindow addChildWindow:self.popoverWindow ordered:NSWindowAbove];
 	[self.popoverWindow makeKeyAndOrderFront:self];
 	[backgroundView updateMaskLayer];
-
+    
 	CABasicAnimation *fadeInAnimation = [CABasicAnimation animationWithKeyPath:@"alphaValue"];
 	fadeInAnimation.duration = 0.3;
 	fadeInAnimation.tui_completionBlock = ^{
@@ -375,7 +372,6 @@ CGFloat const TUIPopoverBackgroundViewArrowWidth = 35.0;
 	CGFloat maxX = NSMaxX(contentRect);
 	CGFloat minY = NSMinY(contentRect);
 	CGFloat maxY = NSMaxY(contentRect);
-	
 	CGRect windowRect = self.screenOriginRect;
 	windowRect.origin = [self.nsWindow convertScreenToBase:self.screenOriginRect.origin];
 	CGRect originRect = [self convertRect:windowRect fromView:nil]; //hmm as we have no superview at this point is this retarded?

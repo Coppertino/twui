@@ -18,12 +18,14 @@
 
 @class TUIAttributedString;
 typedef void(^TUIToolTipViewDrawing)(NSView *v, NSRect r, TUIAttributedString *string);
+typedef NSRect(^TUIToolTipRectCalculation)(NSRect viewRectInScreen, NSPoint mousePointInScreen, TUIAttributedString *string);
 
 @interface TUITooltipWindow : NSWindow
 
 + (void)setToolTipStringAttributes:(NSDictionary *)stringInfo;
 + (void)setDrawingBlock:(TUIToolTipViewDrawing)drawingBlock;
-+ (void)updateTooltip:(NSString *)s delay:(NSTimeInterval)delay; // may pass nil
++ (void)setRectCalculationBlock:(TUIToolTipRectCalculation)rectCalculationBlock;
++ (void)updateTooltip:(NSString *)s delay:(NSTimeInterval)delay viewRect:(NSRect)viewRect; // may pass nil
 + (void)endTooltip; // no animation
 
 + (void)setTooltipHeight:(NSInteger)height;
