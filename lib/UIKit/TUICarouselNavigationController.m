@@ -195,7 +195,6 @@ static CGFloat const TUINavigationControllerAnimationDuration = 0.25f;
             }
             
         } completion:^(BOOL finished) {
-            NSLog(@"%@",NSStringFromRect(newController.view.frame));
             [currentController.view removeFromSuperview];
             currentController.view.layer.filters = nil;
             
