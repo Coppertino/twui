@@ -117,6 +117,9 @@
     // return if there wasn't a proper drag
     if(![cell didDrag]) return;
     
+    CGPoint pointInView = location;
+    pointInView.y -= self.contentOffset.y;
+    
     // determine if reordering this cell is permitted or not via our data source (this should probably be done only once somewhere)
     if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:canMoveRowAtIndexPath:)]){
         return;
@@ -129,7 +132,6 @@
         allowExternalDrag = [self.draggingSourceDelegate tableView:self
                                        canMoveOutOfTableIndexPaths:_arrayOfSelectedIndexes];
     }
-    
     
     if (!NSPointInRect(location, self.frame) && allowExternalDrag) {
         
@@ -185,7 +187,7 @@
                           for (TUIView *view in _draggedViews) {
                               // dragged cell destination frame
                               CGRect dest = CGRectMake(extendX,
-                                                       [self convertPoint:location fromView:self.superview].y - 5 + extendY,
+                                                       pointInView.y - 5 + extendY,
                                                        self.bounds.size.width,
                                                        cell.frame.size.height);
                               [view setFrame:dest];
@@ -207,7 +209,6 @@
         return;
     }
     
-    CGPoint pointInView = [self convertPoint:location fromView:self.superview];
     NSIndexPath *indexPathUnderMousePointer = [self indexPathForRowAtPoint:pointInView];
     TUITableViewCell *cellUnderThePointer = [self cellForRowAtIndexPath:indexPathUnderMousePointer];
     CGFloat yInCell = [cellUnderThePointer convertPoint:pointInView fromView:self].y;
