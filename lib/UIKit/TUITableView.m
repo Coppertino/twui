@@ -1457,6 +1457,7 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
     
     // clear all the selections
     [self clearIndexPaths];
+    _baseSelectionPath = nil;
     
     // selected the cell
     [cell setSelected:YES animated:animated];
@@ -1515,44 +1516,23 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 {
     // code for the other way arround
     NSIndexPath *temp;
-    if ((endIndex.section <= startIndex.section) &&
-        (endIndex.row <= startIndex.row))
-    {
+    if (endIndex.section < startIndex.section ||
+        ((endIndex.section == startIndex.section) && endIndex.row < startIndex.row)) {
         temp = endIndex;
         endIndex = startIndex;
         startIndex = temp;
-	}
+    }
     
 	NSMutableArray *indexes = [[NSMutableArray alloc] init];
-	
-	for (int aSection = 0; aSection <= endIndex.section; aSection++)
-    {
-        if (aSection >= startIndex.section && aSection < endIndex.section)
-        {
-            for (int aRow = 0; aRow < [self numberOfRowsInSection:aSection]; aRow++)
-            {
-                if (aRow >= startIndex.row)
-                {
-                    [indexes addObject:[NSIndexPath indexPathForRow:aRow inSection:aSection]];
-                }
-            }
+    
+    for (NSInteger aSection = startIndex.section; aSection <= endIndex.section ; aSection++) {
+        NSInteger startRow = 0, endRow = [self numberOfRowsInSection:aSection];
+        if (aSection == startIndex.section) startRow = startIndex.row;
+        if (aSection == endIndex.section) endRow = endIndex.row + 1;
+        for (NSInteger aRow = startRow; aRow < endRow; aRow++) {
+            [indexes addObject:[NSIndexPath indexPathForRow:aRow inSection:aSection]];
         }
-        else if (aSection == endIndex.section)
-        {
-            NSUInteger aRow = 0;
-            if (aSection == startIndex.section)
-                aRow = startIndex.row;
-            
-            for (aRow = aRow; aRow <= endIndex.row; aRow++)
-            {
-                if (aRow <= endIndex.row)
-                {
-                    [indexes addObject:[NSIndexPath indexPathForRow:aRow inSection:aSection]];
-                }
-            }
-        }
-	}
-	
+    }
 	return indexes;
 }
 
