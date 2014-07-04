@@ -343,8 +343,10 @@
 		BOOL targetMatches = [target isEqual:t.target];
 		BOOL controlMatches = (controlEvents == t.controlEvents);
 		
-		if ((action && targetMatches && actionMatches && controlMatches) ||
-			(!action && targetMatches && controlMatches))
+		if ((action && target && targetMatches && actionMatches && controlMatches) ||
+			(!action && target && targetMatches && controlMatches) ||
+            		(!action && !target && controlMatches))
+
 			[targetActionsToRemove addObject:t];
 	}
 	
