@@ -240,7 +240,6 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
     // If the table view delegate supports it, we will be selected.
 	if(![self.tableView.delegate respondsToSelector:@selector(tableView:shouldSelectRowAtIndexPath:forEvent:)] ||
 	   [self.tableView.delegate tableView:self.tableView shouldSelectRowAtIndexPath:self.indexPath forEvent:event]) {
-        
 		[self.tableView selectRowAtIndexPath:self.indexPath
 									animated:self.animatesAppearanceChanges
 							  scrollPosition:TUITableViewScrollPositionNone];

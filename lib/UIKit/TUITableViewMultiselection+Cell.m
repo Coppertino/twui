@@ -48,9 +48,6 @@
 -(void)__mouseUpInMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
     NSIndexPath *indexPathToSelect = _indexPathToInsert;
     [self __endDraggingMultipleCells:cell offset:offset location:[self localPointForEvent:event]];
-    if (!indexPathToSelect) {
-        [self selectRowAtIndexPath:cell.indexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
-    }
 }
 
 /**
@@ -249,6 +246,9 @@
         ![_arrayOfSelectedIndexes containsObject:_indexPathToInsert]) {
         if(self.dataSource != nil && [self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
             [self.dataSource tableView:self moveRows:_arrayOfSelectedIndexes toIndexPath:_indexPathToInsert];
+            [self selectRowAtIndexPath:_indexPathToInsert
+                              animated:NO
+                        scrollPosition:TUITableViewScrollPositionNone];
             [self reloadData];
         }
     }
