@@ -237,6 +237,15 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
 }
 
 - (void)mouseUp:(NSEvent *)event {
+    // If the table view delegate supports it, we will be selected.
+	if(![self.tableView.delegate respondsToSelector:@selector(tableView:shouldSelectRowAtIndexPath:forEvent:)] ||
+	   [self.tableView.delegate tableView:self.tableView shouldSelectRowAtIndexPath:self.indexPath forEvent:event]) {
+        
+		[self.tableView selectRowAtIndexPath:self.indexPath
+									animated:self.animatesAppearanceChanges
+							  scrollPosition:TUITableViewScrollPositionNone];
+	}
+    
 	// Notify the table view of the mouse up event.
     if ([self.tableView allowsMultipleSelection])
         [self.tableView __mouseUpInMultipleCells:self offset:_mouseOffset event:event];
@@ -252,15 +261,6 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
 
 	// We were selected, so we are no longer highlighted.
 	[self setHighlighted:NO animated:self.animatesAppearanceChanges];
-	
-	// If the table view delegate supports it, we will be selected.
-	if(![self.tableView.delegate respondsToSelector:@selector(tableView:shouldSelectRowAtIndexPath:forEvent:)] ||
-	   [self.tableView.delegate tableView:self.tableView shouldSelectRowAtIndexPath:self.indexPath forEvent:event]) {
-		
-		[self.tableView selectRowAtIndexPath:self.indexPath
-									animated:self.animatesAppearanceChanges
-							  scrollPosition:TUITableViewScrollPositionNone];
-	}
 	
 	// Notify the delegate of the table view we were clicked.
 	if([self eventInside:event]) {

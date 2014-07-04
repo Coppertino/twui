@@ -1045,7 +1045,6 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
     if(self.delegate != nil && [self.delegate respondsToSelector:@selector(tableViewDidReloadData:)]){
         [self.delegate tableViewDidReloadData:self];
     }
-    
 }
 
 - (void)layoutSubviews
@@ -1186,7 +1185,16 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 
 - (void)selectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(TUITableViewScrollPosition)scrollPosition
 {
-    
+    if (self.allowsMultipleSelection) {
+        if ([self __isDraggingMultipleCells]) {
+            return;
+        }
+    } else {
+        if ([self __isDraggingCell]) {
+            return;
+        }
+    }
+
 	NSIndexPath *oldIndexPath = [self indexPathForSelectedRow];
     
     /*!

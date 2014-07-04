@@ -41,7 +41,14 @@
  * @brief Mouse up in a cell
  */
 -(void)__mouseUpInCell:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
-  [self __endDraggingCell:cell offset:offset location:[[cell superview] localPointForEvent:event]];
+    [self clearIndexPaths];
+    NSIndexPath *indexPathToSelect = _currentDragToReorderIndexPath;
+    [self __endDraggingCell:cell offset:offset location:[[cell superview] localPointForEvent:event]];
+    if (!indexPathToSelect) {
+        [self selectRowAtIndexPath:cell.indexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
+    } else {
+        [self selectRowAtIndexPath:indexPathToSelect animated:NO scrollPosition:TUITableViewScrollPositionNone];
+    }
 }
 
 /**

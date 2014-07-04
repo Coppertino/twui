@@ -46,7 +46,11 @@
  * @brief Mouse up in a cell
  */
 -(void)__mouseUpInMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
+    NSIndexPath *indexPathToSelect = _indexPathToInsert;
     [self __endDraggingMultipleCells:cell offset:offset location:[self localPointForEvent:event]];
+    if (!indexPathToSelect) {
+        [self selectRowAtIndexPath:cell.indexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
+    }
 }
 
 /**
@@ -104,8 +108,6 @@
             extendY=0;
         }
     }
-    
-    _indexPathToInsert = cell.indexPath;
 }
 
 /**
