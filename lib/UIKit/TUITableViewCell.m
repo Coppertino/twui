@@ -78,6 +78,7 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
 - (void)prepareForReuse {
 	[self removeAllAnimations];
 	[self.textRenderers makeObjectsPerformSelector:@selector(resetSelection)];
+    [self setSelected:NO animated:NO];
 	[self setNeedsDisplay];
 }
 
@@ -238,11 +239,13 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
 
 - (void)mouseUp:(NSEvent *)event {
     // If the table view delegate supports it, we will be selected.
-	if(![self.tableView.delegate respondsToSelector:@selector(tableView:shouldSelectRowAtIndexPath:forEvent:)] ||
+    if(![self.tableView.delegate respondsToSelector:@selector(tableView:shouldSelectRowAtIndexPath:forEvent:)] ||
 	   [self.tableView.delegate tableView:self.tableView shouldSelectRowAtIndexPath:self.indexPath forEvent:event]) {
-		[self.tableView selectRowAtIndexPath:self.indexPath
-									animated:self.animatesAppearanceChanges
-							  scrollPosition:TUITableViewScrollPositionNone];
+        if (![self.tableView __isDraggingCell] && ![self.tableView __isDraggingMultipleCells]) {
+            [self.tableView selectRowAtIndexPath:self.indexPath
+                                        animated:self.animatesAppearanceChanges
+                                  scrollPosition:TUITableViewScrollPositionNone];
+        }
 	}
     
 	// Notify the table view of the mouse up event.

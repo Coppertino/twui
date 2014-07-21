@@ -44,11 +44,6 @@
     [self clearIndexPaths];
     NSIndexPath *indexPathToSelect = _currentDragToReorderIndexPath;
     [self __endDraggingCell:cell offset:offset location:[[cell superview] localPointForEvent:event]];
-    if (!indexPathToSelect) {
-        [self selectRowAtIndexPath:cell.indexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
-    } else {
-        [self selectRowAtIndexPath:indexPathToSelect animated:NO scrollPosition:TUITableViewScrollPositionNone];
-    }
 }
 
 /**
@@ -114,6 +109,8 @@
     _previousDragToReorderIndexPath = cell.indexPath;
     return; // just initialize on the first event
   }
+    
+    [self selectRowAtIndexPath:nil animated:NO scrollPosition:TUITableViewScrollPositionNone];
   
   CGRect visible = [self visibleRect];
   // dragged cell destination frame
@@ -336,7 +333,7 @@
 	  // Tell the cell that it's floating so it can update.
 	  // Don't display it, because we'll trigger a display anyway.
 	  [cell setFloating:YES animated:animate display:NO];
-    
+      
     // move the cell to its final frame and layout to make sure all the internal caching/geometry
     // stuff is consistent.
     if(animate && !CGRectEqualToRect(cell.frame, frame)){
@@ -347,16 +344,18 @@
         completion:^(BOOL finished) {
           // reload the table when we're done (implicitly restores z-position)
           if(finished) [self reloadData];
+            [self selectRowAtIndexPath:targetIndexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
           // restore user interactivity
           [self setUserInteractionEnabled:TRUE];
         }
       ];
-    }else{
-      cell.frame = frame;
-      cell.layer.zPosition = 0;
-      [self reloadData];
+    } else {
+        cell.frame = frame;
+        cell.layer.zPosition = 0;
+        [self reloadData];
+        [self selectRowAtIndexPath:targetIndexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
     }
-    
+      
     // clear state
     _currentDragToReorderIndexPath = nil;
     

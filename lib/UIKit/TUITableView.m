@@ -1185,18 +1185,7 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 
 - (void)selectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(TUITableViewScrollPosition)scrollPosition
 {
-    if (self.allowsMultipleSelection) {
-        if ([self __isDraggingMultipleCells]) {
-            return;
-        }
-    } else {
-        if ([self __isDraggingCell]) {
-            return;
-        }
-    }
-
 	NSIndexPath *oldIndexPath = [self indexPathForSelectedRow];
-    
     /*!
      * check for the current event only if the multiple selection
      * is enabled to avoid uselesss computations.
@@ -1568,6 +1557,7 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 {
     if (indexPathToAdd)
     {
+        [[self cellForRowAtIndexPath:indexPathToAdd] setSelected:YES animated:NO];
         [_arrayOfSelectedIndexes insertObject:indexPathToAdd atIndex:0];
         [_arrayOfSelectedIndexes sortUsingComparator:^(id a, id b) {
             return [a compare:b];

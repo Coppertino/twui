@@ -246,10 +246,24 @@
         ![_arrayOfSelectedIndexes containsObject:_indexPathToInsert]) {
         if(self.dataSource != nil && [self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
             [self.dataSource tableView:self moveRows:_arrayOfSelectedIndexes toIndexPath:_indexPathToInsert];
-            [self selectRowAtIndexPath:_indexPathToInsert
-                              animated:NO
-                        scrollPosition:TUITableViewScrollPositionNone];
             [self reloadData];
+            
+            NSInteger dropSection = _indexPathToInsert.section;
+            NSInteger dropRow = _indexPathToInsert.row;
+            
+            NSInteger correctedDropSection = dropSection;
+            __block NSInteger correctedDropRow = dropRow;
+
+            [_arrayOfSelectedIndexes enumerateObjectsUsingBlock:^(NSIndexPath *idxPath, NSUInteger idx, BOOL *stop) {
+                if (idxPath.section <= dropSection && idxPath.row <= dropRow) {
+                    correctedDropRow--;
+                }
+            }];
+            NSInteger count = _arrayOfSelectedIndexes.count;
+            [self selectRowAtIndexPath:nil animated:NO scrollPosition:TUITableViewScrollPositionNone];
+            for (NSInteger i = 0; i < count; i++) {
+                [self addSelectedIndexPath:[NSIndexPath indexPathForRow:correctedDropRow+i inSection:correctedDropSection]];
+            }
         }
     }
     
