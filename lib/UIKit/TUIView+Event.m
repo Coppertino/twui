@@ -19,6 +19,7 @@
 #import "TUINSWindow.h"
 #import "TUITextRenderer+Event.h"
 #import "TUIView+Private.h"
+#import "TUIView+PasteboardDragging_Private.h"
 
 @implementation TUIView (Event)
 
@@ -58,8 +59,9 @@
 	_currentTextRenderer = [self _textRendererForEvent:event];
 	[_currentTextRenderer mouseDown:event];
 	
-	if(!_currentTextRenderer && _viewFlags.pasteboardDraggingEnabled)
-		[self pasteboardDragMouseDown:event];
+	if(!_currentTextRenderer && [self canActAsDraggingSource]) {
+        [self __beginPasteboardDraggingAsASourceWithEvent:event];
+    }
 	
 	startDrag = [self localPointForEvent:event];
 	_viewFlags.dragDistanceLock = 1;
@@ -175,9 +177,6 @@
 		r.size.width += dw;
 		
 		[window setFrame:r display:YES];
-	} else {
-		if(!_currentTextRenderer && _viewFlags.pasteboardDraggingEnabled)
-			[self pasteboardDragMouseDragged:event];
 	}
 
 	if(self.superview != nil) {

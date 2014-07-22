@@ -590,6 +590,11 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 	[self _blockLayout];
 }
 
+#pragma mark - PasteboardDragging
+
+- (BOOL)canActAsDraggingSource { return (self.draggingSourceDelegate != nil); }
+- (BOOL)canActAsDraggingDestination { return (self.draggingDestinationDelegate != nil); }
+
 @end
 
 

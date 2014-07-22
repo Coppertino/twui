@@ -69,6 +69,8 @@ typedef CGRect(^TUIViewLayout)(TUIView *);
 extern CGRect(^TUIViewCenteredLayout)(TUIView*);
 
 @protocol TUIViewDelegate;
+@protocol TUIDraggingSourceDelegate;
+@protocol TUIDraggingDestinationDelegate;
 
 /**
  Root view class
@@ -110,8 +112,8 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
 		unsigned int didStartMovingByDragging:1;
 		unsigned int didStartResizeByDragging:1;
 		unsigned int disableSubpixelTextRendering:1;
-		unsigned int pasteboardDraggingEnabled:1;
-		unsigned int pasteboardDraggingIsDragging:1;
+        unsigned int isDraggingAsSource:1;
+        unsigned int isDraggingAsDestination:1;
 		unsigned int dragDistanceLock:1;
 		unsigned int clearsContextBeforeDrawing:1;
 		unsigned int drawInBackground:1;
@@ -221,6 +223,24 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
  * Does this view need to be redisplayed when the view's window's keyedness changes? If YES, the view will get automatically marked as needing display when the window's keyedness changes. Defaults to NO.
  */
 @property (nonatomic, assign) BOOL needsDisplayWhenWindowsKeyednessChanges;
+
+/**
+ Identifier for view used in drags
+ */
+@property (strong, nonatomic) NSString *dragIdentifier;
+
+/**
+ Dragging Source Delegate
+ */
+@property (weak, nonatomic) id <TUIDraggingSourceDelegate> draggingSourceDelegate;
+
+/**
+ Dragging Destination Delegate
+ */
+@property (weak, nonatomic) id <TUIDraggingDestinationDelegate> draggingDestinationDelegate;
+
+- (BOOL)canActAsDraggingSource;
+- (BOOL)canActAsDraggingDestination;
 
 @end
 
@@ -499,7 +519,33 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
 
 @end
 
+@protocol TUIDraggingSourceDelegate <NSObject>
+
+@required
+
+// Proxy
+- (NSDragOperation)tui_draggingSession:(NSDraggingSession *)session sourceOperationMaskForDraggingContext:(NSDraggingContext)context forView:(TUIView *)view;
+
+// Customize types for pasteboard items and provide data for them
+- (NSArray *)tui_draggingPasteboardTypesForView:(TUIView *)view;
+- (void)tui_pasteboard:(NSPasteboard *)pasteboard item:(NSPasteboardItem *)item provideDataForType:(NSString *)type forView:(TUIView *)view;
+
+@optional
+// Proxy
+- (void)tui_draggingSession:(NSDraggingSession *)session willBeginAtPoint:(NSPoint)screenPoint forView:(TUIView *)view;
+- (void)tui_draggingSession:(NSDraggingSession *)session movedToPoint:(NSPoint)screenPoint forView:(TUIView *)view;
+- (void)tui_draggingSession:(NSDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation forView:(TUIView *)view;
+- (BOOL)tui_ignoreModifierKeysForDraggingSession:(NSDraggingSession *)session forView:(TUIView *)view;
+
+// Customization for dragging item
+- (void)tui_configureDraggingItem:(NSDraggingItem *)item forView:(TUIView *)view;
+
+@end
+
+@protocol TUIDraggingDestinationDelegate <NSObject>
+
+@end
+
 #import "TUIView+Layout.h"
 #import "TUIView+Private.h"
 #import "TUIView+Event.h"
-#import "TUIView+PasteboardDragging.h"

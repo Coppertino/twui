@@ -17,6 +17,7 @@
 #import "TUITableViewMultiselection+Cell.h"
 #import "TUICGAdditions.h"
 #import "TUINSView.h"
+#import "TUIView+PasteboardDragging_Private.h"
 
 // Dragged cells should be just above pinned headers
 #define kTUITableViewDraggedCellZPosition 1001
@@ -112,9 +113,9 @@
  */
 -(void)__updateDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
     BOOL animate = TRUE;
-    
-    // return if there wasn't a proper drag
-    if(![cell didDrag]) return;
+
+//    // return if there wasn't a proper drag
+//    if(![cell didDrag]) return;
     
     CGPoint pointInView = location;
     pointInView.y -= self.contentOffset.y;
@@ -126,55 +127,16 @@
     
     BOOL allowInnerDrag = [self.dataSource tableView:self
                                canMoveRowAtIndexPath:_indexPathToInsert];
-    BOOL allowExternalDrag = NO;
-    if (self.draggingSourceDelegate && [self.draggingSourceDelegate respondsToSelector:@selector(tableView:canMoveOutOfTableIndexPaths:)]) {
-        allowExternalDrag = [self.draggingSourceDelegate tableView:self
-                                       canMoveOutOfTableIndexPaths:_arrayOfSelectedIndexes];
-    }
     
-    if (!NSPointInRect(location, self.frame) && allowExternalDrag) {
-        
-        NSMutableArray *cells = [NSMutableArray array];
-        for (NSIndexPath *idx in _arrayOfSelectedIndexes) {
-            TUITableViewCell *cell = [self cellForRowAtIndexPath:idx];
-            [cells addObject:cell];
-        }
-        
-        NSMutableArray *dragItems = [NSMutableArray array];
-        for (TUIView *view in _draggedViews) {
-            NSPasteboardItem *item = [[NSPasteboardItem alloc] init];
-            NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter:item];
-            if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_configureViewForDraggingItem:inLocation:withCellImageRep:)]) {
-                [self.draggingSourceDelegate tableView:self
-                                 configureDraggingItem:dragItem
-                                            inLocation:location
-                                      withCellImageRep:view.layer.contents
-                                               andCell:[cells objectAtIndex:[_draggedViews indexOfObject:view]]];
-            } else {
-                [dragItem setDraggingFrame:NSMakeRect(location.x, location.y, view.frame.size.width/2, view.frame.size.height/2)
-                                  contents:view.layer.contents];
-            }
-            [dragItems addObject:dragItem];
-        }
-        
-        _draggingSession = [self.nsView beginDraggingSessionWithItems:[dragItems copy]
-                                                                event:[NSApp currentEvent]
-                                                               source:self.draggingSourceDelegate];
-        NSPasteboard *pboard = _draggingSession.draggingPasteboard;
-        
-        [self.draggingSourceDelegate tableView:self
-                   writeContentsIntoPasteBoard:pboard
-                               forDraggedCells:cells];
-        
+    if (!NSPointInRect(location, self.frame) && [self canActAsDraggingSource]) {
+        [self __beginPasteboardDraggingAsASourceWithEvent:[NSApp currentEvent]];
         [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-        [_draggedViews removeAllObjects];
+        _draggedViews = nil;
         
         _indexPathToInsert = nil;
         [self _removeDraggingPointer];
         return;
     }
-    
-    
     
     CGRect visible = [self visibleRect];
     
@@ -234,6 +196,7 @@
     
     [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     [_draggedViews removeAllObjects];
+    [self _removeDraggingPointer];
     
     // make sure reordering is supported by our data source (this should probably be done only once somewhere)
     if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
@@ -316,6 +279,60 @@
 }
 - (void)drawDraggingPointerInView:(TUIView *)view {
     [view setBackgroundColor:[NSColor whiteColor]];
+}
+
+// Overriding pasteboard dragging for TUITableView
+
+- (void)__beginPasteboardDraggingAsASourceWithEvent:(NSEvent *)event {
+    CGPoint location = [self localPointForEvent:event];
+    
+    TUIView *draggingView = _draggedViews[0];
+    NSPasteboardItem *pbItem = [[NSPasteboardItem alloc] init];
+    
+    NSArray *types = [self.draggingSourceDelegate tui_draggingPasteboardTypesForView:self];
+    
+    [pbItem setDataProvider:self forTypes:types];
+    NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter:pbItem];
+    if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_configureDraggingItem:forView:)]) {
+        [self.draggingSourceDelegate tui_configureDraggingItem:dragItem forView:self];
+        [dragItem setDraggingFrame:NSMakeRect(location.x, location.y,
+                                              draggingView.frame.size.width/2, draggingView.frame.size.height/2)];
+    } else {
+        [dragItem setDraggingFrame:NSMakeRect(location.x, location.y,
+                                              draggingView.frame.size.width/2, draggingView.frame.size.height/2)
+                          contents:draggingView.layer.contents];
+    }
+ 
+    
+    _draggingSession = [self.nsView beginDraggingSessionWithItems:@[dragItem] event:event source:self];
+    _draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
+    if (!types) {
+        [self.draggingSourceDelegate tui_pasteboard:_draggingSession.draggingPasteboard item:pbItem provideDataForType:nil forView:self];
+    }
+}
+
+- (void)pasteboard:(NSPasteboard *)pasteboard item:(NSPasteboardItem *)item provideDataForType:(NSString *)type {
+    [self.draggingSourceDelegate tui_pasteboard:pasteboard item:item provideDataForType:type forView:self];
+}
+
+- (void)draggingSession:(NSDraggingSession *)session movedToPoint:(NSPoint)screenPoint {
+    NSPoint p = [self convertFromWindowPoint:[(NSWindow *)self.nsWindow convertScreenToBase:screenPoint]];
+    if (NSPointInRect(p, self.bounds)) {
+        [self __mouseDraggedMultipleCells:nil offset:NSZeroPoint event:[NSApp currentEvent]];
+    }
+    if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_draggingSession:movedToPoint:forView:)]) {
+        [self.draggingSourceDelegate tui_draggingSession:session movedToPoint:screenPoint forView:self];
+    }
+}
+
+- (void)draggingSession:(NSDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation {
+    NSPoint p = [self convertFromWindowPoint:[(NSWindow *)self.nsWindow convertScreenToBase:screenPoint]];
+    if (NSPointInRect(p, self.bounds)) {
+        [self __mouseUpInMultipleCells:nil offset:NSZeroPoint event:[NSApp currentEvent]];
+    }
+    if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_draggingSession:endedAtPoint:operation:forView:)]) {
+        [self.draggingSourceDelegate tui_draggingSession:session endedAtPoint:screenPoint operation:operation forView:self];
+    }
 }
 
 @end

@@ -1595,7 +1595,6 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
     return FALSE;
 }
 
-
 @end
 
 

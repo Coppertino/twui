@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
 };
 
 @class TUITableViewCell;
-@protocol TUITableViewDataSource, TUITableViewDraggingSourceDelegate;
+@protocol TUITableViewDataSource;
 
 @class TUITableView;
 
@@ -129,7 +129,6 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
 
 @property (nonatomic,unsafe_unretained) id <TUITableViewDataSource>  dataSource;
 @property (nonatomic,unsafe_unretained) id <TUITableViewDelegate>    delegate;
-@property (nonatomic,unsafe_unretained) id <TUITableViewDraggingSourceDelegate> draggingSourceDelegate;
 
 @property (readwrite, assign) BOOL animateSelectionChanges;
 @property (readwrite, assign) BOOL allowsMultipleSelection;
@@ -231,23 +230,6 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
  Default is 1 if not implemented
  */
 - (NSInteger)numberOfSectionsInTableView:(TUITableView *)tableView;
-
-@end
-
-@protocol TUITableViewDraggingSourceDelegate <NSObject, NSDraggingSource>
-
-@required
-
-- (BOOL)tableView:(TUITableView *)tableView canMoveOutOfTableIndexPaths:(NSArray *)indexes;
-- (void)tableView:(TUITableView *)tableView writeContentsIntoPasteBoard:(NSPasteboard *)pboard forDraggedCells:(NSArray *)cells;
-
-@optional
-
-- (void)tableView:(TUITableView *)tableView
-configureDraggingItem:(NSDraggingItem *)item
-       inLocation:(NSPoint)location
- withCellImageRep:(NSImage *)cellImageRep
-          andCell:(TUITableViewCell *)cell;
 
 @end
 
