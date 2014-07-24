@@ -78,6 +78,7 @@ CGRect(^TUIViewCenteredLayout)(TUIView*) = nil;
  * layer.
  */
 - (void)prepareSubview:(TUIView *)view insertionBlock:(void (^)(void))block;
+
 @end
 
 @implementation TUIView
@@ -592,8 +593,38 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 
 #pragma mark - PasteboardDragging
 
+- (void)registerForDraggedTypes:(NSArray *)array {
+    if (self.nsView) {
+        [self.nsView registerForDraggedTypes:array view:self];
+    }
+    _registeredDraggedTypes = [NSSet setWithArray:array];
+}
+
+- (void)unregisterDraggedTypes {
+    if (self.nsView) {
+        [self.nsView unregisterDraggedTypesForView:self];
+    }
+    _registeredDraggedTypes = nil;
+}
+
 - (BOOL)canActAsDraggingSource { return (self.draggingSourceDelegate != nil); }
 - (BOOL)canActAsDraggingDestination { return (self.draggingDestinationDelegate != nil); }
+
+- (TUIView *)dragDestinationViewForLocation:(NSPoint)loc {
+    if((self.userInteractionEnabled == NO) || (self.hidden == YES) || (self.alpha <= 0.0f))
+		return nil;
+	
+	if([self pointInside:loc withEvent:nil]) {
+		NSArray *s = [self sortedSubviews];
+		for(TUIView *v in [s reverseObjectEnumerator]) {
+			TUIView *hit = [v dragDestinationViewForLocation:loc];
+			if(hit)
+				return hit;
+		}
+		return self; // leaf
+	}
+	return nil;
+}
 
 @end
 
@@ -1122,6 +1153,10 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 	if(n != _nsView) {
 		[self willMoveToWindow:(TUINSWindow *)[n window]];
 		[[NSNotificationCenter defaultCenter] postNotificationName:TUIViewWillMoveToWindowNotification object:self userInfo:[n window] ? [NSDictionary dictionaryWithObject:[n window] forKey:TUIViewWindow] : nil];
+        if (self.registeredDraggedTypes) {
+            [_nsView unregisterDraggedTypesForView:self];
+            [n registerForDraggedTypes:[self.registeredDraggedTypes allObjects] view:self];
+        }
 		_nsView = n;
 		[self.subviews makeObjectsPerformSelector:@selector(setNSView:) withObject:n];
 		[self didMoveToWindow];

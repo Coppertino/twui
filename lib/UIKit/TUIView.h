@@ -239,8 +239,17 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
  */
 @property (weak, nonatomic) id <TUIDraggingDestinationDelegate> draggingDestinationDelegate;
 
+/**
+ Registering for dragging types
+ */
+- (void)registerForDraggedTypes:(NSArray *)array;
+@property (strong,nonatomic,readonly) NSSet *registeredDraggedTypes;
+@property (nonatomic, getter = isUnderDrag) BOOL underDrag;
+
 - (BOOL)canActAsDraggingSource;
 - (BOOL)canActAsDraggingDestination;
+
+- (TUIView *)dragDestinationViewForLocation:(NSPoint)loc;
 
 @end
 
@@ -543,6 +552,21 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
 @end
 
 @protocol TUIDraggingDestinationDelegate <NSObject>
+
+@required
+
+- (NSDragOperation)tui_dragOperation:(id <NSDraggingInfo>)sender forView:(TUIView *)view;
+
+@optional
+
+- (void)tui_draggingEntered:(id <NSDraggingInfo>)sender view:(TUIView *)view;
+- (void)tui_draggingUpdated:(id <NSDraggingInfo>)sender view:(TUIView *)view;
+- (void)tui_draggingExited:(id <NSDraggingInfo>)sender view:(TUIView *)view;
+
+- (BOOL)tui_prepareForDragOperation:(id <NSDraggingInfo>)sender inView:(TUIView *)view;
+- (BOOL)tui_performDragOperation:(id <NSDraggingInfo>)sender inView:(TUIView *)view;
+
+- (void)tui_updateDraggingItemsForDrag:(id <NSDraggingInfo>)sender inView:(TUIView *)view;
 
 @end
 

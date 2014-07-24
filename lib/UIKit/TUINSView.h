@@ -63,4 +63,7 @@
 
 - (BOOL)isWindowKey;
 
+- (void)registerForDraggedTypes:(NSArray *)newTypes view:(TUIView *)view;
+- (void)unregisterDraggedTypesForView:(TUIView *)view;
+
 @end

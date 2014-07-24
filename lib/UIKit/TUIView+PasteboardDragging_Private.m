@@ -10,6 +10,8 @@
 
 @implementation TUIView (PasteboardDragging_Private)
 
+#pragma mark - Dragging Source
+
 - (void)__beginPasteboardDraggingAsASourceWithEvent:(NSEvent *)event {
     CGPoint location = [self localPointForEvent:event];
     NSPasteboardItem *pbItem = [[NSPasteboardItem alloc] init];

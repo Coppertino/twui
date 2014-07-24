@@ -25,6 +25,7 @@
 #import "TUINSView+Private.h"
 #import "TUIViewNSViewContainer.h"
 #import "TUITooltipWindow.h"
+#import "TUITableView.h"
 
 // If enabled, NSViews contained within TUIViewNSViewContainers will be clipped
 // by any TwUI ancestors that enable clipping to bounds.
@@ -74,7 +75,9 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 	}
 }
 
-@interface TUINSView ()
+@interface TUINSView () {
+    TUIView *_viewUnderDrag;
+}
 
 - (void)recalculateNSViewClipping;
 - (void)recalculateNSViewOrdering;
@@ -104,6 +107,11 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
  * an initializer because NSView has no true designated initializer.
  */
 - (void)setUp;
+
+/*
+ * Array with views registered to accept drag events
+ */
+@property (strong, nonatomic) NSMutableArray *viewsRegisteredForDrag;
 
 - (void)windowDidResignKey:(NSNotification *)notification;
 - (void)windowDidBecomeKey:(NSNotification *)notification;
@@ -559,6 +567,105 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 	self.lastTouchView = nil;
 }
 
+#pragma mark - Dragging Destination
+
+- (void)registerForDraggedTypes:(NSArray *)newTypes view:(TUIView *)view {
+    if (![self.viewsRegisteredForDrag containsObject:view]) {
+        [self.viewsRegisteredForDrag addObject:view];
+        [self registerForDraggedTypes:newTypes];
+    }
+}
+
+- (void)unregisterDraggedTypesForView:(TUIView *)view; {
+    if (self.registeredDraggedTypes && self.viewsRegisteredForDrag && self.viewsRegisteredForDrag.count > 0) {
+        [self.viewsRegisteredForDrag removeObject:view];
+        [self unregisterDraggedTypes];
+    }
+    [self registerForDraggedTypes:[[self setOfTypesForAllRegisteredDragViews] allObjects]];
+}
+
+- (NSSet *)setOfTypesForAllRegisteredDragViews {
+    NSMutableSet *set = [NSMutableSet set];
+    [self.viewsRegisteredForDrag enumerateObjectsUsingBlock:^(TUIView *v, NSUInteger idx, BOOL *stop) {
+        [set unionSet:v.registeredDraggedTypes];
+    }];
+    return set;
+}
+
+- (void)_updateViewUnderDrag:(TUIView *)viewUnderDrag info:(id <NSDraggingInfo>)info {
+    if ([_viewUnderDrag isEqual:viewUnderDrag]) {
+        if ([_viewUnderDrag.draggingDestinationDelegate respondsToSelector:@selector(tui_draggingUpdated:view:)]) {
+            [_viewUnderDrag.draggingDestinationDelegate tui_draggingUpdated:info view:_viewUnderDrag];
+        }
+        return;
+    }
+    if (_viewUnderDrag) {
+        _viewUnderDrag.underDrag = NO;
+        if ([_viewUnderDrag.draggingDestinationDelegate respondsToSelector:@selector(tui_draggingExited:view:)]) {
+            [_viewUnderDrag.draggingDestinationDelegate tui_draggingExited:info view:_viewUnderDrag];
+        }
+    }
+    _viewUnderDrag = viewUnderDrag;
+    if (viewUnderDrag) {
+        _viewUnderDrag.underDrag = YES;
+        if ([viewUnderDrag.draggingDestinationDelegate respondsToSelector:@selector(tui_draggingEntered:view:)]) {
+            [viewUnderDrag.draggingDestinationDelegate tui_draggingEntered:info view:viewUnderDrag];
+        }
+    }
+}
+
+#pragma mark Proxy NS Methods
+
+- (BOOL)wantsPeriodicDraggingUpdates { return YES; }
+- (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender { return NSDragOperationEvery; }
+- (void)draggingExited:(id<NSDraggingInfo>)sender { [self _updateViewUnderDrag:nil info:sender]; }
+- (void)draggingEnded:(id<NSDraggingInfo>)sender { [self _updateViewUnderDrag:nil info:sender]; }
+
+- (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender {
+    if (self.viewsRegisteredForDrag.count == 0) return NSDragOperationNone;
+    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[sender draggingLocation]];
+    [self _updateViewUnderDrag:innerDragRecepient info:sender];
+    if ([innerDragRecepient isKindOfClass:[TUITableView class]]) {
+        return [(TUITableView *)innerDragRecepient draggingUpdated:sender];
+    }
+    if (innerDragRecepient && [self.viewsRegisteredForDrag containsObject:innerDragRecepient] && innerDragRecepient.draggingDestinationDelegate) {
+        return [innerDragRecepient.draggingDestinationDelegate tui_dragOperation:sender forView:innerDragRecepient];
+    }
+    return NSDragOperationNone;
+}
+
+- (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender {
+    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[sender draggingLocation]];
+    if (innerDragRecepient && [self.viewsRegisteredForDrag containsObject:innerDragRecepient] && innerDragRecepient.draggingDestinationDelegate) {
+        if ([innerDragRecepient.draggingDestinationDelegate respondsToSelector:@selector(tui_prepareForDragOperation:inView:)]) {
+            return [innerDragRecepient.draggingDestinationDelegate tui_prepareForDragOperation:sender inView:innerDragRecepient];
+        }
+    }
+    return YES;
+}
+
+- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
+    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[sender draggingLocation]];
+    if ([innerDragRecepient isKindOfClass:[TUITableView class]]) {
+        return [(TUITableView *)innerDragRecepient performDragOperation:sender];
+    }
+    if (innerDragRecepient && [self.viewsRegisteredForDrag containsObject:innerDragRecepient] && innerDragRecepient.draggingDestinationDelegate) {
+        if ([innerDragRecepient.draggingDestinationDelegate respondsToSelector:@selector(tui_performDragOperation:inView:)]) {
+            return [innerDragRecepient.draggingDestinationDelegate tui_performDragOperation:sender inView:innerDragRecepient];
+        }
+    }
+    return NO;
+}
+
+- (void)updateDraggingItemsForDrag:(id<NSDraggingInfo>)sender {
+    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[sender draggingLocation]];
+    if (innerDragRecepient && [self.viewsRegisteredForDrag containsObject:innerDragRecepient] && innerDragRecepient.draggingDestinationDelegate) {
+        if ([innerDragRecepient.draggingDestinationDelegate respondsToSelector:@selector(tui_updateDraggingItemsForDrag:inView:)]) {
+            [innerDragRecepient.draggingDestinationDelegate tui_updateDraggingItemsForDrag:sender inView:innerDragRecepient];
+        }
+    }
+}
+
 #pragma mark -
 
 - (void)beginGestureWithEvent:(NSEvent *)event {
@@ -686,6 +793,8 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 }
 
 - (void)setUp {
+    self.viewsRegisteredForDrag = [NSMutableArray array];
+    
 	opaque = YES;
 
 	_maskLayer = [CAShapeLayer layer];

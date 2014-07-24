@@ -13,7 +13,7 @@
 
 // Private functionality of TUINSView that needs to be exposed to other parts of
 // the framework.
-@interface TUINSView ()
+@interface TUINSView () <NSDraggingDestination>
 
 // The layer-backed view which actually holds the AppKit hierarchy.
 @property (nonatomic, readonly, strong) NSView *appKitHostView;

@@ -38,6 +38,13 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
   TUITableViewInsertionMethodAfterIndex   = NSOrderedDescending
 };
 
+typedef NS_ENUM(NSInteger, TUITableViewDropDestination) {
+    TUITableViewDropNone = 0,
+    TUITableViewDropAfter = 1,
+    TUITableViewDropBefore = 2,
+    TUITableViewDropOn = 3
+};
+
 @class TUITableViewCell;
 @protocol TUITableViewDataSource;
 
@@ -205,6 +212,11 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
  */
 - (TUITableViewCell *)dequeueReusableCellWithIdentifier:(NSString *)identifier;
 
+// Drag proxy
+
+- (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender;
+- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender;
+
 @end
 
 @protocol TUITableViewDataSource<NSObject>
@@ -230,6 +242,11 @@ typedef NS_ENUM(NSInteger, TUITableViewInsertionMethod) {
  Default is 1 if not implemented
  */
 - (NSInteger)numberOfSectionsInTableView:(TUITableView *)tableView;
+
+// Pasteboard destination support
+
+- (NSDragOperation)tableView:(TUITableView *)tableView validateDrop:(id<NSDraggingInfo>)info indexPath:(NSIndexPath *)indexPath destination:(TUITableViewDropDestination)destination;
+- (BOOL)tableView:(TUITableView *)tableView acceptDrop:(id<NSDraggingInfo>)info indexPath:(NSIndexPath *)indexPath dragDestination:(TUITableViewDropDestination)destination;
 
 @end
 

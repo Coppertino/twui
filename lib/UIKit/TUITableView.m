@@ -21,7 +21,6 @@
 #import "TUITableViewSectionHeader.h"
 #import "TUITableViewMultiselection+Cell.h"
 
-
 NSUInteger const TUIExtendSelectionKey = kCGEventFlagMaskShift;
 NSUInteger const TUIAddSelectionKey = kCGEventFlagMaskCommand;
 
@@ -176,7 +175,145 @@ typedef struct {
                                        animated:(BOOL)animated;
 @end
 
-@implementation TUITableView
+@implementation TUITableView {
+    TUITableViewDropDestination _dropDestination;
+    NSIndexPath *_dropTargetIndexPath;
+}
+
+#pragma mark - Pasteboard Dragging Destination
+
+- (void)setUnderDrag:(BOOL)underDrag {
+    [super setUnderDrag:underDrag];
+    if (!underDrag) {
+        [self _removeDraggingPointer];
+        [self.visibleCells enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [obj setUnderDrag:NO];
+        }];
+    }
+}
+
+- (TUIView *)dragDestinationViewForLocation:(NSPoint)loc {
+    return self;
+}
+
+- (void)setUnderDrag:(BOOL)underDrag forCell:(TUITableViewCell *)cell {
+    cell.underDrag = underDrag;
+    [self.visibleCells enumerateObjectsUsingBlock:^(TUITableViewCell *c, NSUInteger idx, BOOL *stop) {
+        if ([c isEqual:cell]) return;
+        c.underDrag = NO;
+    }];
+}
+
+- (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender {
+    NSDragOperation op = NSDragOperationNone;
+    if (self.visibleCells.count == 0) return op;
+    CGPoint point = [self localPointForLocationInWindow:[sender draggingLocation]];
+    TUITableViewCell *cell = [self cellForRowAtIndexPath:[self indexPathForRowAtPoint:point]];
+    if (cell) {
+        
+        // Clear all drop indication
+        [self _removeDraggingPointer];
+        
+        CGFloat relativeOffset = [cell convertFromWindowPoint:[sender draggingLocation]].y / cell.bounds.size.height;
+        
+        // Drop validation block
+        NSDragOperation(^dropValidationBlock)(TUITableViewDropDestination drop, NSIndexPath *idx) = ^NSDragOperation(TUITableViewDropDestination drop, NSIndexPath *idx) {
+            if ([self.dataSource respondsToSelector:@selector(tableView:validateDrop:indexPath:destination:)]) {
+                return [self.dataSource tableView:self validateDrop:sender indexPath:idx destination:drop];
+            }
+            return NSDragOperationNone;
+        };
+        
+        NSIndexPath *idx = cell.indexPath;
+        
+        if (relativeOffset < 0.2) {
+            // After cell
+            op = dropValidationBlock(TUITableViewDropAfter,idx);
+            if (op == NSDragOperationNone) {
+                op = dropValidationBlock(TUITableViewDropOn,idx);
+                if (op != NSDragOperationNone) {
+                    _dropDestination = TUITableViewDropOn;
+                }
+            } else {
+                _dropDestination = TUITableViewDropAfter;
+                [self _moveDraggingPointerAfterIndexPath:idx];
+            }
+        } else if (relativeOffset > 0.8) {
+            // Before cell
+            op = dropValidationBlock(TUITableViewDropBefore,idx);
+            if (op == NSDragOperationNone) {
+                op = dropValidationBlock(TUITableViewDropOn,idx);
+                if (op != NSDragOperationNone) {
+                    _dropDestination = TUITableViewDropOn;
+                }
+            } else {
+                _dropDestination = TUITableViewDropBefore;
+                [self _moveDraggingPointerBeforeIndexPath:idx];
+            }
+        } else {
+            // Into cell
+            op = dropValidationBlock(TUITableViewDropOn,idx);
+            if (op == NSDragOperationNone) {
+                if (relativeOffset < 0.5) {
+                    op = dropValidationBlock(TUITableViewDropAfter,idx);
+                    if (op != NSDragOperationNone) {
+                        _dropDestination = TUITableViewDropAfter;
+                        [self _moveDraggingPointerAfterIndexPath:idx];
+                    }
+                } else {
+                    op = dropValidationBlock(TUITableViewDropBefore,idx);
+                    if (op != NSDragOperationNone) {
+                        _dropDestination = TUITableViewDropBefore;
+                        [self _moveDraggingPointerBeforeIndexPath:idx];
+                    }
+                }
+            } else {
+                _dropDestination = TUITableViewDropOn;
+            }
+        }
+    }
+    
+    if (_dropDestination == TUITableViewDropOn) {
+        [self setUnderDrag:YES forCell:cell];
+    } else {
+        [self setUnderDrag:NO forCell:cell];
+    }
+    
+    point = CGPointMake(point.x, MAX(0, MIN(self.visibleRect.size.height, point.y)));
+    // scroll content if necessary (scroll view figures out whether it's necessary or not)
+    [self beginContinuousScrollForDragAtPoint:point animated:TRUE];
+    
+    // Saving operation for knowing what to perform after drag
+    if (_dropDestination == TUITableViewDropOn) {
+        _dropTargetIndexPath = cell.indexPath;
+    } else {
+        _dropTargetIndexPath = cell.indexPath;
+    }
+    return op;
+}
+
+- (NSIndexPath *)_indexPathBeforeIndexPath:(NSIndexPath *)idx {
+    NSInteger   section = idx.section,
+                row = idx.row;
+    if (row > 0) {
+        row--;
+    } else if (section > 0) {
+        section--;
+        row = [self numberOfRowsInSection:section] - 1;
+    } else {
+        return nil;
+    }
+    return [NSIndexPath indexPathForRow:row inSection:section];
+}
+
+- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
+    if ([self.dataSource respondsToSelector:@selector(tableView:acceptDrop:indexPath:dragDestination:)]) {
+        return [self.dataSource tableView:self acceptDrop:sender indexPath:_dropTargetIndexPath dragDestination:_dropDestination];
+    }
+    return NO;
+}
+
+#pragma mark -
 
 @synthesize pullDownView=_pullDownView;
 @synthesize allowsMultipleSelection = _allowsMultipleSelection;
@@ -485,6 +622,8 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 - (NSIndexPath *)indexPathForRowAtPoint:(CGPoint)point {
     
 	NSInteger sectionIndex = 0;
+    
+    point.y -= self.contentOffset.y;
     for(TUITableViewSection *section in _sectionInfo){
         for(NSInteger row = 0; row < [section numberOfRows]; row++){
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:sectionIndex];
@@ -1594,6 +1733,7 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
     
     return FALSE;
 }
+
 
 @end
 

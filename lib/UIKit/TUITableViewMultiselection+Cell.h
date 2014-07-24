@@ -30,5 +30,11 @@
 -(void)__updateDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location;
 -(void)__endDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location;
 
+// Dragging pointer
+
+- (void)_removeDraggingPointer;
+- (void)_moveDraggingPointerAfterIndexPath:(NSIndexPath *)indexPath;
+- (void)_moveDraggingPointerBeforeIndexPath:(NSIndexPath *)indexPath;
+
 @end
 

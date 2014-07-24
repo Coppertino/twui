@@ -114,11 +114,8 @@
 -(void)__updateDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
     BOOL animate = TRUE;
 
-//    // return if there wasn't a proper drag
+    // return if there wasn't a proper drag
 //    if(![cell didDrag]) return;
-    
-    CGPoint pointInView = location;
-    pointInView.y -= self.contentOffset.y;
     
     // determine if reordering this cell is permitted or not via our data source (this should probably be done only once somewhere)
     if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:canMoveRowAtIndexPath:)]){
@@ -133,12 +130,13 @@
         [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
         _draggedViews = nil;
         
-        _indexPathToInsert = nil;
-        [self _removeDraggingPointer];
         return;
     }
     
     CGRect visible = [self visibleRect];
+    
+    CGPoint pointInView = location;
+    pointInView.y -= self.contentOffset.y;
     
     [TUIView animateWithDuration:0.05
                       animations:^{
@@ -147,6 +145,7 @@
                           
                           for (TUIView *view in _draggedViews) {
                               // dragged cell destination frame
+                              
                               CGRect dest = CGRectMake(extendX,
                                                        pointInView.y - 5 + extendY,
                                                        self.bounds.size.width,
@@ -170,9 +169,9 @@
         return;
     }
     
-    NSIndexPath *indexPathUnderMousePointer = [self indexPathForRowAtPoint:pointInView];
+    NSIndexPath *indexPathUnderMousePointer = [self indexPathForRowAtPoint:location];
     TUITableViewCell *cellUnderThePointer = [self cellForRowAtIndexPath:indexPathUnderMousePointer];
-    CGFloat yInCell = [cellUnderThePointer convertPoint:pointInView fromView:self].y;
+    CGFloat yInCell = [cellUnderThePointer convertFromWindowPoint:location].y;
     CGFloat cellHeight = cellUnderThePointer.frame.size.height;
     if (yInCell < cellHeight/2) {
         [self _moveDraggingPointerAfterIndexPath:indexPathUnderMousePointer];
@@ -317,9 +316,6 @@
 
 - (void)draggingSession:(NSDraggingSession *)session movedToPoint:(NSPoint)screenPoint {
     NSPoint p = [self convertFromWindowPoint:[(NSWindow *)self.nsWindow convertScreenToBase:screenPoint]];
-    if (NSPointInRect(p, self.bounds)) {
-        [self __mouseDraggedMultipleCells:nil offset:NSZeroPoint event:[NSApp currentEvent]];
-    }
     if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_draggingSession:movedToPoint:forView:)]) {
         [self.draggingSourceDelegate tui_draggingSession:session movedToPoint:screenPoint forView:self];
     }
@@ -327,9 +323,6 @@
 
 - (void)draggingSession:(NSDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation {
     NSPoint p = [self convertFromWindowPoint:[(NSWindow *)self.nsWindow convertScreenToBase:screenPoint]];
-    if (NSPointInRect(p, self.bounds)) {
-        [self __mouseUpInMultipleCells:nil offset:NSZeroPoint event:[NSApp currentEvent]];
-    }
     if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_draggingSession:endedAtPoint:operation:forView:)]) {
         [self.draggingSourceDelegate tui_draggingSession:session endedAtPoint:screenPoint operation:operation forView:self];
     }
