@@ -206,7 +206,11 @@ typedef struct {
 
 - (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender {
     NSDragOperation op = NSDragOperationNone;
-    if (self.visibleCells.count == 0) return op;
+    if (self.visibleCells.count == 0) {
+        if ([self.dataSource respondsToSelector:@selector(tableView:validateDrop:indexPath:destination:)]) {
+            return [self.dataSource tableView:self validateDrop:sender indexPath:[NSIndexPath indexPathForRow:0 inSection:0] destination:TUITableViewDropBefore];
+        }
+    }
     CGPoint point = [self localPointForLocationInWindow:[sender draggingLocation]];
     TUITableViewCell *cell = [self cellForRowAtIndexPath:[self indexPathForRowAtPoint:point]];
     if (cell) {
