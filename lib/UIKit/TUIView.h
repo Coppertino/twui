@@ -535,11 +535,15 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
 // Proxy
 - (NSDragOperation)tui_draggingSession:(NSDraggingSession *)session sourceOperationMaskForDraggingContext:(NSDraggingContext)context forView:(TUIView *)view;
 
+@optional
 // Customize types for pasteboard items and provide data for them
 - (NSArray *)tui_draggingPasteboardTypesForView:(TUIView *)view;
 - (void)tui_pasteboard:(NSPasteboard *)pasteboard item:(NSPasteboardItem *)item provideDataForType:(NSString *)type forView:(TUIView *)view;
 
-@optional
+// Customize types for pasteboard files and provide filenames for them
+- (NSArray *)tui_draggingPasteboardPromisedFileTypesForView:(TUIView *)view;
+- (NSArray *)tui_namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination forView:(TUIView *)view;
+
 // Proxy
 - (void)tui_draggingSession:(NSDraggingSession *)session willBeginAtPoint:(NSPoint)screenPoint forView:(TUIView *)view;
 - (void)tui_draggingSession:(NSDraggingSession *)session movedToPoint:(NSPoint)screenPoint forView:(TUIView *)view;

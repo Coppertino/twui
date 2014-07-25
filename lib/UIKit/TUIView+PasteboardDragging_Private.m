@@ -15,30 +15,25 @@
 
 - (void)__beginPasteboardDraggingAsASourceWithEvent:(NSEvent *)event {
     CGPoint location = [event locationInWindow];
-    NSPasteboardItem *pbItem = [[NSPasteboardItem alloc] init];
-    [pbItem setDataProvider:self forTypes:[self.draggingSourceDelegate tui_draggingPasteboardTypesForView:self]];
-    NSDraggingItem *draggingItem = [[NSDraggingItem alloc] initWithPasteboardWriter:pbItem];
-    if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_configureDraggingItem:forView:)]) {
-        [self.draggingSourceDelegate tui_configureDraggingItem:draggingItem forView:self];
-        [draggingItem setDraggingFrame:NSMakeRect(location.x, location.y,
-                                                  self.frame.size.width/2, self.frame.size.height/2)];
-    } else {
-        [draggingItem setDraggingFrame:NSMakeRect(location.x, location.y,
-                                                  self.frame.size.width/2, self.frame.size.height/2)
-                              contents:self.layer.contents];
+    NSArray *types = nil;
+    if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_draggingPasteboardPromisedFileTypesForView:)]) {
+        [self.nsView dragPromisedFilesOfTypes:[self.draggingSourceDelegate tui_draggingPasteboardPromisedFileTypesForView:self]
+                                     fromRect:NSMakeRect(location.x, location.y, 32, 32) source:self slideBack:YES event:event];
     }
-
-    [self.nsView beginDraggingSessionWithItems:@[draggingItem] event:event source:self];
 }
-
-- (void)pasteboard:(NSPasteboard *)pasteboard item:(NSPasteboardItem *)item provideDataForType:(NSString *)type {
-    [self.draggingSourceDelegate tui_pasteboard:pasteboard item:item provideDataForType:type forView:self];
-}
-
-// Proxy
 
 - (NSDragOperation)draggingSession:(NSDraggingSession *)session sourceOperationMaskForDraggingContext:(NSDraggingContext)context {
-    return [self.draggingSourceDelegate tui_draggingSession:session sourceOperationMaskForDraggingContext:context forView:self];
+    if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_draggingSession:sourceOperationMaskForDraggingContext:forView:)]) {
+        return [self.draggingSourceDelegate tui_draggingSession:session sourceOperationMaskForDraggingContext:context forView:self];
+    }
+    return NSDragOperationNone;
+}
+
+- (NSArray *)namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination {
+    if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_namesOfPromisedFilesDroppedAtDestination:forView:)]) {
+        return [self.draggingSourceDelegate tui_namesOfPromisedFilesDroppedAtDestination:dropDestination forView:self];
+    }
+    return nil;
 }
 
 // Optional proxy methods

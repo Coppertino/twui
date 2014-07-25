@@ -311,7 +311,9 @@
 }
 
 - (void)pasteboard:(NSPasteboard *)pasteboard item:(NSPasteboardItem *)item provideDataForType:(NSString *)type {
-    [self.draggingSourceDelegate tui_pasteboard:pasteboard item:item provideDataForType:type forView:self];
+    if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_pasteboard:item:provideDataForType:forView:)]) {
+        [self.draggingSourceDelegate tui_pasteboard:pasteboard item:item provideDataForType:type forView:self];
+    }
 }
 
 - (void)draggingSession:(NSDraggingSession *)session movedToPoint:(NSPoint)screenPoint {
