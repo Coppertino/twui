@@ -248,6 +248,10 @@ typedef NS_ENUM(NSInteger, TUITableViewDropDestination) {
 - (NSDragOperation)tableView:(TUITableView *)tableView validateDrop:(id<NSDraggingInfo>)info indexPath:(NSIndexPath *)indexPath destination:(TUITableViewDropDestination)destination;
 - (BOOL)tableView:(TUITableView *)tableView acceptDrop:(id<NSDraggingInfo>)info indexPath:(NSIndexPath *)indexPath dragDestination:(TUITableViewDropDestination)destination;
 
+// Pasteboard source support
+
+- (void)tableView:(TUITableView *)tableView pasteboard:(NSPasteboard *)pasteboard writeDataForRowsIndexPaths:(NSArray *)rows;
+
 @end
 
 @interface NSIndexPath (TUITableView)
