@@ -21,8 +21,8 @@
 #import "TUITableViewSectionHeader.h"
 #import "TUITableViewMultiselection+Cell.h"
 
-NSUInteger const TUIExtendSelectionKey = kCGEventFlagMaskShift;
-NSUInteger const TUIAddSelectionKey = kCGEventFlagMaskCommand;
+NSUInteger const TUIExtendSelectionKey = NSShiftKeyMask;
+NSUInteger const TUIAddSelectionKey = NSCommandKeyMask;
 
 
 // header views need to be above the cells at all times
@@ -1560,7 +1560,7 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
             } else if ([self topIndexPath]) {
                 _baseSelectionPath = [self topIndexPath];
             } else {
-                return;
+                _baseSelectionPath = path;
             }
         }
         
@@ -1679,21 +1679,22 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 
 - (void)checkEventModifiers:(NSEvent *)event
 {
-    if (_allowsMultipleSelection)
-    {
+    if (_allowsMultipleSelection) {
         
-        CGEventRef newEvent = CGEventCreate(NULL);
-        CGEventFlags modifiers = CGEventGetFlags(newEvent);
-        CFRelease(newEvent);
-        _multipleSelectionKeyIsPressed = (modifiers & kCGEventFlagMaskCommand) == TUIAddSelectionKey;
-        _extendMultipleSelectionKeyIsPressed = (modifiers & kCGEventFlagMaskShift) == TUIExtendSelectionKey;
+        // modifiers should be used only for selection event (up\down arrow keys for NSKeyDown)
+        // check this and reset proper properties if another key down event is present
+        if ([event type] == NSKeyDown) {
+            unichar keyCode = [[event charactersIgnoringModifiers] characterAtIndex:0];
+            if (keyCode != NSUpArrowFunctionKey && keyCode != NSDownArrowFunctionKey ) {
+                _multipleSelectionKeyIsPressed = NO;
+                _extendMultipleSelectionKeyIsPressed = NO;
+                return;
+            }
+        }
         
-        //#ifndef DEBUG
-        //        NSLog(@"_extendMultipleSelectionKeyIsPressed %i",_extendMultipleSelectionKeyIsPressed);
-        //        NSLog(@"multipleSelection %i",_multipleSelectionKeyIsPressed);
-        //        NSLog(@"%lu",[event modifierFlags]);
-        //#endif
-        
+        NSUInteger modifiers = [event modifierFlags];
+        _multipleSelectionKeyIsPressed = (modifiers & NSCommandKeyMask) == TUIAddSelectionKey;
+        _extendMultipleSelectionKeyIsPressed = (modifiers & NSShiftKeyMask) == TUIExtendSelectionKey;
     }
 }
 
