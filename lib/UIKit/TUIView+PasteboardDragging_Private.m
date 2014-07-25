@@ -14,7 +14,7 @@
 #pragma mark - Dragging Source
 
 - (void)__beginPasteboardDraggingAsASourceWithEvent:(NSEvent *)event {
-    CGPoint location = [self localPointForEvent:event];
+    CGPoint location = [event locationInWindow];
     NSPasteboardItem *pbItem = [[NSPasteboardItem alloc] init];
     [pbItem setDataProvider:self forTypes:[self.draggingSourceDelegate tui_draggingPasteboardTypesForView:self]];
     NSDraggingItem *draggingItem = [[NSDraggingItem alloc] initWithPasteboardWriter:pbItem];
