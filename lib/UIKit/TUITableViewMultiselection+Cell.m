@@ -117,14 +117,6 @@
     // return if there wasn't a proper drag
 //    if(![cell didDrag]) return;
     
-    // determine if reordering this cell is permitted or not via our data source (this should probably be done only once somewhere)
-    if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:canMoveRowAtIndexPath:)]){
-        return;
-    }
-    
-    BOOL allowInnerDrag = [self.dataSource tableView:self
-                               canMoveRowAtIndexPath:_indexPathToInsert];
-    
     if (!NSPointInRect(location, self.frame) && [self canActAsDraggingSource]) {
         [self __beginPasteboardDraggingAsASourceWithEvent:[NSApp currentEvent]];
         [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
@@ -133,6 +125,15 @@
         
         return;
     }
+    
+    // determine if reordering this cell is permitted or not via our data source (this should probably be done only once somewhere)
+    if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:canMoveRowAtIndexPath:)]){
+        return;
+    }
+    
+    
+    BOOL allowInnerDrag = [self.dataSource tableView:self
+                               canMoveRowAtIndexPath:_indexPathToInsert];
     
     CGRect visible = [self visibleRect];
     
