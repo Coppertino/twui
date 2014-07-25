@@ -7,6 +7,7 @@
 //
 
 #import "TUIView+PasteboardDragging_Private.h"
+#import "TUINSView.h"
 
 @implementation TUIView (PasteboardDragging_Private)
 
@@ -26,7 +27,7 @@
                                                   self.frame.size.width/2, self.frame.size.height/2)
                               contents:self.layer.contents];
     }
-    
+
     [self.nsView beginDraggingSessionWithItems:@[draggingItem] event:event source:self];
 }
 
