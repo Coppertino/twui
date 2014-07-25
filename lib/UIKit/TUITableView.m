@@ -208,7 +208,8 @@ typedef struct {
     NSDragOperation op = NSDragOperationNone;
     if (self.visibleCells.count == 0) {
         if ([self.dataSource respondsToSelector:@selector(tableView:validateDrop:indexPath:destination:)]) {
-            return [self.dataSource tableView:self validateDrop:sender indexPath:[NSIndexPath indexPathForRow:0 inSection:0] destination:TUITableViewDropBefore];
+            _dropTargetIndexPath = nil;
+            return [self.dataSource tableView:self validateDrop:sender indexPath:nil destination:TUITableViewDropBefore];
         }
     }
     CGPoint point = [self localPointForLocationInWindow:[sender draggingLocation]];
