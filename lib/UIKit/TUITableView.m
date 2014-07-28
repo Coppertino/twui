@@ -1319,7 +1319,6 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
         {
             [self configureCellWithSingleClickShiftFlag:cell indexPath:indexPath animated:animated];
         }
-        
     }
     else
     {
@@ -1332,11 +1331,6 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
     
     
     [cell setNeedsDisplay];
-    
-    // only notify when the selection actually changes
-    if([self.delegate respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]){
-        [self.delegate tableView:self didSelectRowAtIndexPath:indexPath];
-    }
     
     NSResponder *firstResponder = [self.nsWindow firstResponder];
     if(firstResponder == self || firstResponder == [self cellForRowAtIndexPath:oldIndexPath]) {
@@ -1615,6 +1609,9 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
             return [a compare:b];
         }];
         [[self cellForRowAtIndexPath:indexPathToAdd] setSelected:YES animated:shouldAnimate];
+        if ([self.delegate respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
+            [self.delegate tableView:self didSelectRowAtIndexPath:indexPathToAdd];
+        }
         
     } else {
         [self _clearIndexPaths];
@@ -1626,6 +1623,9 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
     if (indexPathToRemove)
     {
         [[self cellForRowAtIndexPath:indexPathToRemove] setSelected:NO animated:shouldAnimate];
+        if ([self.delegate respondsToSelector:@selector(tableView:didDeselectRowAtIndexPath:)]) {
+            [self.delegate tableView:self didDeselectRowAtIndexPath:indexPathToRemove];
+        }
         [_arrayOfSelectedIndexes removeObject:indexPathToRemove];
         if ([_indexPathForLastSelectedRow isEqual:indexPathToRemove]) {
             _indexPathForLastSelectedRow = [_arrayOfSelectedIndexes firstObject];
@@ -1635,12 +1635,9 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 
 - (void)_clearIndexPaths
 {
-    for(NSIndexPath *i in _arrayOfSelectedIndexes)
-    {
-        [[self cellForRowAtIndexPath:i] setSelected:NO animated:NO];
+    while (self.indexPathesForSelectedRows.count > 0) {
+        [self _removeSelectedIndexPath:[self.indexPathesForSelectedRows firstObject] animated:NO];
     }
-    [_arrayOfSelectedIndexes removeAllObjects];
-    _indexPathForLastSelectedRow = nil;
 }
 
 
