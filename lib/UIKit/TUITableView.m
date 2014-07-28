@@ -1327,6 +1327,7 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
         // do as usual
         [self _removeSelectedIndexPath:self.indexPathForSelectedRow animated:animated];
         [self _addSelectedIndexPath:indexPath animated:animated];
+        _indexPathForLastSelectedRow = indexPath;
     }
     
     
