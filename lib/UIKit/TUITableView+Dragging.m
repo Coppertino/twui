@@ -78,10 +78,6 @@
     float extendX = 0;
     float extendY = 0;
     
-    if (![cell isSelected]) {
-        [self selectRowAtIndexPath:cell.indexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
-    }
-    
     for (NSIndexPath *aDisplacedIndexPath in self.indexPathesForSelectedRows)
     {
         TUITableViewCell *displacedCell = [self cellForRowAtIndexPath:aDisplacedIndexPath];
