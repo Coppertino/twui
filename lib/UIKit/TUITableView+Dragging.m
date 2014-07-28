@@ -78,6 +78,10 @@
     float extendX = 0;
     float extendY = 0;
     
+    if (![cell isSelected]) {
+        [self selectRowAtIndexPath:cell.indexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
+    }
+    
     for (NSIndexPath *aDisplacedIndexPath in self.indexPathesForSelectedRows)
     {
         TUITableViewCell *displacedCell = [self cellForRowAtIndexPath:aDisplacedIndexPath];
@@ -114,8 +118,8 @@
  * @brief Update cell dragging
  */
 -(void)__updateDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
-    BOOL animate = TRUE;
-
+    BOOL animate = YES;
+    
     // return if there wasn't a proper drag
 //    if(![cell didDrag]) return;
     
