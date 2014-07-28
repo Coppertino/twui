@@ -89,28 +89,20 @@ typedef NS_ENUM(NSInteger, TUITableViewDropDestination) {
 	NSMutableDictionary         * _visibleItems;
 	NSMutableDictionary         * _reusableTableCells;
 	TUIView                     * _multiDragableView;
+    
     // additions for multipleSelections
+    NSIndexPath                 *_indexPathForLastSelectedRow;
     NSMutableArray              * _arrayOfSelectedIndexes;
     BOOL                        _multipleSelectionKeyIsPressed;
     BOOL                        _extendMultipleSelectionKeyIsPressed;
 //    NSUInteger                  _iterationCount;
     
-	NSIndexPath            * _selectedIndexPath;
 	NSIndexPath            * _baseSelectionPath;
 	NSIndexPath            * _indexPathShouldBeFirstResponder;
 	NSInteger                     _futureMakeFirstResponderToken;
 	NSIndexPath            * _keepVisibleIndexPathForReload;
 	CGFloat                       _relativeOffsetForReload;
 	
-	// drag-to-reorder state
-  TUITableViewCell            * _dragToReorderCell;
-  CGPoint                       _currentDragToReorderLocation;
-  CGPoint                       _currentDragToReorderMouseOffset;
-  NSIndexPath            * _currentDragToReorderIndexPath;
-  TUITableViewInsertionMethod   _currentDragToReorderInsertionMethod;
-  NSIndexPath            * _previousDragToReorderIndexPath;
-  TUITableViewInsertionMethod   _previousDragToReorderInsertionMethod;
-
     // New drag properties
     NSMutableArray      *_draggedViews;
     TUIView             *_draggingSeparatorView;
@@ -180,15 +172,14 @@ typedef NS_ENUM(NSInteger, TUITableViewDropDestination) {
 
 - (void)scrollToRowAtIndexPath:(NSIndexPath *)indexPath atScrollPosition:(TUITableViewScrollPosition)scrollPosition animated:(BOOL)animated;
 
-- (NSIndexPath *)indexPathForSelectedRow;                                       // return nil or index path representing section and row of selection.
-- (NSArray *)indexPathesForSelectedRows;
+@property (weak, nonatomic, readonly) NSIndexPath *indexPathForSelectedRow;
+@property (strong, nonatomic, readonly) NSArray *indexPathesForSelectedRows;
+
 - (NSIndexPath *)indexPathForFirstRow;
 - (NSIndexPath *)indexPathForLastRow;
 
 - (void)selectAll:(id)sender;
-- (void)clearIndexPaths;
 
-- (void)justSelectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(TUITableViewScrollPosition)scrollPosition;
 - (void)selectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(TUITableViewScrollPosition)scrollPosition;
 - (void)deselectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated;
 
@@ -232,10 +223,7 @@ typedef NS_ENUM(NSInteger, TUITableViewDropDestination) {
 - (TUIView *)tableView:(TUITableView *)tableView headerViewForSection:(NSInteger)section;
 
 // the following are required to support row reordering
-- (BOOL)tableView:(TUITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath;
-- (void)tableView:(TUITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath;
-
-// the following are required to support row reordering for multiselection
+- (BOOL)tableView:(TUITableView *)tableView canMoveRows:(NSArray *)arrayOfIdexes atIndexPath:(NSIndexPath *)indexPath;
 - (void)tableView:(TUITableView *)tableView moveRows:(NSArray*)arrayOfIdexes toIndexPath:(NSIndexPath *)toIndexPath;
 
 /**

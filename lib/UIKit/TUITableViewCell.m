@@ -16,8 +16,7 @@
 
 #import "TUITableViewCell+Private.h"
 #import "TUINSWindow.h"
-#import "TUITableView+Cell.h"
-#import "TUITableViewMultiselection+Cell.h"
+#import "TUITableView+Dragging.h"
 #import "TUICGAdditions.h"
 
 #define TUITableViewCellEtchTopColor		[NSColor colorWithCalibratedWhite:1.00f alpha:0.80f]
@@ -210,11 +209,7 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
 	// Note the initial mouse location to determine dragging,
 	// and notify the table view we were dragged.
 	_mouseOffset = [self localPointForLocationInWindow:[event locationInWindow]];
-    if ([self.tableView allowsMultipleSelection])
-        [self.tableView __mouseDownInMultipleCells:self offset:_mouseOffset event:event];
-    else
-        [self.tableView __mouseDownInCell:self offset:_mouseOffset event:event];
-	
+    [self.tableView __mouseDownInCell:self offset:_mouseOffset event:event];
 	// May make text renderers become first responder so we
 	// notify the table view earlier to avoid this.
 	[super mouseDown:event];
@@ -231,17 +226,14 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
 	[super mouseDragged:event];
 	
 	// Notify the table view of the drag event.
-    if ([self.tableView allowsMultipleSelection])
-        [self.tableView __mouseDraggedMultipleCells:self offset:_mouseOffset event:event];
-    else
-        [self.tableView __mouseDraggedCell:self offset:_mouseOffset event:event];    
+    [self.tableView __mouseDraggedCell:self offset:_mouseOffset event:event];
 }
 
 - (void)mouseUp:(NSEvent *)event {
     // If the table view delegate supports it, we will be selected.
     if(![self.tableView.delegate respondsToSelector:@selector(tableView:shouldSelectRowAtIndexPath:forEvent:)] ||
 	   [self.tableView.delegate tableView:self.tableView shouldSelectRowAtIndexPath:self.indexPath forEvent:event]) {
-        if (![self.tableView __isDraggingCell] && ![self.tableView __isDraggingMultipleCells]) {
+        if (![self.tableView __isDraggingCells]) {
             [self.tableView selectRowAtIndexPath:self.indexPath
                                         animated:self.animatesAppearanceChanges
                                   scrollPosition:TUITableViewScrollPositionNone];
@@ -249,11 +241,8 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
 	}
     
 	// Notify the table view of the mouse up event.
-    if ([self.tableView allowsMultipleSelection])
-        [self.tableView __mouseUpInMultipleCells:self offset:_mouseOffset event:event];
-    else
-        [self.tableView __mouseUpInCell:self offset:_mouseOffset event:event];
-
+    [self.tableView __mouseUpInCell:self offset:_mouseOffset event:event];
+    
     if ([self.tableView acceptsFirstResponder]) {
         [self.nsWindow makeFirstResponder:self.tableView];
     }

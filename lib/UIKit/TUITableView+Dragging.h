@@ -21,14 +21,14 @@
  */
 @interface TUITableView (MultiCell)
 
--(void)__mouseDownInMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event;
--(void)__mouseUpInMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event;
--(void)__mouseDraggedMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event;
+-(void)__mouseDownInCell:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event;
+-(void)__mouseUpInCell:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event;
+-(void)__mouseDraggedCell:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event;
 
--(BOOL)__isDraggingMultipleCells;
--(void)__beginDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location;
--(void)__updateDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location;
--(void)__endDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location;
+-(BOOL)__isDraggingCells;
+-(void)__beginDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location;
+-(void)__updateDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location;
+-(void)__endDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location;
 
 // Dragging pointer
 

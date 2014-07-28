@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-#import "TUITableViewMultiselection+Cell.h"
+#import "TUITableView+Dragging.h"
 #import "TUICGAdditions.h"
 #import "TUINSView.h"
 #import "TUIView+PasteboardDragging_Private.h"
@@ -29,8 +29,10 @@
 - (BOOL)_preLayoutCells;
 - (void)_layoutSectionHeaders:(BOOL)needLayout;
 - (void)_layoutCells:(BOOL)needLayout;
-- (void)addSelectedIndexPath:(NSIndexPath*)indexPathToAdd;
 - (void)checkEventModifiers:(NSEvent *)event;
+
+- (void)_clearIndexPaths;
+- (void)_addSelectedIndexPath:(NSIndexPath*)indexPathToAdd animated:(BOOL)shouldAnimate;
 
 @end
 
@@ -39,16 +41,16 @@
 /**
  * @brief Mouse down in a cell
  */
--(void)__mouseDownInMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
-    [self __beginDraggingMultipleCells:cell offset:offset location:[self localPointForEvent:event]];
+-(void)__mouseDownInCell:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
+    [self __beginDraggingCells:cell offset:offset location:[self localPointForEvent:event]];
 }
 
 /**
  * @brief Mouse up in a cell
  */
--(void)__mouseUpInMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
+-(void)__mouseUpInCell:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
     NSIndexPath *indexPathToSelect = _indexPathToInsert;
-    [self __endDraggingMultipleCells:cell offset:offset location:[self localPointForEvent:event]];
+    [self __endDraggingCells:cell offset:offset location:[self localPointForEvent:event]];
 }
 
 /**
@@ -56,27 +58,27 @@
  *
  * If reordering is permitted by the table, this will begin a move operation.
  */
--(void)__mouseDraggedMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
-    [self __updateDraggingMultipleCells:cell offset:offset location:[self localPointForEvent:event]];
+-(void)__mouseDraggedCell:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
+    [self __updateDraggingCells:cell offset:offset location:[self localPointForEvent:event]];
 }
 
 /**
  * @brief Determine if we're dragging a cell or not
  */
--(BOOL)__isDraggingMultipleCells {
+-(BOOL)__isDraggingCells {
     return _indexPathToInsert != nil;
 }
 
 /**
  * @brief Begin dragging a cell
  */
--(void)__beginDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
-    _draggedViews = [[NSMutableArray alloc] initWithCapacity:_arrayOfSelectedIndexes.count];
+-(void)__beginDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
+    _draggedViews = [[NSMutableArray alloc] initWithCapacity:self.indexPathesForSelectedRows.count];
     
     float extendX = 0;
     float extendY = 0;
     
-    for (NSIndexPath *aDisplacedIndexPath in _arrayOfSelectedIndexes)
+    for (NSIndexPath *aDisplacedIndexPath in self.indexPathesForSelectedRows)
     {
         TUITableViewCell *displacedCell = [self cellForRowAtIndexPath:aDisplacedIndexPath];
         
@@ -111,7 +113,7 @@
 /**
  * @brief Update cell dragging
  */
--(void)__updateDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
+-(void)__updateDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
     BOOL animate = TRUE;
 
     // return if there wasn't a proper drag
@@ -127,13 +129,14 @@
     }
     
     // determine if reordering this cell is permitted or not via our data source (this should probably be done only once somewhere)
-    if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:canMoveRowAtIndexPath:)]){
+    if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:canMoveRows:atIndexPath:)]){
         return;
     }
     
     
     BOOL allowInnerDrag = [self.dataSource tableView:self
-                               canMoveRowAtIndexPath:_indexPathToInsert];
+                                         canMoveRows:self.indexPathesForSelectedRows
+                                         atIndexPath:_indexPathToInsert];
     
     CGRect visible = [self visibleRect];
     
@@ -189,7 +192,7 @@
 /**
  * @brief Finish dragging a cell
  */
--(void)__endDraggingMultipleCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
+-(void)__endDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
     BOOL animate = TRUE;
     
     // cancel our continuous scroll
@@ -207,9 +210,9 @@
     
     if (_indexPathToInsert &&
         ![_indexPathToInsert isEqual:[cell indexPath]] &&
-        ![_arrayOfSelectedIndexes containsObject:_indexPathToInsert]) {
+        ![self.indexPathesForSelectedRows containsObject:_indexPathToInsert]) {
         if(self.dataSource != nil && [self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
-            [self.dataSource tableView:self moveRows:_arrayOfSelectedIndexes toIndexPath:_indexPathToInsert];
+            [self.dataSource tableView:self moveRows:self.indexPathesForSelectedRows toIndexPath:_indexPathToInsert];
             [self reloadData];
             
             NSInteger dropSection = _indexPathToInsert.section;
@@ -218,15 +221,15 @@
             NSInteger correctedDropSection = dropSection;
             __block NSInteger correctedDropRow = dropRow;
 
-            [_arrayOfSelectedIndexes enumerateObjectsUsingBlock:^(NSIndexPath *idxPath, NSUInteger idx, BOOL *stop) {
+            [self.indexPathesForSelectedRows enumerateObjectsUsingBlock:^(NSIndexPath *idxPath, NSUInteger idx, BOOL *stop) {
                 if (idxPath.section <= dropSection && idxPath.row <= dropRow) {
                     correctedDropRow--;
                 }
             }];
-            NSInteger count = _arrayOfSelectedIndexes.count;
-            [self selectRowAtIndexPath:nil animated:NO scrollPosition:TUITableViewScrollPositionNone];
+            NSInteger count = self.indexPathesForSelectedRows.count;
+            [self _clearIndexPaths];
             for (NSInteger i = 0; i < count; i++) {
-                [self addSelectedIndexPath:[NSIndexPath indexPathForRow:correctedDropRow+i inSection:correctedDropSection]];
+                [self _addSelectedIndexPath:[NSIndexPath indexPathForRow:correctedDropRow+i inSection:correctedDropSection] animated:NO];
             }
         }
     }
@@ -309,7 +312,7 @@
     _draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
     
     if ([self.dataSource respondsToSelector:@selector(tableView:pasteboard:writeDataForRowsIndexPaths:)]) {
-        [self.dataSource tableView:self pasteboard:_draggingSession.draggingPasteboard writeDataForRowsIndexPaths:_arrayOfSelectedIndexes];
+        [self.dataSource tableView:self pasteboard:_draggingSession.draggingPasteboard writeDataForRowsIndexPaths:self.indexPathesForSelectedRows];
     }
 }
 
