@@ -174,48 +174,48 @@ static CGFloat const TUINavigationControllerAnimationDuration = 0.25f;
 	BOOL isSlideToTheRight = indexOfNewVC < indexOfCurrentVC;
 	[self.view addSubview:newController.view];
 	newController.view.frame = isSlideToTheRight ? TUINavOffscreenPrevFrame(self.view.bounds, self.slidingDirection) : TUINavOffscreenNextFrame(self.view.bounds, self.slidingDirection);
-    [newController.view setNeedsDisplay];
-    // Force changing frame for newController.view
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [newController viewWillAppear:animated];
-        if ([self.delegate respondsToSelector:@selector(navigationController:willShowViewController:animated:)]) {
-            [self.delegate navigationController:self willShowViewController:newController animated:animated];
+
+    [TUIView animateWithDuration:0 animations:^{
+        newController.view.frame = isSlideToTheRight ? TUINavOffscreenPrevFrame(self.view.bounds, self.slidingDirection) : TUINavOffscreenNextFrame(self.view.bounds, self.slidingDirection);
+    }];
+    [TUIView commitAnimations];
+    
+    [newController viewWillAppear:animated];
+    if ([self.delegate respondsToSelector:@selector(navigationController:willShowViewController:animated:)]) {
+        [self.delegate navigationController:self willShowViewController:newController animated:animated];
+    }
+    
+    CGFloat duration = (animated ? TUINavigationControllerAnimationDuration : 0);
+    
+    [TUIView animateWithDuration:duration animations:^{
+        currentController.view.frame = isSlideToTheRight ? TUINavOffscreenNextFrame(self.view.bounds, self.slidingDirection) : TUINavOffscreenPrevFrame(self.view.bounds, self.slidingDirection);
+        newController.view.frame = self.view.bounds;
+        
+        if (_needsBlurWhenSlide) {
+            //            [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithControlPoints: 0:1 : 1:1]];
+            TUIApplyBlurForLayer(newController.view.layer, self.slidingDirection);
+            TUIApplyBlurForLayer(currentController.view.layer, self.slidingDirection);
         }
         
-        CGFloat duration = (animated ? TUINavigationControllerAnimationDuration : 0);
+    } completion:^(BOOL finished) {
+        [currentController.view removeFromSuperview];
+        currentController.view.layer.filters = nil;
         
-        [TUIView animateWithDuration:duration animations:^{
-            currentController.view.frame = isSlideToTheRight ? TUINavOffscreenNextFrame(self.view.bounds, self.slidingDirection) : TUINavOffscreenPrevFrame(self.view.bounds, self.slidingDirection);
-            newController.view.frame = self.view.bounds;
-            
-            if (_needsBlurWhenSlide) {
-                //            [CATransaction setAnimationTimingFunction:[CAMediaTimingFunction functionWithControlPoints: 0:1 : 1:1]];
-                TUIApplyBlurForLayer(newController.view.layer, self.slidingDirection);
-                TUIApplyBlurForLayer(currentController.view.layer, self.slidingDirection);
-            }
-            
-        } completion:^(BOOL finished) {
-            [currentController.view removeFromSuperview];
-            currentController.view.layer.filters = nil;
-            
-            newController.view.layer.filters = nil;
-            [newController viewDidAppear:animated];
-            if ([self.delegate respondsToSelector:@selector(navigationController:didShowViewController:animated:)]) {
-                [self.delegate navigationController:self didShowViewController:newController animated:animated];
-            }
-            
-            [currentController viewDidDisappear:animated];
-            
-            self.currentController = newController;
-            
-            if (completion) {
-                completion(finished);
-            }
-            
-        }];
-    });
-	
-
+        newController.view.layer.filters = nil;
+        [newController viewDidAppear:animated];
+        if ([self.delegate respondsToSelector:@selector(navigationController:didShowViewController:animated:)]) {
+            [self.delegate navigationController:self didShowViewController:newController animated:animated];
+        }
+        
+        [currentController viewDidDisappear:animated];
+        
+        self.currentController = newController;
+        
+        if (completion) {
+            completion(finished);
+        }
+        
+    }];
 }
 
 #pragma mark - Events
