@@ -132,6 +132,8 @@ typedef NS_ENUM(NSInteger, TUITableViewDropDestination) {
 @property (readwrite, assign) BOOL animateSelectionChanges;
 @property (readwrite, assign) BOOL allowsMultipleSelection;
 @property (nonatomic, assign) BOOL maintainContentOffsetAfterReload;
+// Pressing up at the very first cell will select the last one and otherwise
+@property (nonatomic, assign) BOOL smartIncrementalSelection;
 
 - (void)clearData;
 - (void)reloadData;

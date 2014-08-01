@@ -1402,6 +1402,9 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 	switch([[event charactersIgnoringModifiers] characterAtIndex:0]) {
 		case NSUpArrowFunctionKey: {
 			selectValidIndexPath([self indexPathForLastVisibleRow], ^(NSIndexPath *lastIndexPath) {
+                if (self.smartIncrementalSelection && lastIndexPath.row == self.indexPathForFirstRow.row && lastIndexPath.section == self.indexPathForFirstRow.section) {
+                    return [self indexPathForLastRow];
+                }
 				NSUInteger section = lastIndexPath.section;
 				NSUInteger row = lastIndexPath.row;
 				if(row > 0) {
@@ -1426,6 +1429,9 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
             
 		case NSDownArrowFunctionKey:  {
 			selectValidIndexPath([self indexPathForFirstVisibleRow], ^(NSIndexPath *lastIndexPath) {
+                if (self.smartIncrementalSelection && lastIndexPath.row == self.indexPathForLastRow.row && lastIndexPath.section == self.indexPathForLastRow.section) {
+                    return [self indexPathForFirstRow];
+                }
 				NSUInteger section = lastIndexPath.section;
 				NSUInteger row = lastIndexPath.row;
 				NSUInteger rowsInSection = [self numberOfRowsInSection:section];
