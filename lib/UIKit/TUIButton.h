@@ -119,7 +119,7 @@ typedef enum TUIButtonMenuType : NSUInteger {
 // Set a popup or pulldown menu for the button. It is only used if the
 // .menuType property is set to something other than TUIButtonMenuTypeNone.
 // Setting this overrides selectable property as YES.
-@property (nonatomic, strong) NSMenu *menu;
+@property (nonatomic, strong) NSMenu *buttonMenu;
 
 // The prefered edge to display the menu if the .menuType property is set
 // to either TUIButtonMenuTypeHold or TUIButtonMenuTypePullDown.

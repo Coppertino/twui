@@ -421,7 +421,7 @@
 	
 	// If we have a menu, and we are to display it, then
 	// create a menu timer targeted at our displayMenu: method.
-	if(self.menu && self.menuType != TUIButtonMenuTypeNone) {
+	if(self.buttonMenu && self.menuType != TUIButtonMenuTypeNone) {
 		self.selected = YES;
 		self.menuHoldTimer = [NSTimer timerWithTimeInterval:fabs(self.menuHoldDelay)
 													 target:self
@@ -448,10 +448,10 @@
 	// "swallows" the first item when in pull-down mode, so fake it.
 	NSMenuItem *placeholderItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
 	if(!self.synchronizeMenuTitle && needsPlaceholder)
-		[self.menu insertItem:placeholderItem atIndex:0];
+		[self.buttonMenu insertItem:placeholderItem atIndex:0];
 	
 	// Allow NSPopUpButtonCell to handle menu semantics for us: smarter!
-	[renderer setMenu:self.menu];
+	[renderer setMenu:self.buttonMenu];
 	[renderer setPreferredEdge:self.preferredMenuEdge];
 	[renderer setControlSize:(NSControlSize)self.controlSize];
 
@@ -469,7 +469,7 @@
 	
 	// Once the menu has been displayed, remove this fake item.
 	if(!self.synchronizeMenuTitle && needsPlaceholder)
-		[self.menu removeItemAtIndex:0];
+		[self.buttonMenu removeItemAtIndex:0];
 	placeholderItem = nil;
 	
 	// After this happens, we never get a mouseUp: in the TUINSView.
@@ -494,7 +494,7 @@
 	
 	// If we have a menu, and are to display it, or we are selectable,
 	// then switch the selected property around (toggle it).
-	BOOL hasMenu = (self.menu && self.menuType != TUIButtonMenuTypeNone);
+	BOOL hasMenu = (self.buttonMenu && self.menuType != TUIButtonMenuTypeNone);
 	BOOL inlineButton = (self.buttonType == TUIButtonTypeInline);
 	if(self.selectable || inlineButton || hasMenu)
 		self.selected = !self.selected;
@@ -596,16 +596,16 @@
 }
 
 - (NSString *)currentTitle {
-	BOOL hasMenu = (self.menu && self.synchronizeMenuTitle);
+	BOOL hasMenu = (self.buttonMenu && self.synchronizeMenuTitle);
 	
 	if(hasMenu && (self.menuType == TUIButtonMenuTypePopUp)) {
-		NSMenuItem *titleItem = self.menu.highlightedItem;
+		NSMenuItem *titleItem = self.buttonMenu.highlightedItem;
 		if(!titleItem)
-			titleItem = [self.menu itemAtIndex:0];
+			titleItem = [self.buttonMenu itemAtIndex:0];
 		
 		return titleItem.title;
 	} else if(hasMenu && (self.menuType == TUIButtonMenuTypePullDown)) {
-		return [[self.menu itemAtIndex:0] title];
+		return [[self.buttonMenu itemAtIndex:0] title];
 	}
 	
 	NSString *title = [self titleForState:self.state];
