@@ -623,7 +623,7 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 
 - (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender {
     if (self.viewsRegisteredForDrag.count == 0) return NSDragOperationNone;
-    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[sender draggingLocation]];
+    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[self convertFromWindowPoint:[sender draggingLocation]]];
     [self _updateViewUnderDrag:innerDragRecepient info:sender];
     if ([innerDragRecepient isKindOfClass:[TUITableView class]]) {
         return [(TUITableView *)innerDragRecepient draggingUpdated:sender];
@@ -635,7 +635,7 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 }
 
 - (BOOL)prepareForDragOperation:(id <NSDraggingInfo>)sender {
-    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[sender draggingLocation]];
+    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[self convertFromWindowPoint:[sender draggingLocation]]];
     if (innerDragRecepient && [self.viewsRegisteredForDrag containsObject:innerDragRecepient] && innerDragRecepient.draggingDestinationDelegate) {
         if ([innerDragRecepient.draggingDestinationDelegate respondsToSelector:@selector(tui_prepareForDragOperation:inView:)]) {
             return [innerDragRecepient.draggingDestinationDelegate tui_prepareForDragOperation:sender inView:innerDragRecepient];
@@ -645,7 +645,7 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[sender draggingLocation]];
+    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[self convertFromWindowPoint:[sender draggingLocation]]];
     if ([innerDragRecepient isKindOfClass:[TUITableView class]]) {
         return [(TUITableView *)innerDragRecepient performDragOperation:sender];
     }
@@ -658,7 +658,7 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 }
 
 - (void)updateDraggingItemsForDrag:(id<NSDraggingInfo>)sender {
-    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[sender draggingLocation]];
+    TUIView *innerDragRecepient = [self.rootView dragDestinationViewForLocation:[self convertFromWindowPoint:[sender draggingLocation]]];
     if (innerDragRecepient && [self.viewsRegisteredForDrag containsObject:innerDragRecepient] && innerDragRecepient.draggingDestinationDelegate) {
         if ([innerDragRecepient.draggingDestinationDelegate respondsToSelector:@selector(tui_updateDraggingItemsForDrag:inView:)]) {
             [innerDragRecepient.draggingDestinationDelegate tui_updateDraggingItemsForDrag:sender inView:innerDragRecepient];

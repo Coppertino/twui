@@ -614,7 +614,7 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
     if((self.userInteractionEnabled == NO) || (self.hidden == YES) || (self.alpha <= 0.0f))
 		return nil;
 	
-	if([self pointInside:loc withEvent:nil]) {
+    if (NSPointInRect(loc, [self frameInNSView])) {
 		NSArray *s = [self sortedSubviews];
 		for(TUIView *v in [s reverseObjectEnumerator]) {
 			TUIView *hit = [v dragDestinationViewForLocation:loc];
@@ -622,7 +622,7 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 				return hit;
 		}
 		return self; // leaf
-	}
+    }
 	return nil;
 }
 
