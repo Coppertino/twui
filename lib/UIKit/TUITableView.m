@@ -210,6 +210,15 @@ typedef struct {
             return [self.dataSource tableView:self validateDrop:sender indexPath:nil destination:TUITableViewDropBefore];
         }
     }
+    
+    // Drop validation block
+    NSDragOperation(^dropValidationBlock)(TUITableViewDropDestination drop, NSIndexPath *idx) = ^NSDragOperation(TUITableViewDropDestination drop, NSIndexPath *idx) {
+        if ([self.dataSource respondsToSelector:@selector(tableView:validateDrop:indexPath:destination:)]) {
+            return [self.dataSource tableView:self validateDrop:sender indexPath:idx destination:drop];
+        }
+        return NSDragOperationNone;
+    };
+    
     CGPoint point = [self localPointForLocationInWindow:[sender draggingLocation]];
     TUITableViewCell *cell = [self cellForRowAtIndexPath:[self indexPathForRowAtPoint:point]];
     if (cell) {
@@ -218,14 +227,6 @@ typedef struct {
         [self _removeDraggingPointer];
         
         CGFloat relativeOffset = [cell convertFromWindowPoint:[sender draggingLocation]].y / cell.bounds.size.height;
-        
-        // Drop validation block
-        NSDragOperation(^dropValidationBlock)(TUITableViewDropDestination drop, NSIndexPath *idx) = ^NSDragOperation(TUITableViewDropDestination drop, NSIndexPath *idx) {
-            if ([self.dataSource respondsToSelector:@selector(tableView:validateDrop:indexPath:destination:)]) {
-                return [self.dataSource tableView:self validateDrop:sender indexPath:idx destination:drop];
-            }
-            return NSDragOperationNone;
-        };
         
         NSIndexPath *idx = cell.indexPath;
         
@@ -274,6 +275,31 @@ typedef struct {
                 _dropDestination = TUITableViewDropOn;
             }
         }
+    } else {
+        NSPoint pointInTable = [self convertFromWindowPoint:[sender draggingLocation]];
+        TUIView *viewUnderDrag = [self hitTest:pointInTable withEvent:nil];
+        if ([viewUnderDrag isEqual:self]) {
+            // Empty space after cells
+            BOOL isAfterVisibleCells = pointInTable.y < [[self cellForRowAtIndexPath:[self indexPathForLastVisibleRow]] frame].origin.y;
+            if (isAfterVisibleCells) {
+                op = dropValidationBlock(TUITableViewDropAfter,[self indexPathForLastVisibleRow]);
+                if (op != NSDragOperationNone) {
+                    [self _moveDraggingPointerAfterIndexPath:[self indexPathForLastVisibleRow]];
+                    _dropTargetIndexPath = [self indexPathForLastVisibleRow];
+                    _dropDestination = TUITableViewDropAfter;
+                }
+            } else {
+                op = dropValidationBlock(TUITableViewDropBefore,[self indexPathForFirstVisibleRow]);
+                if (op != NSDragOperationNone) {
+                    [self _moveDraggingPointerAfterIndexPath:[self indexPathForFirstVisibleRow]];
+                    _dropTargetIndexPath = [self indexPathForFirstVisibleRow];
+                    _dropDestination = TUITableViewDropBefore;
+                }
+
+            }
+        } else {
+            // Undefined behavior. Later here will be section drop detection
+        }
     }
     
     if (_dropDestination == TUITableViewDropOn) {
@@ -287,10 +313,12 @@ typedef struct {
     [self beginContinuousScrollForDragAtPoint:point animated:TRUE];
     
     // Saving operation for knowing what to perform after drag
-    if (_dropDestination == TUITableViewDropOn) {
-        _dropTargetIndexPath = cell.indexPath;
-    } else {
-        _dropTargetIndexPath = cell.indexPath;
+    if (!_dropTargetIndexPath) {
+        if (_dropDestination == TUITableViewDropOn) {
+            _dropTargetIndexPath = cell.indexPath;
+        } else {
+            _dropTargetIndexPath = cell.indexPath;
+        }
     }
     return op;
 }
