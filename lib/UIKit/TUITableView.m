@@ -1314,6 +1314,10 @@ static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
     }
 }
 
+- (void)deselectAll:(id)sender {
+    [self _clearIndexPaths];
+}
+
 - (void)selectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(TUITableViewScrollPosition)scrollPosition
 {
 	NSIndexPath *oldIndexPath = self.indexPathForSelectedRow;

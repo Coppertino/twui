@@ -181,6 +181,7 @@ typedef NS_ENUM(NSInteger, TUITableViewDropDestination) {
 - (NSIndexPath *)indexPathForLastRow;
 
 - (void)selectAll:(id)sender;
+- (void)deselectAll:(id)sender;
 
 - (void)selectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated scrollPosition:(TUITableViewScrollPosition)scrollPosition;
 - (void)deselectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated;
