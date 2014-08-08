@@ -270,6 +270,7 @@
 - (void)_removeDraggingPointer {
     [_draggingSeparatorView removeFromSuperview];
     _draggingSeparatorView = nil;
+    _indexPathToInsert = nil;
 }
 
 

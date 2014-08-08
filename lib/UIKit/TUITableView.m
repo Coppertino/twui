@@ -221,6 +221,7 @@ typedef struct {
     
     CGPoint point = [self localPointForLocationInWindow:[sender draggingLocation]];
     TUITableViewCell *cell = [self cellForRowAtIndexPath:[self indexPathForRowAtPoint:point]];
+    _dropTargetIndexPath = cell.indexPath;
     if (cell) {
         
         // Clear all drop indication
@@ -312,14 +313,6 @@ typedef struct {
     // scroll content if necessary (scroll view figures out whether it's necessary or not)
     [self beginContinuousScrollForDragAtPoint:point animated:TRUE];
     
-    // Saving operation for knowing what to perform after drag
-    if (!_dropTargetIndexPath) {
-        if (_dropDestination == TUITableViewDropOn) {
-            _dropTargetIndexPath = cell.indexPath;
-        } else {
-            _dropTargetIndexPath = cell.indexPath;
-        }
-    }
     return op;
 }
 
