@@ -187,6 +187,7 @@ typedef struct {
         [self.visibleCells enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             [obj setUnderDrag:NO];
         }];
+        [self endContinuousScrollAnimated:YES];
     }
 }
 
@@ -207,6 +208,7 @@ typedef struct {
     if (self.visibleCells.count == 0) {
         if ([self.dataSource respondsToSelector:@selector(tableView:validateDrop:indexPath:destination:)]) {
             _dropTargetIndexPath = nil;
+            _indexPathToInsert = nil;
             return [self.dataSource tableView:self validateDrop:sender indexPath:nil destination:TUITableViewDropBefore];
         }
     }
@@ -312,7 +314,7 @@ typedef struct {
     point = CGPointMake(point.x, MAX(0, MIN(self.visibleRect.size.height, point.y)));
     // scroll content if necessary (scroll view figures out whether it's necessary or not)
     [self beginContinuousScrollForDragAtPoint:point animated:TRUE];
-    
+    _indexPathToInsert = nil;
     return op;
 }
 

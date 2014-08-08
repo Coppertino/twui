@@ -198,12 +198,11 @@
     // cancel our continuous scroll
     [self endContinuousScrollAnimated:TRUE];
     
-    [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    [_draggedViews removeAllObjects];
-    [self _removeDraggingPointer];
-    
     // make sure reordering is supported by our data source (this should probably be done only once somewhere)
     if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
+        [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        [_draggedViews removeAllObjects];
+        [self _removeDraggingPointer];
         _indexPathToInsert = nil;
         return; // reordering is not supported by the data source
     }
@@ -234,8 +233,10 @@
         }
     }
     
-    _indexPathToInsert = nil;
+    [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    [_draggedViews removeAllObjects];
     [self _removeDraggingPointer];
+    _indexPathToInsert = nil;
 }
 
 - (void)_moveDraggingPointerAfterIndexPath:(NSIndexPath *)indexPath {
@@ -270,7 +271,6 @@
 - (void)_removeDraggingPointer {
     [_draggingSeparatorView removeFromSuperview];
     _draggingSeparatorView = nil;
-    _indexPathToInsert = nil;
 }
 
 
