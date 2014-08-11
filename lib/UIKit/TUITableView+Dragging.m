@@ -73,11 +73,18 @@
  * @brief Begin dragging a cell
  */
 -(void)__beginDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
+    [self _generateDraggingViewsFromCell:cell atLocation:location];
+}
+
+- (void)_generateDraggingViewsFromCell:(TUITableViewCell *)cell atLocation:(CGPoint)location {
+    if (_draggedViews && _draggedViews.count > 0) {
+        [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        [_draggedViews removeAllObjects];
+    }
     _draggedViews = [[NSMutableArray alloc] initWithCapacity:self.indexPathesForSelectedRows.count];
     
     float extendX = 0;
     float extendY = 0;
-    
     for (NSIndexPath *aDisplacedIndexPath in self.indexPathesForSelectedRows)
     {
         TUITableViewCell *displacedCell = [self cellForRowAtIndexPath:aDisplacedIndexPath];
@@ -108,13 +115,21 @@
             extendY=0;
         }
     }
+
 }
 
 /**
  * @brief Update cell dragging
  */
--(void)__updateDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
+- (void)__updateDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
     BOOL animate = YES;
+    
+    NSIndexPath *ip = [self indexPathForRowAtPoint:location];
+    if (![self.indexPathesForSelectedRows containsObject:ip] && ![self __isDraggingCells] && [self eventInside:[NSApp currentEvent]]) {
+        [self _clearIndexPaths];
+        [self selectRowAtIndexPath:cell.indexPath animated:NO scrollPosition:TUITableViewScrollPositionNone];
+        [self _generateDraggingViewsFromCell:cell atLocation:location];
+    }
     
     // return if there wasn't a proper drag
 //    if(![cell didDrag]) return;
@@ -174,11 +189,15 @@
         return;
     }
     
-    NSIndexPath *indexPathUnderMousePointer = [self indexPathForRowAtPoint:location];
-    TUITableViewCell *cellUnderThePointer = [self cellForRowAtIndexPath:indexPathUnderMousePointer];
+    CGPoint point = location;
+    NSIndexPath *indexPathUnderMousePointer = [self indexPathForRowAtPoint:point];
+    TUITableViewCell *cellUnderThePointer = [self cellForRowAtIndexPath:[self indexPathForRowAtPoint:point]];
+    
+    CGFloat relativeOffset = [cell convertFromWindowPoint:location].y / cellUnderThePointer.bounds.size.height;
+    
     CGFloat yInCell = [cellUnderThePointer convertFromWindowPoint:location].y;
     CGFloat cellHeight = cellUnderThePointer.frame.size.height;
-    if (yInCell < cellHeight/2) {
+    if (relativeOffset < 0.5) {
         [self _moveDraggingPointerAfterIndexPath:indexPathUnderMousePointer];
     } else {
         [self _moveDraggingPointerBeforeIndexPath:indexPathUnderMousePointer];
@@ -195,13 +214,16 @@
 -(void)__endDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
     BOOL animate = TRUE;
     
+    if (_draggedViews && _draggedViews.count > 0) {
+        [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        [_draggedViews removeAllObjects];
+    }
+    
     // cancel our continuous scroll
     [self endContinuousScrollAnimated:TRUE];
     
     // make sure reordering is supported by our data source (this should probably be done only once somewhere)
     if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:moveRows:toIndexPath:)]){
-        [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-        [_draggedViews removeAllObjects];
         [self _removeDraggingPointer];
         _indexPathToInsert = nil;
         return; // reordering is not supported by the data source
@@ -233,8 +255,6 @@
         }
     }
     
-    [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    [_draggedViews removeAllObjects];
     [self _removeDraggingPointer];
     _indexPathToInsert = nil;
 }
