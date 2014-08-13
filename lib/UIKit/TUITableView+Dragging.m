@@ -65,7 +65,7 @@
 /**
  * @brief Determine if we're dragging a cell or not
  */
--(BOOL)__isDraggingCells {
+- (BOOL)__isDraggingCells {
     return _indexPathToInsert != nil;
 }
 
@@ -135,7 +135,7 @@
 //    if(![cell didDrag]) return;
     
     if (!NSPointInRect(location, self.frame) && [self canActAsDraggingSource]) {
-        [self __beginPasteboardDraggingAsASourceWithEvent:[NSApp currentEvent]];
+        [self __beginPasteboardDraggingAsASourceFromTableViewWithEvent:[NSApp currentEvent]];
         [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
         _draggedViews = nil;
         _indexPathToInsert = nil;
@@ -145,6 +145,7 @@
     
     // determine if reordering this cell is permitted or not via our data source (this should probably be done only once somewhere)
     if(self.dataSource == nil || ![self.dataSource respondsToSelector:@selector(tableView:canMoveRows:atIndexPath:)]){
+        _indexPathToInsert = cell.indexPath;
         return;
     }
     
@@ -308,9 +309,9 @@
 
 // Overriding pasteboard dragging for TUITableView
 
-- (void)__beginPasteboardDraggingAsASourceWithEvent:(NSEvent *)event {
+- (void)__beginPasteboardDraggingAsASourceFromTableViewWithEvent:(NSEvent *)event {
     CGPoint location = [event locationInWindow];
-
+    
     NSMutableArray *draggingItems = [NSMutableArray arrayWithCapacity:self.indexPathesForSelectedRows.count];
     [self.indexPathesForSelectedRows enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSPasteboardItem *pbItem = [[NSPasteboardItem alloc] init];
@@ -335,6 +336,10 @@
     if ([self.dataSource respondsToSelector:@selector(tableView:pasteboard:writeDataForRowsIndexPaths:)]) {
         [self.dataSource tableView:self pasteboard:_draggingSession.draggingPasteboard writeDataForRowsIndexPaths:self.indexPathesForSelectedRows];
     }
+}
+
+- (void)__beginPasteboardDraggingAsASourceWithEvent:(NSEvent *)event {
+    
 }
 
 - (NSDragOperation)draggingSession:(NSDraggingSession *)session sourceOperationMaskForDraggingContext:(NSDraggingContext)context {
