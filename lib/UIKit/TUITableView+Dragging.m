@@ -153,6 +153,10 @@
     BOOL allowInnerDrag = [self.dataSource tableView:self
                                          canMoveRows:self.indexPathesForSelectedRows
                                          atIndexPath:_indexPathToInsert];
+                                         
+    if (!allowInnerDrag) {
+        return;
+    }
     
     CGRect visible = [self visibleRect];
     
@@ -185,10 +189,6 @@
                                     usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                                         [self addSubview:obj];
                                     }];
-
-    if (!allowInnerDrag) {
-        return;
-    }
     
     CGPoint point = location;
     NSIndexPath *indexPathUnderMousePointer = [self indexPathForRowAtPoint:point];
