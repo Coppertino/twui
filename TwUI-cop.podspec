@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name           = "TwUI-cop"
-  s.version        = "0.8"
+  s.version        = "0.9"
   s.summary        = "Fork of TwUI - a UI framework for Mac based on Core Animation."
   s.description    = "TwUI is a hardware accelerated UI framework for Mac, inspired by UIKit. It enables:\n"\
                      "- GPU accelerated rendering backed by CoreAnimation.\n"\
@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.author         = { "Twitter, Inc." => "opensource@twitter.com",
                        "GitHub, Inc." => "support@github.com" }
   s.license        = { :type => 'Apache License, Version 2.0' }
-  s.source         = { :git => "https://github.com/Coppertino/twui.git", :tag => "0.9" }
+  s.source         = { :git => "https://github.com/Coppertino/twui.git", :tag => "#{spec.version}" }
 
   s.platform       = :osx, '10.8'
   s.requires_arc   = true
