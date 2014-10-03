@@ -72,7 +72,7 @@
 	// nothing set so use the view's frame converted to screen coordinates
 	if(CGRectEqualToRect(accessibilityFrame, CGRectNull)) {
 		CGRect frame = self.frame;
-		frame.origin = [[(NSView *) self.nsView window] convertBaseToScreen:[self frameInNSView].origin];
+		frame.origin = [[(NSView *) self.nsView window] convertRectToScreen:[self frameInNSView]].origin;
 		return frame;
 	} else {
 		return accessibilityFrame;

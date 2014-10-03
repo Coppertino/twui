@@ -133,13 +133,14 @@
 	if(_viewFlags.moveWindowByDragging) {
 		startDrag = [self localPointForEvent:event];
 		NSWindow *window = [self nsWindow];
-		
-		if(!_viewFlags.didStartMovingByDragging) {
-			if([window respondsToSelector:@selector(windowWillStartLiveDrag)])
-				[window performSelector:@selector(windowWillStartLiveDrag)];
-			_viewFlags.didStartMovingByDragging = 1;
-		}
-		
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+        if(!_viewFlags.didStartMovingByDragging) {
+            if([window respondsToSelector:@selector(windowWillStartLiveDrag)])
+                [window performSelector:@selector(windowWillStartLiveDrag)];
+            _viewFlags.didStartMovingByDragging = 1;
+        }
+#pragma clang diagnostic pop
 		if(self.dragHandler) {
 			self.dragHandler(event);
 		}

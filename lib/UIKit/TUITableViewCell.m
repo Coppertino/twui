@@ -76,7 +76,10 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
 
 - (void)prepareForReuse {
 	[self removeAllAnimations];
-	[self.textRenderers makeObjectsPerformSelector:@selector(resetSelection)];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+    [self.textRenderers makeObjectsPerformSelector:@selector(resetSelection)];
+#pragma clang diagnostic pop
     [self setSelected:NO animated:NO];
 	[self setNeedsDisplay];
 }

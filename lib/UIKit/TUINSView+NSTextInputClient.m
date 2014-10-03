@@ -36,7 +36,7 @@
 
 - (TUITextRenderer *)_textRendererAtScreenPoint:(NSPoint)screenPoint
 {
-	NSPoint locationInWindow = [[self window] convertScreenToBase:screenPoint];
+	NSPoint locationInWindow = [[self window] convertRectFromScreen:NSMakeRect(screenPoint.x, screenPoint.y, 1, 1)].origin;
 	NSPoint localPoint = [self localPointForLocationInWindow:locationInWindow];
 	TUIView *v = [self viewForLocalPoint:localPoint];
 	CGPoint vPoint = localPoint;
@@ -70,7 +70,7 @@
 //	NSLog(@"%@ %@", NSStringFromSelector(_cmd), NSStringFromPoint(screenPoint));
 	_tempTextRendererForTextInputClient = [self _textRendererAtScreenPoint:screenPoint];
 	if(_tempTextRendererForTextInputClient) {
-		NSPoint locationInWindow = [[self window] convertScreenToBase:screenPoint];
+		NSPoint locationInWindow = [[self window] convertRectFromScreen:NSMakeRect(screenPoint.x, screenPoint.y, 1, 1)].origin;
 		CGPoint vp = [_tempTextRendererForTextInputClient.view localPointForLocationInWindow:locationInWindow];
 //		NSLog(@"vp = %@", NSStringFromPoint(vp));
 		CGRect trFrame = _tempTextRendererForTextInputClient.frame;
@@ -103,7 +103,7 @@
 //		NSLog(@"windowRelativeRect = %@", NSStringFromRect(windowRelativeRect));
 		
 		NSRect screenRect = windowRelativeRect;
-		screenRect.origin = [_tempTextRendererForTextInputClient.view.nsWindow convertBaseToScreen:windowRelativeRect.origin];
+		screenRect.origin = [_tempTextRendererForTextInputClient.view.nsWindow convertRectToScreen:windowRelativeRect].origin;
 	
 		ret = screenRect;
 	}

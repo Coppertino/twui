@@ -340,7 +340,6 @@ typedef struct {
 }
 
 #pragma mark -
-
 @synthesize pullDownView=_pullDownView;
 @synthesize allowsMultipleSelection = _allowsMultipleSelection;
 
@@ -544,7 +543,7 @@ typedef struct {
 	return [_visibleItems allValues];
 }
 
-static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
+__unused static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, void *ctx)
 {
 	if(a.frame.origin.y > b.frame.origin.y)
 		return NSOrderedAscending;

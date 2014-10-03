@@ -181,13 +181,9 @@
 	CGContextSaveGState(context);
 	CGContextClearRect(context, self.bounds);
 
-	SInt32 major, minor;
-	Gestalt(gestaltSystemVersionMajor, &major);
-	Gestalt(gestaltSystemVersionMinor, &minor);
-
 	// 10.8 seems to have changed whether -renderInContext: renders the NSView
 	// flipped or not.
-	BOOL needsToFlip = (major > 10 || (major == 10 && minor >= 8)) ? [self.rootView isFlipped] : ![self.rootView isFlipped];
+	BOOL needsToFlip = [self.rootView isFlipped];
 
 	if (needsToFlip) {
 		CGContextTranslateCTM(context, 0, self.bounds.size.height);

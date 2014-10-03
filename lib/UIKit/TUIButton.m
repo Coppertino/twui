@@ -243,7 +243,7 @@
 	
 	// If we found a graphics style, get the maximum button height
 	// of the graphics style (NSButtons are height-constrained).
-	if(graphicsStyle != NSNotFound) {
+	if(graphicsStyle != 0) {
 		[renderer setBezelStyle:graphicsStyle];
 		[renderer setControlSize:NSRegularControlSize];
 		maximumHeight = renderer.cellSize.height;
@@ -318,7 +318,7 @@
 	
 	// If we found the proper graphics style, allow the graphics renderer to draw it.
 	// If not, draw it ourselves (Inline or Custom styles only, currently).
-	if(graphicsStyle != NSNotFound) {
+	if(graphicsStyle != 0) {
 		[renderer setBezelStyle:graphicsStyle];
 		[renderer drawBezelWithFrame:drawingRect inView:self.nsView];
 		

@@ -187,11 +187,6 @@ typedef NS_ENUM(NSInteger, TUITableViewDropDestination) {
 - (void)deselectRowAtIndexPath:(NSIndexPath *)indexPath animated:(BOOL)animated;
 
 /**
- Override this method for dragging pointer customization
- */
-- (void)drawDraggingPointerInView:(TUIView *)view;
-
-/**
  Above the top cell, only visible if you pull down (if you have scroll bouncing enabled)
  */
 @property (nonatomic, strong) TUIView *pullDownView;

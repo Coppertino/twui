@@ -111,14 +111,16 @@
 		NSImage *image = [self dragImageForSelection:range];
 		_selectionStart = saveStart;
 		_selectionEnd = saveEnd;
-		
-		[view.nsView dragImage:image 
-							at:f.origin
-						offset:NSZeroSize
-						 event:nextEvent 
-					pasteboard:pasteboard 
-						source:self 
-					 slideBack:YES];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        [view.nsView dragImage:image
+                            at:f.origin
+                        offset:NSZeroSize
+                         event:nextEvent
+                    pasteboard:pasteboard
+                        source:self
+                     slideBack:YES];
+#pragma clang diagnostic pop
 		return YES;
 	} else {
 		return NO;

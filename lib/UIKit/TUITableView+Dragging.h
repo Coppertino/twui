@@ -16,6 +16,14 @@
 
 #import "TUITableView.h"
 
+@interface TUITableView (Dragging)
+/**
+ Override this method for dragging pointer customization
+ */
+
+- (void)drawDraggingPointerInView:(TUIView *)view;
+@end
+
 /**
  * @brief Exposes some internal table view methods to cells (primarily for drag-to-reorder support)
  */

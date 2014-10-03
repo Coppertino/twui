@@ -9,13 +9,14 @@
 #import "TUIView+PasteboardDragging_Private.h"
 #import "TUINSView.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wprotocol"
 @implementation TUIView (PasteboardDragging_Private)
 
 #pragma mark - Dragging Source
 
 - (void)__beginPasteboardDraggingAsASourceWithEvent:(NSEvent *)event {
     CGPoint location = [event locationInWindow];
-    NSArray *types = nil;
     if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_draggingPasteboardPromisedFileTypesForView:)]) {
         [self.nsView dragPromisedFilesOfTypes:[self.draggingSourceDelegate tui_draggingPasteboardPromisedFileTypesForView:self]
                                      fromRect:NSMakeRect(location.x, location.y, 32, 32) source:self slideBack:YES event:event];
@@ -57,3 +58,4 @@
 }
 
 @end
+#pragma clang diagnostic pop

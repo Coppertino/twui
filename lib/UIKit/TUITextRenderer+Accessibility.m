@@ -18,12 +18,6 @@
 - (id)accessibilityHitTest:(NSPoint)point
 {
 	return self;
-	
-	if(CGRectContainsPoint(self.frame, point)) {
-		return self;
-	} else {
-		return nil;
-	}
 }
 
 - (BOOL)accessibilityIsIgnored
@@ -60,7 +54,7 @@
     } else if([attribute isEqualToString:NSAccessibilityPositionAttribute]) {
 		CGRect viewFrame = [self.view frameInNSView];
 		
-		NSPoint p = [[(NSView *)[self.view nsView] window] convertBaseToScreen:NSMakePoint(viewFrame.origin.x + self.frame.origin.x, viewFrame.origin.y + self.frame.origin.y)];
+		NSPoint p = [[(NSView *)[self.view nsView] window] convertRectToScreen:NSMakeRect(viewFrame.origin.x + self.frame.origin.x, viewFrame.origin.y + self.frame.origin.y, 1, 1)].origin;
 		return [NSValue valueWithPoint:p];
     } else if([attribute isEqualToString:NSAccessibilitySizeAttribute]) {
 		return [NSValue valueWithSize:[self frame].size];

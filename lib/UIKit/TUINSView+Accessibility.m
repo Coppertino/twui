@@ -13,7 +13,7 @@
 
 - (id)accessibilityHitTest:(NSPoint)point
 {
-	NSPoint windowPoint = [[self window] convertScreenToBase:point];
+	NSPoint windowPoint = [[self window] convertRectFromScreen:NSMakeRect(point.x, point.y, 1, 1)].origin;
 	NSPoint localPoint = [self convertPoint:windowPoint fromView:nil];
 	return [self.rootView accessibilityHitTest:localPoint];
 }
@@ -44,7 +44,7 @@
     } else if([attribute isEqualToString:NSAccessibilityTopLevelUIElementAttribute]) {
 		return [self.superview accessibilityAttributeValue:NSAccessibilityTopLevelUIElementAttribute];
     } else if([attribute isEqualToString:NSAccessibilityPositionAttribute]) {
-		return [NSValue valueWithPoint:[[self window] convertBaseToScreen:[self convertPoint:self.bounds.origin toView:nil]]];
+		return [NSValue valueWithPoint:[[self window] convertRectToScreen:[self convertRect:self.bounds toView:nil]].origin];
     } else if([attribute isEqualToString:NSAccessibilitySizeAttribute]) {
 		return [NSValue valueWithSize:self.bounds.size];
     } else {

@@ -67,8 +67,11 @@
 - (TUIStretchableImage *)tui_resizableImageWithCapInsets:(TUIEdgeInsets)insets {
 	TUIStretchableImage *image = [[TUIStretchableImage alloc] init];
 	[image addRepresentations:self.representations];
-
+#ifdef __MAC_10_10
+    image.capInsets = NSEdgeInsetsMake(insets.top, insets.left, insets.bottom, insets.right);
+#else
 	image.capInsets = insets;
+#endif
 	return image;
 }
 

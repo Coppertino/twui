@@ -208,9 +208,11 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 	[super viewDidEndLiveResize];
 	inLiveResize = NO;
 	[_rootView viewDidEndLiveResize]; // will send to all subviews
-	
-	if ([[self window] respondsToSelector:@selector(ensureWindowRectIsOnScreen)])
-		[[self window] performSelector:@selector(ensureWindowRectIsOnScreen)];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+    if ([[self window] respondsToSelector:@selector(ensureWindowRectIsOnScreen)])
+        [[self window] performSelector:@selector(ensureWindowRectIsOnScreen)];
+#pragma clang diagnostic pop
 }
 
 - (void)setRootView:(TUIView *)v {

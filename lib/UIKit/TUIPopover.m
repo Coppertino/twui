@@ -135,7 +135,7 @@ NSTimeInterval const TUIPopoverDefaultFadeoutDuration = 0.3;
     CGRect basePositioningRect = [positioningView convertRect:positioningRect toView:nil];
     NSRect windowRelativeRect = [positioningView.nsView convertRect:basePositioningRect toView:nil];
     CGRect screenPositioningRect = windowRelativeRect;
-	screenPositioningRect.origin = [positioningView.nsWindow convertBaseToScreen:windowRelativeRect.origin];
+	screenPositioningRect.origin = [positioningView.nsWindow convertRectToScreen:windowRelativeRect].origin;
     self.originalViewSize = self.contentViewController.view.frame.size;
     CGSize contentViewSize = (CGSizeEqualToSize(self.contentSize, CGSizeZero) ? self.contentViewController.view.frame.size : self.contentSize);
     
@@ -373,7 +373,7 @@ CGFloat const TUIPopoverBackgroundViewArrowWidth = 35.0;
 	CGFloat minY = NSMinY(contentRect);
 	CGFloat maxY = NSMaxY(contentRect);
 	CGRect windowRect = self.screenOriginRect;
-	windowRect.origin = [self.nsWindow convertScreenToBase:self.screenOriginRect.origin];
+	windowRect.origin = [self.nsWindow convertRectFromScreen:self.screenOriginRect].origin;
 	CGRect originRect = [self convertRect:windowRect fromView:nil]; //hmm as we have no superview at this point is this retarded?
 	CGFloat midOriginY = floor(NSMidY(originRect));
 	CGFloat midOriginX = floor(NSMidX(originRect));

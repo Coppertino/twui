@@ -230,8 +230,10 @@
 - (void)doCommandBySelector:(SEL)selector
 {
 	[super doCommandBySelector:selector];
-	
-	wasValidKeyEquivalentSelector = selector != @selector(noop:);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+    wasValidKeyEquivalentSelector = selector != @selector(noop:);
+#pragma clang diagnostic pop
 }
 
 - (BOOL)performKeyEquivalent:(NSEvent *)event
@@ -395,7 +397,7 @@
 	NSRect windowRelativeRect = [self.view.nsView convertRect:vf toView:nil];
 	
 	NSRect screenRect = windowRelativeRect;
-	screenRect.origin = [self.view.nsWindow convertBaseToScreen:windowRelativeRect.origin];
+	screenRect.origin = [self.view.nsWindow convertRectToScreen:windowRelativeRect].origin;
 	
 	return screenRect;
 }
@@ -405,7 +407,7 @@
  */
 - (NSUInteger)characterIndexForPoint:(NSPoint)screenPoint
 {
-	NSPoint locationInWindow = [[view nsWindow] convertScreenToBase:screenPoint];
+	NSPoint locationInWindow = [[view nsWindow] convertRectFromScreen:NSMakeRect(screenPoint.x, screenPoint.y, 1, 1)].origin;
 	CGPoint vp = [view localPointForLocationInWindow:locationInWindow];
 	
 	CGRect trFrame = self.frame;

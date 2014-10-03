@@ -49,7 +49,6 @@
  * @brief Mouse up in a cell
  */
 -(void)__mouseUpInCell:(TUITableViewCell *)cell offset:(CGPoint)offset event:(NSEvent *)event {
-    NSIndexPath *indexPathToSelect = _indexPathToInsert;
     [self __endDraggingCells:cell offset:offset location:[self localPointForEvent:event]];
 }
 
@@ -91,7 +90,6 @@
         
         NSImage *image = TUIGraphicsGetImageForView(displacedCell);
         
-        CGRect visible = cell.frame;
         // dragged cell destination frame
         CGRect dest = CGRectMake(extendX,
                                  [self convertPoint:location fromView:self.superview].y - 5 + extendY,
@@ -122,7 +120,6 @@
  * @brief Update cell dragging
  */
 - (void)__updateDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
-    BOOL animate = YES;
     
     NSIndexPath *ip = [self indexPathForRowAtPoint:location];
     if (![self.indexPathesForSelectedRows containsObject:ip] && ![self __isDraggingCells] && [self eventInside:[NSApp currentEvent]]) {
@@ -196,8 +193,6 @@
     
     CGFloat relativeOffset = [cell convertFromWindowPoint:location].y / cellUnderThePointer.bounds.size.height;
     
-    CGFloat yInCell = [cellUnderThePointer convertFromWindowPoint:location].y;
-    CGFloat cellHeight = cellUnderThePointer.frame.size.height;
     if (relativeOffset < 0.5) {
         [self _moveDraggingPointerAfterIndexPath:indexPathUnderMousePointer];
     } else {
@@ -213,8 +208,6 @@
  * @brief Finish dragging a cell
  */
 -(void)__endDraggingCells:(TUITableViewCell *)cell offset:(CGPoint)offset location:(CGPoint)location {
-    BOOL animate = TRUE;
-    
     if (_draggedViews && _draggedViews.count > 0) {
         [_draggedViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
         [_draggedViews removeAllObjects];
@@ -303,9 +296,13 @@
     [self drawDraggingPointerInView:_draggingSeparatorView];
     [self addSubview:_draggingSeparatorView];
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
 - (void)drawDraggingPointerInView:(TUIView *)view {
     [view setBackgroundColor:[NSColor whiteColor]];
 }
+#pragma clang diagnostic pop
 
 // Overriding pasteboard dragging for TUITableView
 
@@ -350,14 +347,12 @@
 }
 
 - (void)draggingSession:(NSDraggingSession *)session movedToPoint:(NSPoint)screenPoint {
-    NSPoint p = [self convertFromWindowPoint:[(NSWindow *)self.nsWindow convertScreenToBase:screenPoint]];
     if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_draggingSession:movedToPoint:forView:)]) {
         [self.draggingSourceDelegate tui_draggingSession:session movedToPoint:screenPoint forView:self];
     }
 }
 
 - (void)draggingSession:(NSDraggingSession *)session endedAtPoint:(NSPoint)screenPoint operation:(NSDragOperation)operation {
-    NSPoint p = [self convertFromWindowPoint:[(NSWindow *)self.nsWindow convertScreenToBase:screenPoint]];
     if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_draggingSession:endedAtPoint:operation:forView:)]) {
         [self.draggingSourceDelegate tui_draggingSession:session endedAtPoint:screenPoint operation:operation forView:self];
     }

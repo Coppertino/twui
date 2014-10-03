@@ -61,22 +61,13 @@ enum {
 @synthesize resizeKnobSize;
 
 // Default to non-Lion and non-MountainLion behavior to prevent breakage.
-static BOOL isAtleastLion = NO;
-static BOOL isAtleastMountainLion = NO;
+static BOOL isAtleastLion = YES;
+static BOOL isAtleastMountainLion = YES;
 
 // Apply Lion or Mountain Lion specific features.
 + (void)initialize {
 	if (self.class != TUIScrollView.class)
 		return;
-	
-	SInt32 major = 0;
-	SInt32 minor = 0;
-	
-	Gestalt(gestaltSystemVersionMajor, &major);
-	Gestalt(gestaltSystemVersionMinor, &minor);
-	
-	isAtleastLion = ((major == 10 && minor >= 7) || major > 11);
-	isAtleastMountainLion = ((major == 10 && minor >= 8) || major > 11);
 }
 
 + (BOOL)requiresLegacyScrollers {
@@ -379,17 +370,7 @@ static CVReturn scrollCallback(CVDisplayLinkRef displayLink, const CVTimeStamp *
 			offset.y = 0.0;
 		}
 	} else { // content smaller than bounds
-		if (0) { // let it move around in bounds
-			if (my > b.size.height) {
-				offset.y = b.size.height - s.height;
-			}
-			if (offset.y < 0.0) {
-				offset.y = 0.0;
-			}
-		}
-		if (1) { // pin to top
-			offset.y = b.size.height - s.height;
-		}
+        offset.y = b.size.height - s.height;
 	}
 	
 	return offset;
@@ -601,21 +582,21 @@ static CGFloat lerp(CGFloat a, CGFloat b, CGFloat t)
 	return a - t * (a+b);
 }
 
-static CGFloat clamp(CGFloat x, CGFloat min, CGFloat max)
+__unused static CGFloat clamp(CGFloat x, CGFloat min, CGFloat max)
 {
 	if (x < min) return min;
 	if (x > max) return max;
 	return x;
 }
 
-static CGFloat PointDist(CGPoint a, CGPoint b)
+__unused static CGFloat PointDist(CGPoint a, CGPoint b)
 {
 	CGFloat dx = a.x - b.x;
 	CGFloat dy = a.y - b.y;
 	return sqrt(dx*dx + dy*dy);
 }
 
-static CGPoint PointLerp(CGPoint a, CGPoint b, CGFloat t)
+__unused static CGPoint PointLerp(CGPoint a, CGPoint b, CGFloat t)
 {
 	CGPoint p;
 	p.x = lerp(a.x, b.x, t);
@@ -1180,11 +1161,14 @@ static float clampBounce(float x) {
 				}
 			}
 		} else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 			SEL s = @selector(_scrollPhase);
 			if ([event respondsToSelector:s]) {
 				int (*imp)(id,SEL) = (int(*)(id,SEL))[event methodForSelector:s];
 				phase = imp(event, s);
 			}
+#pragma clang diagnostic pop
 		}
 		
 		switch (phase) {

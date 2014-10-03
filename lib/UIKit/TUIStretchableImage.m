@@ -36,7 +36,12 @@
 	}
 
 	CGSize size = CGSizeMake(CGImageGetWidth(image), CGImageGetHeight(image));
-	TUIEdgeInsets insets = self.capInsets;
+#ifdef __MAC_10_10
+    NSEdgeInsets
+#else
+	TUIEdgeInsets
+#endif
+    insets = self.capInsets;
 
 	// TODO: Cache the nine-part images for this common case of wanting to draw
 	// the whole source image.
@@ -122,7 +127,7 @@
 		bottomRight = imageWithRect(partRect);
 	}
 
-	CGRect centerRect = TUIEdgeInsetsInsetRect(CGRectMake(0, 0, size.width, size.height), insets);
+	CGRect centerRect = TUIEdgeInsetsInsetRect(CGRectMake(0, 0, size.width, size.height), TUIEdgeInsetsMake(insets.top, insets.left, insets.bottom, insets.right));
 	if (centerRect.size.width > 0 && centerRect.size.height > 0) {
 		center = imageWithRect(centerRect);
 	}
@@ -158,8 +163,11 @@
 - (id)initWithCoder:(NSCoder *)coder {
 	self = [super initWithCoder:coder];
 	if (self == nil) return nil;
-
+#ifdef __MAC_10_10
+    self.capInsets = NSEdgeInsetsMake(
+#else
 	self.capInsets = TUIEdgeInsetsMake(
+#endif
 		[coder decodeFloatForKey:@"capInsetTop"],
 		[coder decodeFloatForKey:@"capInsetLeft"],
 		[coder decodeFloatForKey:@"capInsetBottom"],
