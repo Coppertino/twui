@@ -1121,7 +1121,10 @@ static void TUISetCurrentContextScaleFactor(CGFloat s)
 
 - (NSColor *)backgroundColor
 {
-	return [NSColor colorWithCGColor:self.layer.backgroundColor];
+    if (self.layer.backgroundColor != NULL) {
+        return [NSColor colorWithCGColor:self.layer.backgroundColor];
+    }
+    return nil;
 }
 
 - (void)setBackgroundColor:(NSColor *)color
