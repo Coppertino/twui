@@ -8,7 +8,6 @@
 
 #import "TUITableOutlineView.h"
 #import "TUILayoutConstraint.h"
-#import "NSColor+TUIExtensions.h"
 
 
 #define NORMAL_Z_POSITION 0.0

@@ -21,7 +21,6 @@
 #import "NSAffineTransform+TUIExtensions.h"
 #import "NSBezierPath+TUIExtensions.h"
 #import "NSClipView+TUIExtensions.h"
-#import "NSColor+TUIExtensions.h"
 #import "NSFont+TUIExtensions.h"
 #import "NSImage+TUIExtensions.h"
 #import "NSScrollView+TUIExtensions.h"
