@@ -15,7 +15,6 @@
  */
 
 #import "NSImage+TUIExtensions.h"
-#import "NSColor+TUIExtensions.h"
 #import "TUICGAdditions.h"
 #import "TUIStretchableImage.h"
 
@@ -178,11 +177,11 @@
 		CGContextSaveGState(ctx);
 		CGRect r = CGRectMake(0, 0, paddedImage.size.width, paddedImage.size.height);
 		CGContextClipToMask(ctx, r, paddedImage.tui_CGImage); // clip to image
-		CGContextSetShadowWithColor(ctx, offset, radius, color.tui_CGColor);
+		CGContextSetShadowWithColor(ctx, offset, radius, color.CGColor);
 		CGContextBeginTransparencyLayer(ctx, NULL);
 		{
 			CGContextClipToMask(ctx, r, [[paddedImage tui_invertedMask] tui_CGImage]); // clip to inverted
-			CGContextSetFillColorWithColor(ctx, backgroundColor.tui_CGColor);
+			CGContextSetFillColorWithColor(ctx, backgroundColor.CGColor);
 			CGContextFillRect(ctx, r); // draw with shadow
 		}
 

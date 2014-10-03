@@ -19,7 +19,6 @@
 #import "TUINSView.h"
 #import "TUINSWindow.h"
 #import "TUITextViewEditor.h"
-#import "NSColor+TUIExtensions.h"
 
 @interface TUITextViewAutocorrectedPair : NSObject <NSCopying> {
 	NSTextCheckingResult *correctionResult;
@@ -96,7 +95,7 @@
 	NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
 	
 	if (self.textColor != nil) {
-		[attributes setObject:(__bridge id)self.textColor.tui_CGColor forKey:(__bridge id)kCTForegroundColorAttributeName];
+		[attributes setObject:(__bridge id)self.textColor.CGColor forKey:(__bridge id)kCTForegroundColorAttributeName];
 	}
 	
 	NSParagraphStyle *style = ABNSParagraphStyleForTextAlignment(textAlignment);

@@ -354,12 +354,6 @@
 		D0C7657415B6341800E7AC2C /* TUICAAction.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C7657015B6341800E7AC2C /* TUICAAction.m */; };
 		D0C7657515B6341800E7AC2C /* TUICAAction.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C7657015B6341800E7AC2C /* TUICAAction.m */; };
 		D0C7657615B6341800E7AC2C /* TUICAAction.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C7657015B6341800E7AC2C /* TUICAAction.m */; };
-		D0EA12F115C34FEA00FAA603 /* NSColor+TUIExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EA12EF15C34FEA00FAA603 /* NSColor+TUIExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D0EA12F215C34FEA00FAA603 /* NSColor+TUIExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EA12EF15C34FEA00FAA603 /* NSColor+TUIExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D0EA12F315C34FEA00FAA603 /* NSColor+TUIExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D0EA12EF15C34FEA00FAA603 /* NSColor+TUIExtensions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D0EA12F415C34FEA00FAA603 /* NSColor+TUIExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EA12F015C34FEA00FAA603 /* NSColor+TUIExtensions.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		D0EA12F515C34FEA00FAA603 /* NSColor+TUIExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EA12F015C34FEA00FAA603 /* NSColor+TUIExtensions.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		D0EA12F615C34FEA00FAA603 /* NSColor+TUIExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EA12F015C34FEA00FAA603 /* NSColor+TUIExtensions.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		D491662116FE76AD001A8CFD /* TUICarouselNavigationController.h in Headers */ = {isa = PBXBuildFile; fileRef = D491661F16FE76AD001A8CFD /* TUICarouselNavigationController.h */; };
 		D491662216FE76AD001A8CFD /* TUICarouselNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = D491662016FE76AD001A8CFD /* TUICarouselNavigationController.m */; };
 /* End PBXBuildFile section */
@@ -613,8 +607,6 @@
 		D0C7656D15B6322A00E7AC2C /* TUIViewNSViewContainer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TUIViewNSViewContainer+Private.h"; sourceTree = "<group>"; };
 		D0C7656F15B6341800E7AC2C /* TUICAAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICAAction.h; sourceTree = "<group>"; };
 		D0C7657015B6341800E7AC2C /* TUICAAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICAAction.m; sourceTree = "<group>"; };
-		D0EA12EF15C34FEA00FAA603 /* NSColor+TUIExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSColor+TUIExtensions.h"; sourceTree = "<group>"; };
-		D0EA12F015C34FEA00FAA603 /* NSColor+TUIExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSColor+TUIExtensions.m"; sourceTree = "<group>"; };
 		D491661F16FE76AD001A8CFD /* TUICarouselNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TUICarouselNavigationController.h; sourceTree = "<group>"; };
 		D491662016FE76AD001A8CFD /* TUICarouselNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TUICarouselNavigationController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -793,8 +785,6 @@
 				48694D8C165832B800BE65BF /* NSBezierPath+TUIExtensions.m */,
 				D0C7655915B6297200E7AC2C /* NSClipView+TUIExtensions.h */,
 				D0C7655A15B6297200E7AC2C /* NSClipView+TUIExtensions.m */,
-				D0EA12EF15C34FEA00FAA603 /* NSColor+TUIExtensions.h */,
-				D0EA12F015C34FEA00FAA603 /* NSColor+TUIExtensions.m */,
 				887C227915C1C7BB006EC31D /* NSFont+TUIExtensions.h */,
 				887C227A15C1C7BB006EC31D /* NSFont+TUIExtensions.m */,
 				D05D239E15BF7239000ED14F /* NSImage+TUIExtensions.h */,
@@ -977,7 +967,6 @@
 				D07AA82815BDD72F00F736C0 /* TUINSView+NSTextInputClient.h in Headers */,
 				D05DEE8E15BF645D005D8769 /* TUIStretchableImage.h in Headers */,
 				D05D23A215BF7239000ED14F /* NSImage+TUIExtensions.h in Headers */,
-				D0EA12F315C34FEA00FAA603 /* NSColor+TUIExtensions.h in Headers */,
 				48373DF7160EAE9400322CA7 /* TUITextRenderer+Private.h in Headers */,
 				4837401016111B5C00322CA7 /* TUIRefreshControl.h in Headers */,
 				488A5835162FBE9B006CBF8B /* TUITableViewController.h in Headers */,
@@ -1056,7 +1045,6 @@
 				D07AA82615BDD72F00F736C0 /* TUINSView+NSTextInputClient.h in Headers */,
 				D05DEE8C15BF645D005D8769 /* TUIStretchableImage.h in Headers */,
 				D05D23A015BF7239000ED14F /* NSImage+TUIExtensions.h in Headers */,
-				D0EA12F115C34FEA00FAA603 /* NSColor+TUIExtensions.h in Headers */,
 				48373DF5160EAE9400322CA7 /* TUITextRenderer+Private.h in Headers */,
 				4837400E16111B5C00322CA7 /* TUIRefreshControl.h in Headers */,
 				488A5833162FBE9B006CBF8B /* TUITableViewController.h in Headers */,
@@ -1096,7 +1084,6 @@
 				D07AA82715BDD72F00F736C0 /* TUINSView+NSTextInputClient.h in Headers */,
 				D05DEE8D15BF645D005D8769 /* TUIStretchableImage.h in Headers */,
 				D05D23A115BF7239000ED14F /* NSImage+TUIExtensions.h in Headers */,
-				D0EA12F215C34FEA00FAA603 /* NSColor+TUIExtensions.h in Headers */,
 				48373DF6160EAE9400322CA7 /* TUITextRenderer+Private.h in Headers */,
 				4837400F16111B5C00322CA7 /* TUIRefreshControl.h in Headers */,
 				488A5834162FBE9B006CBF8B /* TUITableViewController.h in Headers */,
@@ -1379,7 +1366,6 @@
 				D07AA82B15BDD79A00F736C0 /* TUINSView+NSTextInputClient.m in Sources */,
 				D05DEE9115BF645D005D8769 /* TUIStretchableImage.m in Sources */,
 				D05D23A515BF7239000ED14F /* NSImage+TUIExtensions.m in Sources */,
-				D0EA12F615C34FEA00FAA603 /* NSColor+TUIExtensions.m in Sources */,
 				4837401316111B5C00322CA7 /* TUIRefreshControl.m in Sources */,
 				488A5838162FBE9B006CBF8B /* TUITableViewController.m in Sources */,
 				48694D7A1658318000BE65BF /* NSAffineTransform+TUIExtensions.m in Sources */,
@@ -1456,7 +1442,6 @@
 				D05DEE8F15BF645D005D8769 /* TUIStretchableImage.m in Sources */,
 				D05D23A315BF7239000ED14F /* NSImage+TUIExtensions.m in Sources */,
 				887C227C15C1C7BB006EC31D /* NSFont+TUIExtensions.m in Sources */,
-				D0EA12F415C34FEA00FAA603 /* NSColor+TUIExtensions.m in Sources */,
 				4837401116111B5C00322CA7 /* TUIRefreshControl.m in Sources */,
 				488A5836162FBE9B006CBF8B /* TUITableViewController.m in Sources */,
 				48694D781658318000BE65BF /* NSAffineTransform+TUIExtensions.m in Sources */,
@@ -1536,7 +1521,6 @@
 				D07AA82A15BDD79A00F736C0 /* TUINSView+NSTextInputClient.m in Sources */,
 				D05DEE9015BF645D005D8769 /* TUIStretchableImage.m in Sources */,
 				D05D23A415BF7239000ED14F /* NSImage+TUIExtensions.m in Sources */,
-				D0EA12F515C34FEA00FAA603 /* NSColor+TUIExtensions.m in Sources */,
 				4837401216111B5C00322CA7 /* TUIRefreshControl.m in Sources */,
 				488A5837162FBE9B006CBF8B /* TUITableViewController.m in Sources */,
 				48694D791658318000BE65BF /* NSAffineTransform+TUIExtensions.m in Sources */,

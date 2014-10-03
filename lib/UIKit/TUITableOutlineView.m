@@ -784,7 +784,7 @@ CG_INLINE CGFloat durationForOffset(CGFloat offset)
         //        if (!cell) NSLog(@"no cell: %@", indexPath);
         
         cell.frame = CGRectOffset(cell.frame, 0, offset);
-        //        cell.layer.borderColor = [[NSColor redColor] tui_CGColor];
+        //        cell.layer.borderColor = [[NSColor redColor] CGColor];
         //        cell.layer.borderWidth = 1.0;
     }];
 }

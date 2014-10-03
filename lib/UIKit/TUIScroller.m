@@ -18,7 +18,6 @@
 #import "TUIScrollView+Private.h"
 
 #import "TUICGAdditions.h"
-#import "NSColor+TUIExtensions.h"
 #import "CAAnimation+TUIExtensions.h"
 
 static CGFloat const TUIScrollerMinimumKnobSize = 25.0f;
@@ -73,7 +72,7 @@ static NSTimeInterval const TUIScrollerDisplayDuration = 0.75f;
 		self.knob.userInteractionEnabled = NO;
 		self.knob.clipsToBounds = NO;
 		
-		self.knob.layer.shadowColor = [NSColor whiteColor].tui_CGColor;
+		self.knob.layer.shadowColor = [NSColor whiteColor].CGColor;
 		self.knob.layer.shadowOffset = CGSizeMake(0, 0);
 		self.knob.layer.shadowOpacity = 1.0;
 		self.knob.layer.shadowRadius = 1.0;
@@ -303,15 +302,15 @@ static NSTimeInterval const TUIScrollerDisplayDuration = 0.75f;
 	switch(style) {
 		case TUIScrollViewIndicatorStyleLight:
 			self.knob.backgroundColor = [NSColor colorWithCalibratedWhite:1.0 alpha:1.0];
-			self.knob.layer.shadowColor = [NSColor colorWithCalibratedWhite:0.5 alpha:1.0].tui_CGColor;
+			self.knob.layer.shadowColor = [NSColor colorWithCalibratedWhite:0.5 alpha:1.0].CGColor;
 			break;
 		case TUIScrollViewIndicatorStyleDark:
 			self.knob.backgroundColor = [NSColor colorWithCalibratedWhite:0.0 alpha:1.0];
-			self.knob.layer.shadowColor = [NSColor colorWithCalibratedWhite:0.5 alpha:1.0].tui_CGColor;
+			self.knob.layer.shadowColor = [NSColor colorWithCalibratedWhite:0.5 alpha:1.0].CGColor;
 			break;
 		default:
 			self.knob.backgroundColor = [NSColor colorWithCalibratedWhite:0.0 alpha:1.0];
-			self.knob.layer.shadowColor = [NSColor colorWithCalibratedWhite:1.0 alpha:1.0].tui_CGColor;
+			self.knob.layer.shadowColor = [NSColor colorWithCalibratedWhite:1.0 alpha:1.0].CGColor;
 			break;
 	}
 	

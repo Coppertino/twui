@@ -16,7 +16,6 @@
 
 #import "TUIPopover.h"
 #import "CAAnimation+TUIExtensions.h"
-#import "NSColor+TUIExtensions.h"
 #import "TUICGAdditions.h"
 #import "TUINSView.h"
 #import "TUINSWindow.h"
@@ -471,11 +470,11 @@ CGFloat const TUIPopoverBackgroundViewArrowWidth = 35.0;
 		TUIPopoverBackgroundView *strongSelf = (id)view;
 		CGContextRef context = TUIGraphicsGetCurrentContext();
 		CGPathRef outerBorder = [strongSelf newPopoverPathForEdge:strongSelf.popoverEdge inFrame:strongSelf.bounds];
-		CGContextSetStrokeColorWithColor(context, strongSelf.strokeColor.tui_CGColor);
+		CGContextSetStrokeColorWithColor(context, strongSelf.strokeColor.CGColor);
 		CGContextAddPath(context, outerBorder);
 		CGContextStrokePath(context);
 		
-		CGContextSetFillColorWithColor(context, strongSelf.fillColor.tui_CGColor);
+		CGContextSetFillColorWithColor(context, strongSelf.fillColor.CGColor);
 		CGContextAddPath(context, outerBorder);
 		CGContextFillPath(context);
 		

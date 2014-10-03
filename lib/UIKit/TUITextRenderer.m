@@ -16,7 +16,6 @@
 
 #import "TUITextRenderer.h"
 #import "ABActiveRange.h"
-#import "NSColor+TUIExtensions.h"
 #import "TUIAttributedString.h"
 #import "TUICGAdditions.h"
 #import "TUIStringDrawing.h"
@@ -302,7 +301,7 @@ NSString *const TUITextRendererDidResignFirstResponder = @"TUITextRendererDidRes
 				NSColor *color = [NSColor colorWithCalibratedWhite:1.0 alpha:1.0];
 				[color setFill];
 
-				CGContextSetShadowWithColor(context, CGSizeMake(0, 0), 8, color.tui_CGColor);
+				CGContextSetShadowWithColor(context, CGSizeMake(0, 0), 8, color.CGColor);
 				CGContextFillRoundRect(context, rect, 10);
 			}
 			
@@ -325,7 +324,7 @@ NSString *const TUITextRendererDidResignFirstResponder = @"TUITextRendererDidRes
 		}
 		
 		if(shadowColor)
-			CGContextSetShadowWithColor(context, shadowOffset, shadowBlur, shadowColor.tui_CGColor);
+			CGContextSetShadowWithColor(context, shadowOffset, shadowBlur, shadowColor.CGColor);
 		
 		CGContextSetTextMatrix(context, CGAffineTransformIdentity);
 		CTFrameDraw(f, context);

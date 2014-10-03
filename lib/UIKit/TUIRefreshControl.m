@@ -19,7 +19,6 @@
 #import "TUIActivityIndicatorView.h"
 
 #import "TUICGAdditions.h"
-#import "NSColor+TUIExtensions.h"
 #import "CATransaction+TUIExtensions.h"
 
 static CGFloat const TUIRefreshTotalHeight		= 350.0f;
@@ -79,19 +78,19 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p) {
 		self.tintColor = [NSColor colorWithCalibratedRed:155.0 / 255.0 green:162.0 / 255.0 blue:172.0 / 255.0 alpha:1.0];
 		
 		self.shapeLayer = [CAShapeLayer layer];
-		self.shapeLayer.fillColor = [_tintColor tui_CGColor];
-		self.shapeLayer.strokeColor = [[[NSColor darkGrayColor] colorWithAlphaComponent:0.5] tui_CGColor];
+		self.shapeLayer.fillColor = [_tintColor CGColor];
+		self.shapeLayer.strokeColor = [[[NSColor darkGrayColor] colorWithAlphaComponent:0.5] CGColor];
 		self.shapeLayer.lineWidth = 0.5;
-		self.shapeLayer.shadowColor = [[NSColor blackColor] tui_CGColor];
+		self.shapeLayer.shadowColor = [[NSColor blackColor] CGColor];
 		self.shapeLayer.shadowOffset = CGSizeMake(0, 1);
 		self.shapeLayer.shadowOpacity = 0.4;
 		self.shapeLayer.shadowRadius = 0.5;
 		[self.layer addSublayer:self.shapeLayer];
 		
 		self.arrowLayer = [CAShapeLayer layer];
-		self.arrowLayer.strokeColor = [[[NSColor darkGrayColor] colorWithAlphaComponent:0.5] tui_CGColor];
+		self.arrowLayer.strokeColor = [[[NSColor darkGrayColor] colorWithAlphaComponent:0.5] CGColor];
 		self.arrowLayer.lineWidth = 0.5;
-		self.arrowLayer.fillColor = [[NSColor whiteColor] tui_CGColor];
+		self.arrowLayer.fillColor = [[NSColor whiteColor] CGColor];
 		[self.shapeLayer addSublayer:self.arrowLayer];
 	}
 	
@@ -121,7 +120,7 @@ static inline CGFloat lerp(CGFloat a, CGFloat b, CGFloat p) {
 
 - (void)setTintColor:(NSColor *)tintColor {
 	_tintColor = tintColor;
-	self.shapeLayer.fillColor = _tintColor.tui_CGColor;
+	self.shapeLayer.fillColor = _tintColor.CGColor;
 }
 
 - (void)beginRefreshing {
