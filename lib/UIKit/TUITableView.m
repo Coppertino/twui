@@ -401,7 +401,7 @@ typedef struct {
 
 - (NSInteger)numberOfRowsInSection:(NSInteger)section
 {
-	return [[_sectionInfo objectAtIndex:section] numberOfRows];
+    return (_sectionInfo.count > 0 ? [[_sectionInfo objectAtIndex:section] numberOfRows] : 0);
 }
 
 - (CGRect)rectForHeaderOfSection:(NSInteger)section {
