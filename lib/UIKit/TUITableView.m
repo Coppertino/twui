@@ -1425,62 +1425,68 @@ __unused static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, vo
 		}
 	};
 	
-	switch([[event charactersIgnoringModifiers] characterAtIndex:0]) {
-		case NSUpArrowFunctionKey: {
-			selectValidIndexPath([self indexPathForLastVisibleRow], ^(NSIndexPath *lastIndexPath) {
-                if (self.smartIncrementalSelection && lastIndexPath.row == self.indexPathForFirstRow.row && lastIndexPath.section == self.indexPathForFirstRow.section) {
-                    return [self indexPathForLastRow];
-                }
-				NSUInteger section = lastIndexPath.section;
-				NSUInteger row = lastIndexPath.row;
-				if(row > 0) {
-					row--;
-				} else {
-					while(section > 0) {
-						section--;
-						NSUInteger rowsInSection = [self numberOfRowsInSection:section];
-						if(rowsInSection > 0) {
-							row = rowsInSection - 1;
-							break;
-						}
-					}
-				}
-				
-				return [NSIndexPath indexPathForRow:row inSection:section];
-			});
-			
-            
-			return YES;
-		}
-            
-		case NSDownArrowFunctionKey:  {
-			selectValidIndexPath([self indexPathForFirstVisibleRow], ^(NSIndexPath *lastIndexPath) {
-                if (self.smartIncrementalSelection && lastIndexPath.row == self.indexPathForLastRow.row && lastIndexPath.section == self.indexPathForLastRow.section) {
-                    return [self indexPathForFirstRow];
-                }
-				NSUInteger section = lastIndexPath.section;
-				NSUInteger row = lastIndexPath.row;
-				NSUInteger rowsInSection = [self numberOfRowsInSection:section];
-				if(row + 1 < rowsInSection) {
-					row++;
-				} else {
-					NSUInteger sections = [self numberOfSections];
-					while(section + 1 < sections) {
-						section++;
-						NSUInteger rowsInSection = [self numberOfRowsInSection:section];
-						if(rowsInSection > 0) {
-							row = 0;
-							break;
-						}
-					}
-				}
-				
-				return [NSIndexPath indexPathForRow:row inSection:section];
-			});
-            
-			return YES;
-		}
-	}
+    NSString *chars = [event charactersIgnoringModifiers];
+    // Some events have no characters and that may raise exception
+    if (chars && chars.length > 0) {
+        switch([[event charactersIgnoringModifiers] characterAtIndex:0]) {
+            case NSUpArrowFunctionKey: {
+                selectValidIndexPath([self indexPathForLastVisibleRow], ^(NSIndexPath *lastIndexPath) {
+                    if (self.smartIncrementalSelection && lastIndexPath.row == self.indexPathForFirstRow.row && lastIndexPath.section == self.indexPathForFirstRow.section) {
+                        return [self indexPathForLastRow];
+                    }
+                    NSUInteger section = lastIndexPath.section;
+                    NSUInteger row = lastIndexPath.row;
+                    if(row > 0) {
+                        row--;
+                    } else {
+                        while(section > 0) {
+                            section--;
+                            NSUInteger rowsInSection = [self numberOfRowsInSection:section];
+                            if(rowsInSection > 0) {
+                                row = rowsInSection - 1;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    return [NSIndexPath indexPathForRow:row inSection:section];
+                });
+                
+                
+                return YES;
+            }
+                
+            case NSDownArrowFunctionKey:  {
+                selectValidIndexPath([self indexPathForFirstVisibleRow], ^(NSIndexPath *lastIndexPath) {
+                    if (self.smartIncrementalSelection && lastIndexPath.row == self.indexPathForLastRow.row && lastIndexPath.section == self.indexPathForLastRow.section) {
+                        return [self indexPathForFirstRow];
+                    }
+                    NSUInteger section = lastIndexPath.section;
+                    NSUInteger row = lastIndexPath.row;
+                    NSUInteger rowsInSection = [self numberOfRowsInSection:section];
+                    if(row + 1 < rowsInSection) {
+                        row++;
+                    } else {
+                        NSUInteger sections = [self numberOfSections];
+                        while(section + 1 < sections) {
+                            section++;
+                            NSUInteger rowsInSection = [self numberOfRowsInSection:section];
+                            if(rowsInSection > 0) {
+                                row = 0;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    return [NSIndexPath indexPathForRow:row inSection:section];
+                });
+                
+                return YES;
+            }
+        }
+    }
+    
+    // Forward request to delegate
 	if ([_delegate respondsToSelector:@selector(tableView:performKeyActionWithEvent:)]) {
         if ([_delegate tableView:self performKeyActionWithEvent:event]) {
             return YES;
