@@ -175,6 +175,9 @@ typedef enum TUIControlSize : NSUInteger {
 // value varies per control, but is initially NO.
 @property (nonatomic, assign) BOOL animateStateChange;
 
+// State change animation duration. Default is 0.25 sec
+@property (nonatomic, assign) CGFloat animateStateChangeDuration;
+
 // The value is YES if the receiver is tracking mouse events; otherwise NO.
 @property (nonatomic, readonly, getter = isTracking) BOOL tracking;
 
@@ -191,6 +194,11 @@ typedef enum TUIControlSize : NSUInteger {
 // sets and clears this state automatically when the mouse enters
 // and exits during tracking and when there is a mouse up.
 @property (nonatomic, assign, getter = isHighlighted) BOOL highlighted;
+
+// By default, a control is not highlighted. TUIControl automatically
+// sets and clears this state automatically when the mouse enters
+// and exits during tracking and when there is a mouse up.
+@property (nonatomic, assign,readonly, getter = isHovered) BOOL hovered;
 
 // If a control sends TUIControlEventValueChanged actions, then the
 // value of this property is used to determine whether the action

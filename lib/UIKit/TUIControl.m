@@ -57,7 +57,8 @@
 	if ((self = [super initWithFrame:rect])) {
 		self.periodicDelay = 0.075f;
 		self.controlSize = TUIControlSizeRegular;
-		
+        self.animateStateChangeDuration = 0.25f;
+        
 		self.targetActions = [NSMutableArray array];
 		self.accessibilityTraits |= TUIAccessibilityTraitButton;
 		
@@ -162,15 +163,21 @@
 #pragma mark - User Interaction
 
 - (void)mouseEntered:(NSEvent *)theEvent {
-	_controlFlags.hover = 1;
-	[self sendActionsForControlEvents:TUIControlEventMouseHoverBegan];
-	[self setNeedsDisplay];
+    [self applyStateChangeAnimated:self.animateStateChange block:^{
+        _controlFlags.hover = 1;
+    }];
+    [self sendActionsForControlEvents:TUIControlEventMouseHoverBegan];
+}
+
+- (BOOL)isHovered {
+    return _controlFlags.hover;
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
-	_controlFlags.hover = 0;
-	[self sendActionsForControlEvents:TUIControlEventMouseHoverEnded];
-	[self setNeedsDisplay];
+    [self applyStateChangeAnimated:self.animateStateChange block:^{
+        _controlFlags.hover = 0;
+    }];
+    [self sendActionsForControlEvents:TUIControlEventMouseHoverEnded];
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -296,7 +303,7 @@
 	[self stateDidChange];
 	
 	if (animated) {
-		[TUIView animateWithDuration:0.25f animations:^{
+		[TUIView animateWithDuration:self.animateStateChangeDuration animations:^{
 			[self redraw];
 		}];
 	} else {
