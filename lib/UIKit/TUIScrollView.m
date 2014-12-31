@@ -1351,26 +1351,32 @@ static float clampBounce(float x) {
 #pragma mark - Key Commands
 
 - (BOOL)performKeyAction:(NSEvent *)event {
-	switch ([[event charactersIgnoringModifiers] characterAtIndex:0]) {
-		case 63276: // page up
-			[self pageUp:nil];
-			return YES;
-		case 63277: // page down
-			[self pageDown:nil];
-			return YES;
-		case 63273: // home
-			[self scrollToTopAnimated:YES];
-			return YES;
-		case 63275: // end
-			[self scrollToBottomAnimated:YES];
-			return YES;
-		case 32: // spacebar
-			if ([NSEvent modifierFlags] & NSShiftKeyMask)
-				[self pageUp:nil];
-			else
-				[self pageDown:nil];
-			return YES;
-	}
+    
+    NSString *chars = [event charactersIgnoringModifiers];
+    // Some events have no characters and that may raise exception
+    if (chars && chars.length > 0) {
+        switch ([chars characterAtIndex:0]) {
+            case 63276: // page up
+                [self pageUp:nil];
+                return YES;
+            case 63277: // page down
+                [self pageDown:nil];
+                return YES;
+            case 63273: // home
+                [self scrollToTopAnimated:YES];
+                return YES;
+            case 63275: // end
+                [self scrollToBottomAnimated:YES];
+                return YES;
+            case 32: // spacebar
+                if ([NSEvent modifierFlags] & NSShiftKeyMask)
+                    [self pageUp:nil];
+                else
+                    [self pageDown:nil];
+                return YES;
+        }
+    
+    }
 	
 	return NO;
 }
