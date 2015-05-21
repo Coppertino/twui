@@ -1015,16 +1015,14 @@ __unused static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, vo
 	NSMutableArray *indexPathsToAdd = [newVisibleIndexPaths mutableCopy];
 	[indexPathsToAdd removeObjectsInArray:oldVisibleIndexPaths];
 	
-//	// remove offscreen cells
-//	for(NSIndexPath *i in indexPathsToRemove) {
-//		TUITableViewCell *cell = [self cellForRowAtIndexPath:i];
-//		// don't reuse the dragged cell
-//		if(_dragToReorderCell == nil || ![cell isEqual:_dragToReorderCell]){
-//            [self _enqueueReusableCell:cell];
-//            [cell removeFromSuperview];
-//            [_visibleItems removeObjectForKey:i];
-//        }
-//	}
+	// remove offscreen cells
+	for(NSIndexPath *i in indexPathsToRemove) {
+		TUITableViewCell *cell = [self cellForRowAtIndexPath:i];
+		// don't reuse the dragged cell
+        [self _enqueueReusableCell:cell];
+        [cell removeFromSuperview];
+        [_visibleItems removeObjectForKey:i];
+	}
 	
 	// add new cells
 	for(NSIndexPath *i in indexPathsToAdd) {
