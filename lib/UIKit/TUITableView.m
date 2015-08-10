@@ -1420,6 +1420,11 @@ __unused static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, vo
 			if([lastIndexPath isEqual:newIndexPath]) foundValidNextRow = YES;
 			
 			lastIndexPath = newIndexPath;
+			
+		        // Possible loop
+            		if (!lastIndexPath && !newIndexPath) {
+                		break;
+            		}
 		}
 	};
 	
