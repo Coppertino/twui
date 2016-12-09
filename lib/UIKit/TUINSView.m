@@ -374,9 +374,9 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 		_hoverView = _newHoverView;
 		
 		if ([[self window] isKeyWindow]) {
-			[TUITooltipWindow updateTooltip:_hoverView.toolTip delay:_hoverView.toolTipDelay viewRect:_hoverView.frameOnScreen];
+			[TUITooltipWindow updateTooltip:_hoverView.toolTip delay:_hoverView.toolTipDelay viewRect:_hoverView.frameOnScreen style:_hoverView.toolTipStyle];
 		} else {
-			[TUITooltipWindow updateTooltip:nil delay:_hoverView.toolTipDelay viewRect:_hoverView.frameOnScreen];
+			[TUITooltipWindow updateTooltip:nil delay:_hoverView.toolTipDelay viewRect:_hoverView.frameOnScreen style:_hoverView.toolTipStyle];
 		}
 	} else {
 		[_hoverView mouseMoved:event];

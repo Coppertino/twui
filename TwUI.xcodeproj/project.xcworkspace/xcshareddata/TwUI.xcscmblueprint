@@ -1,0 +1,37 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "69AE0CC40F1D3995B9E93093503F561C3BE16A5F",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "69AE0CC40F1D3995B9E93093503F561C3BE16A5F" : 0,
+    "8884BD3B878631A1500EC9895E6A3CF4CB0AB3DB" : 0,
+    "2FD0F96481B39E576130E173BF6923CF52C91FF7" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "456CBBC7-6A0D-4C05-9124-941F146B45D4",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "69AE0CC40F1D3995B9E93093503F561C3BE16A5F" : "twui\/",
+    "8884BD3B878631A1500EC9895E6A3CF4CB0AB3DB" : "twui\/TwUITests\/expecta\/",
+    "2FD0F96481B39E576130E173BF6923CF52C91FF7" : "twui\/TwUITests\/specta\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "TwUI",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "TwUI.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "git:\/\/github.com\/petejkim\/specta.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "2FD0F96481B39E576130E173BF6923CF52C91FF7"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:Coppertino\/twui.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "69AE0CC40F1D3995B9E93093503F561C3BE16A5F"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "git:\/\/github.com\/github\/expecta.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "8884BD3B878631A1500EC9895E6A3CF4CB0AB3DB"
+    }
+  ]
+}

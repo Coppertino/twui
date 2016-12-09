@@ -85,6 +85,7 @@ CGRect(^TUIViewCenteredLayout)(TUIView*) = nil;
 @synthesize layout;
 @synthesize toolTip;
 @synthesize toolTipDelay;
+@synthesize toolTipStyle;
 @synthesize drawQueue;
 // use the accessor from the main implementation block
 @synthesize subviews = _subviews;
@@ -149,6 +150,8 @@ static pthread_key_t TUICurrentContextScaleFactorTLSKey;
 		_viewFlags.clearsContextBeforeDrawing = 1;
 		self.frame = frame;
 		toolTipDelay = 1.5;
+        toolTipStyle = TUITooltipCustomStyle;
+        
 		self.isAccessibilityElement = YES;
 		accessibilityFrame = CGRectNull; // null rect means we'll just get the view's frame and use that
 	}

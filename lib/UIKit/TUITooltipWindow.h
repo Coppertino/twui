@@ -16,16 +16,22 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef NS_ENUM (NSUInteger, TUITooltipStyle) {
+    TUITooltipCustomStyle = 0,
+    TUITooltipSystemLikeStyle
+};
+
+
 @class TUIAttributedString;
-typedef void(^TUIToolTipViewDrawing)(NSView *v, NSRect r, TUIAttributedString *string);
-typedef NSRect(^TUIToolTipRectCalculation)(NSRect viewRectInScreen, NSPoint mousePointInScreen, TUIAttributedString *string);
+typedef void(^TUIToolTipViewDrawing)(NSView *v, NSRect r, TUIAttributedString *string, TUITooltipStyle style);
+typedef NSRect(^TUIToolTipRectCalculation)(NSRect viewRectInScreen, NSPoint mousePointInScreen, TUIAttributedString *string, TUITooltipStyle style);
 
 @interface TUITooltipWindow : NSWindow
 
 + (void)setToolTipStringAttributes:(NSDictionary *)stringInfo;
 + (void)setDrawingBlock:(TUIToolTipViewDrawing)drawingBlock;
 + (void)setRectCalculationBlock:(TUIToolTipRectCalculation)rectCalculationBlock;
-+ (void)updateTooltip:(NSString *)s delay:(NSTimeInterval)delay viewRect:(NSRect)viewRect; // may pass nil
++ (void)updateTooltip:(NSString *)s delay:(NSTimeInterval)delay viewRect:(NSRect)viewRect style:(TUITooltipStyle) style; // may pass nil
 + (void)endTooltip; // no animation
 
 + (void)setTooltipHeight:(NSInteger)height;

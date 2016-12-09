@@ -16,6 +16,7 @@
 
 #import "TUIResponder.h"
 #import "TUIAccessibility.h"
+#import "TUITooltipWindow.h"
 
 extern NSString * const TUIViewWillMoveToWindowNotification; // both notification's userInfo will contain the new window under the key TUIViewWindow
 extern NSString * const TUIViewDidMoveToWindowNotification;
@@ -187,6 +188,11 @@ extern CGRect(^TUIViewCenteredLayout)(TUIView*);
  Default is 1.5s
  */
 @property (nonatomic, assign) NSTimeInterval toolTipDelay;
+
+/**
+ Default is TUITooltipCustomStyle
+ */
+@property (nonatomic, assign) TUITooltipStyle toolTipStyle;
 
 @property (nonatomic, assign) TUIViewContentMode contentMode;
 

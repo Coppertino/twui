@@ -31,6 +31,8 @@ static NSDictionary *CurrentStringInfo = nil;
 static NSInteger    TUItooltipHeight = 18;
 static NSRect ViewRect;
 
+static TUITooltipStyle TooltipStyle = TUITooltipCustomStyle;
+
 @interface TUITooltipWindowView : NSView
 @end
 
@@ -39,7 +41,7 @@ static NSRect ViewRect;
 - (void)drawRect:(NSRect)r
 {
     if (CurrentDrawingBlock) {
-        CurrentDrawingBlock(self, r, CurrentTooltipString);
+        CurrentDrawingBlock(self, r, CurrentTooltipString, TooltipStyle);
     } else {
         CGRect b = [self frame];
         b.origin = CGPointZero;
@@ -125,7 +127,7 @@ static BOOL ShowingTooltip = NO;
 + (CGRect)_tooltipRect
 {
     if (RectCalculationBlock) {
-        return RectCalculationBlock(ViewRect,[NSEvent mouseLocation],CurrentTooltipString);
+        return RectCalculationBlock(ViewRect,[NSEvent mouseLocation],CurrentTooltipString,TooltipStyle);
     }
     
 	CGFloat width = [CurrentTooltipString ab_size].width + 5;
@@ -153,9 +155,9 @@ static BOOL ShowingTooltip = NO;
 		TUITooltipWindow *tooltipWindow = [self sharedTooltipWindow];
 		
 		[tooltipWindow setFrame:[self _tooltipRect] display:YES animate:NO];
-		[self _fixTooltipWindow];
+//		[self _fixTooltipWindow];
 		[tooltipWindow orderFront:nil];
-		[tooltipWindow setAlphaValue:0.93];
+		[tooltipWindow setAlphaValue:1.0];
 		
 		[[[self sharedTooltipWindow] contentView] setNeedsDisplay:YES];
 	}
@@ -172,11 +174,12 @@ static BOOL ShowingTooltip = NO;
 	}
 }
 
-+ (void)updateTooltip:(NSString *)s delay:(NSTimeInterval)delay viewRect:(NSRect)viewRect
++ (void)updateTooltip:(NSString *)s delay:(NSTimeInterval)delay viewRect:(NSRect)viewRect style:(TUITooltipStyle)style
 {
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(_beginTooltip) object:nil];
 
     ViewRect = viewRect;
+    TooltipStyle = style;
     
 	if(s) {
 		if(FadeOutTimer || ShowingTooltip) {
