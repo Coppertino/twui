@@ -1692,6 +1692,14 @@ __unused static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, vo
 }
 
 
+#pragma mark - TUIView overload
+
+- (BOOL)eventInside:(NSEvent *)event
+{
+    CGPoint pointInView = [self localPointForEvent:event];
+    return [self pointInside:[self convertPoint:pointInView fromView:nil] withEvent:event];
+}
+
 @end
 
 
