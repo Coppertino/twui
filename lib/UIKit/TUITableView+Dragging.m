@@ -169,7 +169,7 @@
                               // dragged cell destination frame
                               
                               CGRect dest = CGRectMake(extendX,
-                                                       pointInView.y - 5 + extendY,
+                                                       pointInView.y - offset.y + extendY,
                                                        self.bounds.size.width,
                                                        cell.frame.size.height);
                               [view setFrame:dest];
@@ -191,7 +191,7 @@
     NSIndexPath *indexPathUnderMousePointer = [self indexPathForRowAtPoint:point];
     TUITableViewCell *cellUnderThePointer = [self cellForRowAtIndexPath:[self indexPathForRowAtPoint:point]];
     
-    CGFloat relativeOffset = [cell convertFromWindowPoint:location].y / cellUnderThePointer.bounds.size.height;
+    CGFloat relativeOffset = [cellUnderThePointer convertFromWindowPoint:location].y / cellUnderThePointer.bounds.size.height;
     
     if (relativeOffset < 0.5) {
         [self _moveDraggingPointerAfterIndexPath:indexPathUnderMousePointer];
