@@ -28,6 +28,9 @@
 #define TUITableViewCellGrayTopColor		[NSColor colorWithCalibratedWhite:0.60 alpha:1.00]
 #define TUITableViewCellGrayBottomColor		[NSColor colorWithCalibratedWhite:0.45 alpha:1.00]
 
+// drag treshold in points
+#define TUITableViewCellDragThreshold		5.0
+
 static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condition) {
 	if(condition) {
 		[TUIView animateWithDuration:0.25 animations:^{
@@ -226,10 +229,18 @@ static inline void tui_viewAnimateRedrawConditionally(TUIView *view, BOOL condit
 }
 
 - (void)mouseDragged:(NSEvent *)event {
+    
 	[super mouseDragged:event];
 	
-	// Notify the table view of the drag event.
-    [self.tableView __mouseDraggedCell:self offset:_mouseOffset event:event];
+    CGPoint currentDragPoint = [self localPointForLocationInWindow:[event locationInWindow]];
+    CGFloat deltaX = ABS(_mouseOffset.x - currentDragPoint.x);
+    CGFloat deltaY = ABS(_mouseOffset.y - currentDragPoint.y);
+    // allow drag if mouse has moved from initial position for more that treshold points,
+    // or if cell is already in dragging mode
+    if (deltaX > TUITableViewCellDragThreshold || deltaY > TUITableViewCellDragThreshold || [self.tableView __isDraggingCells]) {
+        // Notify the table view of the drag event.
+        [self.tableView __mouseDraggedCell:self offset:_mouseOffset event:event];
+    }
 }
 
 - (void)mouseUp:(NSEvent *)event {
