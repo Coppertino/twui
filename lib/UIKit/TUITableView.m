@@ -1295,14 +1295,18 @@ __unused static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, vo
 
 
 - (void)selectAll:(id)sender {
+    
     if (_allowsMultipleSelection) {
+        
         [self _clearIndexPaths];
+        
+        NSMutableArray *indexPathsToSelect = [@[] mutableCopy];
         [self enumerateIndexPathsUsingBlock:^(NSIndexPath *indexPath, BOOL *stop) {
-            if(![_delegate respondsToSelector:@selector(tableView:shouldSelectRowAtIndexPath:forEvent:)] || [_delegate tableView:self shouldSelectRowAtIndexPath:indexPath forEvent:nil]) {
-                
-                [self _addSelectedIndexPath:indexPath animated:NO];
+            if (![_delegate respondsToSelector:@selector(tableView:shouldSelectRowAtIndexPath:forEvent:)] || [_delegate tableView:self shouldSelectRowAtIndexPath:indexPath forEvent:nil]) {
+                [indexPathsToSelect addObject:indexPath];
             }
         }];
+        [self _addSelectedIndexPaths:indexPathsToSelect animated:NO];
     }
 }
 
@@ -1532,13 +1536,15 @@ __unused static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, vo
         
         [self _clearIndexPaths];
         
+        NSMutableArray *indexPathsToSelect = [@[] mutableCopy];
         [[self arrayOfIndexesOfSectionsFromIndex:_baseSelectionPath to:path] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             if([_delegate respondsToSelector:@selector(tableView:shouldSelectRowAtIndexPath:forEvent:)] &&
                ![_delegate tableView:self shouldSelectRowAtIndexPath:obj forEvent:nil]) {
                 return;
             }
-            [self _addSelectedIndexPath:obj animated:NO];
+            [indexPathsToSelect addObject:obj];
         }];
+        [self _addSelectedIndexPaths:indexPathsToSelect animated:NO];
         
         _indexPathForLastSelectedRow = path;
     }
@@ -1641,18 +1647,25 @@ __unused static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, vo
     }
 }
 
-- (void)_addSelectedIndexPath:(NSIndexPath*)indexPathToAdd animated:(BOOL)shouldAnimate
+- (void)_addSelectedIndexPath:(NSIndexPath*)indexPathToAdd animated:(BOOL)shouldAnimate {
+    [self _addSelectedIndexPaths:(indexPathToAdd ? @[indexPathToAdd] : nil) animated:shouldAnimate];
+}
+
+- (void)_addSelectedIndexPaths:(NSArray*)indexPathsToAdd animated:(BOOL)shouldAnimate
 {
-    if (indexPathToAdd)
+    if (indexPathsToAdd && indexPathsToAdd.count > 0)
     {
-        [_arrayOfSelectedIndexes insertObject:indexPathToAdd atIndex:0];
+        [_arrayOfSelectedIndexes addObjectsFromArray:indexPathsToAdd];
         [_arrayOfSelectedIndexes sortUsingComparator:^(id a, id b) {
             return [a compare:b];
         }];
-        [[self cellForRowAtIndexPath:indexPathToAdd] setSelected:YES animated:shouldAnimate];
-        if ([self.delegate respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
-            [self.delegate tableView:self didSelectRowAtIndexPath:indexPathToAdd];
-        }
+        
+        [indexPathsToAdd enumerateObjectsUsingBlock:^(NSIndexPath *indexPath, NSUInteger idx, BOOL * _Nonnull stop) {
+            [[self cellForRowAtIndexPath:indexPath] setSelected:YES animated:shouldAnimate];
+            if ([self.delegate respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
+                [self.delegate tableView:self didSelectRowAtIndexPath:indexPath];
+            }
+        }];
         
     } else {
         [self _clearIndexPaths];
@@ -1676,9 +1689,17 @@ __unused static NSInteger SortCells(TUITableViewCell *a, TUITableViewCell *b, vo
 
 - (void)_clearIndexPaths
 {
-    while (self.indexPathesForSelectedRows.count > 0) {
-        [self _removeSelectedIndexPath:[self.indexPathesForSelectedRows firstObject] animated:NO];
-    }
+    [_arrayOfSelectedIndexes enumerateObjectsUsingBlock:^(NSIndexPath *indexPath, NSUInteger idx, BOOL * _Nonnull stop) {
+        
+        [[self cellForRowAtIndexPath:indexPath] setSelected:NO animated:NO];
+        
+        if ([self.delegate respondsToSelector:@selector(tableView:didDeselectRowAtIndexPath:)]) {
+            [self.delegate tableView:self didDeselectRowAtIndexPath:indexPath];
+        }
+    }];
+    
+    [_arrayOfSelectedIndexes removeAllObjects];
+    _indexPathForLastSelectedRow = nil;
 }
 
 
