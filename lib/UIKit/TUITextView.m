@@ -381,7 +381,8 @@ static CAAnimation *ThrobAnimation()
 	//NSLog(@"ascent: %f, descent: %f, leading: %f, cap height: %f, x-height: %f, bounding: %@", self.font.ascender, self.font.descender, self.font.leading, self.font.capHeight, self.font.xHeight, NSStringFromRect(CTFontGetBoundingBox(self.font.ctFont)));
 	
 	if(self.text.length > 0) {
-		unichar lastCharacter = [self.text characterAtIndex:MAX(selection.location - 1, 0)];
+        NSUInteger lastCharIndex = selection.location > 0 ? (selection.location - 1) : 0;
+        unichar lastCharacter = [self.text characterAtIndex:lastCharIndex];
 		// Sigh. So if the string ends with a return, CTFrameGetLines doesn't consider that a new line. So we have to fudge it.
 		if(lastCharacter == '\n') {
 			CGRect firstCharacterRect = [renderer firstRectForCharacterRange:CFRangeMake(0, 0)];
