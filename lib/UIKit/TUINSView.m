@@ -819,6 +819,7 @@ static NSComparisonResult compareNSViewOrdering (NSView *viewA, NSView *viewB, v
 
 	// set up masking on the AppKit host view, and make ourselves the layout
 	// manager, so that we'll know when new sublayers are added
+    self.appKitHostView.layer = [[CALayer alloc] init];
 	self.appKitHostView.layer.layoutManager = self;
 	
 	[self setAcceptsTouchEvents:YES];
