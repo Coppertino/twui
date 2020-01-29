@@ -312,7 +312,7 @@
     NSMutableArray *draggingItems = [NSMutableArray arrayWithCapacity:self.indexPathesForSelectedRows.count];
     [self.indexPathesForSelectedRows enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         NSPasteboardItem *pbItem = [[NSPasteboardItem alloc] init];
-        [pbItem setDataProvider:self forTypes:nil];
+        [pbItem setDataProvider:self forTypes:@[NSPasteboardTypeString]];
         NSDraggingItem *dragItem = [[NSDraggingItem alloc] initWithPasteboardWriter:pbItem];
         
         if ([self.draggingSourceDelegate respondsToSelector:@selector(tui_configureDraggingItem:forView:)]) {
