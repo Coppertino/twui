@@ -170,7 +170,8 @@
 						 self.menuType == TUIButtonMenuTypePullDown);
 	BOOL hidesArrows = (self.buttonType == TUIButtonTypeCircular ||
 						self.buttonType == TUIButtonTypeInline ||
-						self.buttonType == TUIButtonTypeRectangular);
+                        self.buttonType == TUIButtonTypeRectangular ||
+                        self.buttonType == TUIButtonTypeCustom);
 	
 	bounds = CGRectInset(bounds, 2.0f, 0.0f);
 	if(requiresMenu && !hidesArrows)
